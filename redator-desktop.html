@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Redator SADM · 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.red-layout{display:grid;grid-template-columns:340px 1fr;gap:var(--sp4);min-height:calc(100vh - 200px)}
+
+/* Coluna esquerda · 7 tipos */
+.types-col{display:flex;flex-direction:column;gap:var(--sp3);overflow-y:auto;padding-right:4px}
+.types-col::-webkit-scrollbar{width:5px}
+.types-col::-webkit-scrollbar-track{background:transparent}
+.types-col::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.type-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:var(--sp4);
+  cursor:pointer;
+  transition:all var(--dur2) var(--ease);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:6px
+}
+.type-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc),transparent);transition:width 0.2s}
+.type-card.g{--acc:var(--green)}.type-card.b{--acc:var(--blue)}.type-card.p{--acc:var(--purple)}
+.type-card.o{--acc:var(--orange)}.type-card.c{--acc:var(--cyan)}.type-card.r{--acc:var(--red)}
+.type-card.gold{--acc:var(--gold)}
+.type-card:hover{transform:translateX(2px);border-color:var(--acc)}
+.type-card:hover::before{width:5px}
+.type-card.on{background:linear-gradient(135deg,rgba(201,163,72,0.10),var(--bg2));border-color:var(--acc);box-shadow:0 4px 14px rgba(201,163,72,0.2)}
+.type-card.on::before{width:6px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+
+.tc-h{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2)}
+.tc-icon{font-size:24px}
+.tc-pref{font-family:var(--ff-mono);font-size:9.5px;padding:3px 8px;border-radius:4px;background:rgba(201,163,72,0.10);color:var(--acc);border:1px solid var(--acc);letter-spacing:1px;font-weight:700}
+.tc-nm{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.25}
+.tc-sub{font-family:var(--ff-mono);font-size:10px;color:var(--mut);line-height:1.5;letter-spacing:0.2px}
+
+/* Form direito */
+.form-wrap{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.form-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
+
+.form-h{padding:var(--sp5) var(--sp5) var(--sp4);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);flex-wrap:wrap}
+.form-h .info h2{font-family:var(--ff-serif);font-size:var(--t-2xl);color:var(--gold);font-weight:600;line-height:1.2}
+.form-h .info .breadcrumb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.form-h .status{display:flex;align-items:center;gap:6px;font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 11px;border-radius:var(--r1);background:rgba(74,191,122,0.10);color:var(--greenL);border:1px solid rgba(74,191,122,0.3);letter-spacing:0.8px;text-transform:uppercase;font-weight:600}
+.form-h .status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.6s infinite}
+
+.form-body{flex:1;overflow-y:auto;padding:var(--sp5)}
+.form-body::-webkit-scrollbar{width:6px}
+.form-body::-webkit-scrollbar-track{background:transparent}
+.form-body::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.field{margin-bottom:var(--sp4)}
+.field label{display:block;font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;font-weight:600}
+.field input, .field textarea, .field select{
+  width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);
+  padding:var(--sp3) var(--sp4);font-family:var(--ff-sans);font-size:var(--t-md);
+  color:var(--txt);outline:none;transition:border-color var(--dur2) var(--ease);
+  letter-spacing:0.1px;line-height:1.5
+}
+.field textarea{font-family:var(--ff-sans);min-height:140px;resize:vertical}
+.field input:focus, .field textarea:focus, .field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
+.field input::placeholder, .field textarea::placeholder{color:var(--dim);font-style:italic}
+.field .hint{font-family:var(--ff-mono);font-size:10px;color:var(--mut);margin-top:4px;letter-spacing:0.2px}
+
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+
+.gen-btn{
+  width:100%;padding:var(--sp4) var(--sp5);
+  background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);
+  border:none;border-radius:var(--r3);
+  font-family:var(--ff-mono);font-size:var(--t-md);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;box-shadow:var(--sh-gold);
+  transition:transform var(--dur1) var(--ease),box-shadow var(--dur2) var(--ease);
+  display:flex;align-items:center;justify-content:center;gap:10px
+}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(201,163,72,0.45)}
+.gen-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* Resultado */
+.result{margin-top:var(--sp5);padding:var(--sp5);background:linear-gradient(180deg,rgba(74,191,122,0.04),var(--bg2));border:1px solid rgba(74,191,122,0.3);border-radius:var(--r3);position:relative;overflow:hidden;display:none;animation:fadeIn 0.4s ease}
+.result.on{display:block}
+.result::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--greenL),transparent)}
+.result h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--greenL);letter-spacing:2px;text-transform:uppercase;margin-bottom:var(--sp3);font-weight:600;display:flex;align-items:center;gap:8px}
+.result .meta-line{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--sp3)}
+.result-tag{font-family:var(--ff-mono);font-size:10px;padding:4px 10px;border-radius:5px;background:rgba(74,191,122,0.10);color:var(--greenL);border:1px solid rgba(74,191,122,0.3);letter-spacing:0.5px}
+.result-tag.gold{background:rgba(201,163,72,0.10);color:var(--gold);border-color:rgba(201,163,72,0.4)}
+.result .preview{background:var(--bg);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp4);font-family:var(--ff-serif);font-size:var(--t-sm);color:var(--txt2);line-height:1.7;letter-spacing:0.1px;max-height:300px;overflow-y:auto;white-space:pre-wrap}
+.result .actions{display:flex;gap:var(--sp2);margin-top:var(--sp3);flex-wrap:wrap}
+.action-btn{padding:8px 14px;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);text-decoration:none;letter-spacing:0.8px;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all var(--dur1) var(--ease)}
+.action-btn:hover{border-color:var(--gold);color:var(--gold)}
+.action-btn.primary{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:700}
+.action-btn.primary:hover{transform:translateY(-1px)}
+
+.err{margin-top:var(--sp4);padding:var(--sp4);background:rgba(200,65,65,0.06);border:1px solid rgba(200,65,65,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--redL);display:none;line-height:1.5}
+.err.on{display:block}
+
+/* Loading */
+.loading{display:none;align-items:center;gap:10px;padding:var(--sp4);background:rgba(201,163,72,0.05);border:1px solid rgba(201,163,72,0.25);border-radius:var(--r2);margin-top:var(--sp4);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--gold);letter-spacing:0.5px}
+.loading.on{display:flex}
+.loading .spin{width:16px;height:16px;border:2px solid rgba(201,163,72,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Disclaimer config */
+.config-banner{margin-bottom:var(--sp4);padding:var(--sp4);background:rgba(216,136,56,0.06);border:1px solid rgba(216,136,56,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:11px;color:var(--orangeL);line-height:1.6;display:none}
+.config-banner.on{display:block}
+.config-banner b{color:var(--orange);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link on" href="./redator-desktop.html"><span class="ico">✍</span><span class="lbl">Redator</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./sentinela-desktop.html"><span class="ico">📡</span><span class="lbl">Sentinela Legal</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./cadeias-desktop.html"><span class="ico">📜</span><span class="lbl">Cadeias</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./memoria-desktop.html"><span class="ico">📚</span><span class="lbl">Memória 71 DAs</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./mapa-desktop.html"><span class="ico">🗺</span><span class="lbl">Mapa Itajubá</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">✍ Redator v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Redator · Auto-redação Gemini</h1>
+        <div class="breadcrumb"><b>DA-058 ativado</b> · 7 tipos canônicos · Res. 4.843/2019 · Google Docs no Drive</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="configBanner" class="config-banner mt-3">
+      <b>⚠ Backend não configurado.</b> Para ativar a auto-redação, deploy o Apps Script <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">gerador_docs_gemini.gs</code> (Workspace PMMG) e configure a URL na constante <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">APPS_SCRIPT_URL</code> deste arquivo. Ver <b>GUIA_DEPLOY_REDATOR.md</b>.
+    </div>
+
+    <div class="red-layout mt-4">
+
+      <aside class="types-col" id="typesCol"></aside>
+
+      <section class="form-wrap">
+
+        <div class="form-h">
+          <div class="info">
+            <h2 id="formTitle">Selecione um tipo</h2>
+            <div class="breadcrumb" id="formSub">Escolha um dos 7 tipos canônicos na lateral</div>
+          </div>
+          <div class="status"><span class="dot"></span><span id="modeStatus">Aguardando configuração</span></div>
+        </div>
+
+        <div class="form-body" id="formBody">
+          <div style="color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-sm);font-style:italic;text-align:center;padding:var(--sp9) 0;letter-spacing:0.3px;line-height:1.6">
+            ← Selecione um tipo de documento na lateral esquerda.<br>
+            <span style="font-size:var(--t-xs);color:var(--dim);margin-top:6px;display:inline-block">Cada tipo segue estrutura canônica da Res. 4.843/2019.</span>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   REDATOR · cliente do Apps Script gerador_docs_gemini
+   Onda 37 · DA-058 ativação
+   ═══════════════════════════════════════════════════════════════════ */
+
+// Configurar URL do Apps Script após deploy
+// Ver _ENGENHARIA/onda_37/GUIA_DEPLOY_REDATOR.md
+const APPS_SCRIPT_URL = ''; // EXEMPLO: 'https://script.google.com/macros/s/AKfycb.../exec'
+
+const TIPOS = [
+  {id:'oficio',    nm:'Ofício',    pref:'OF',   ico:'📨', cor:'gold', desc:'Comunicação formal entre autoridades · com destinatário'},
+  {id:'memorando', nm:'Memorando', pref:'MEMO', ico:'📝', cor:'b',    desc:'Comunicação interna entre setores · tom direto'},
+  {id:'despacho',  nm:'Despacho',  pref:'DESP', ico:'⚖',  cor:'p',    desc:'Decisão administrativa sobre processo · motivada'},
+  {id:'parecer',   nm:'Parecer',   pref:'PAR',  ico:'🔍', cor:'c',    desc:'Manifestação técnica fundamentada · I-Relatório · II-Fund. · III-Conclusão'},
+  {id:'atestado',  nm:'Atestado',  pref:'AT',   ico:'✓',  cor:'g',    desc:'Declaração de fato verificado pessoalmente'},
+  {id:'certidao',  nm:'Certidão',  pref:'CERT', ico:'📜', cor:'o',    desc:'Declaração extraída de arquivo oficial · cita fonte'},
+  {id:'relatorio', nm:'Relatório', pref:'REL',  ico:'📑', cor:'r',    desc:'Exposição circunstanciada · introdução · desenv. · conclusão'}
+];
+
+let currentTipo = null;
+
+function renderTypes(){
+  const col = document.getElementById('typesCol');
+  col.innerHTML = TIPOS.map(t => `
+    <div class="type-card ${t.cor}" data-tipo="${t.id}">
+      <div class="tc-h"><span class="tc-icon">${t.ico}</span><span class="tc-pref">${t.pref}</span></div>
+      <div class="tc-nm">${t.nm}</div>
+      <div class="tc-sub">${t.desc}</div>
+    </div>
+  `).join('');
+  col.querySelectorAll('.type-card').forEach(el => {
+    el.addEventListener('click', () => selectTipo(el.dataset.tipo));
+  });
+}
+
+function selectTipo(id){
+  currentTipo = TIPOS.find(t => t.id === id);
+  document.querySelectorAll('.type-card').forEach(el => el.classList.toggle('on', el.dataset.tipo === id));
+
+  document.getElementById('formTitle').textContent = `${currentTipo.ico} ${currentTipo.nm}`;
+  document.getElementById('formSub').textContent = currentTipo.desc;
+
+  const needsDest = ['oficio','memorando','despacho'].includes(id);
+  const needsRef  = ['despacho','parecer','certidao'].includes(id);
+
+  document.getElementById('formBody').innerHTML = `
+    <div class="field">
+      <label>Fatos / conteúdo (linguagem natural)</label>
+      <textarea id="fldFatos" placeholder="Descreva os fatos, motivação ou conteúdo a redigir em linguagem natural. Quanto mais específico, melhor a redação técnica gerada. Não inclua dados pessoais (CPF, matrícula, nome completo) — o sistema usa placeholders [MILITAR], [CPF], [DATA]."></textarea>
+      <div class="hint">Mínimo 20 caracteres · máximo 3000 · Gemini gera texto técnico padronizado Res. 4.843/2019</div>
+    </div>
+
+    <div class="field-row">
+      ${needsDest ? `
+        <div class="field">
+          <label>Destinatário</label>
+          <input type="text" id="fldDest" placeholder="Ex: Comandante do 56º BPM">
+          <div class="hint">A quem se dirige o documento</div>
+        </div>
+      ` : '<div></div>'}
+
+      ${needsRef ? `
+        <div class="field">
+          <label>Referência</label>
+          <input type="text" id="fldRef" placeholder="Ex: Processo 045/2026 · BI 12/2024">
+          <div class="hint">Documento ou processo referenciado</div>
+        </div>
+      ` : '<div></div>'}
+    </div>
+
+    <div class="field">
+      <label>Quem assina</label>
+      <select id="fldAssina">
+        <option value="Chefia SADM">Chefia SADM</option>
+        <option value="F1 Movimentação">F1 · Movimentação</option>
+        <option value="F2 Direitos">F2 · Direitos</option>
+        <option value="F3 Pagamentos">F3 · Pagamentos</option>
+      </select>
+      <div class="hint">Servidor responsável · será impresso no rodapé com placeholders [POSTO] [NOME]</div>
+    </div>
+
+    <button class="gen-btn" id="genBtn">
+      <span>${currentTipo.ico}</span><span>Gerar ${currentTipo.nm}</span><span>›</span>
+    </button>
+
+    <div class="loading" id="loading">
+      <div class="spin"></div>
+      <span>Gerando texto técnico via Gemini · criando Google Doc no Drive...</span>
+    </div>
+
+    <div class="err" id="err"></div>
+
+    <div class="result" id="result">
+      <h3><span>✓</span>Documento gerado</h3>
+      <div class="meta-line" id="resultMeta"></div>
+      <div class="preview" id="resultPreview"></div>
+      <div class="actions" id="resultActions"></div>
+    </div>
+  `;
+
+  document.getElementById('genBtn').onclick = gerar;
+}
+
+async function gerar(){
+  const fatos = document.getElementById('fldFatos').value.trim();
+  if (fatos.length < 20) {
+    showErr('Fatos muito curtos · mínimo 20 caracteres');
+    return;
+  }
+  if (fatos.length > 3000) {
+    showErr('Fatos muito longos · máximo 3000 caracteres');
+    return;
+  }
+
+  if (!APPS_SCRIPT_URL) {
+    showErr('Backend não configurado · veja GUIA_DEPLOY_REDATOR.md para deployar o Apps Script e configurar a URL');
+    return;
+  }
+
+  const destEl = document.getElementById('fldDest');
+  const refEl  = document.getElementById('fldRef');
+
+  const payload = {
+    tipo: currentTipo.id,
+    fatos: fatos,
+    destinatario: destEl ? destEl.value.trim() : '',
+    referencia: refEl ? refEl.value.trim() : '',
+    assina: document.getElementById('fldAssina').value
+  };
+
+  hideErr();
+  hideResult();
+  showLoading();
+
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+
+    showResult(data);
+  } catch (e) {
+    showErr('Falha ao gerar: ' + e.message);
+  } finally {
+    hideLoading();
+  }
+}
+
+function showResult(data){
+  const r = document.getElementById('result');
+  document.getElementById('resultMeta').innerHTML = `
+    <span class="result-tag gold">${data.tipo.toUpperCase()} ${data.numero}</span>
+    <span class="result-tag">${data.latency_ms}ms</span>
+    <span class="result-tag">Gemini</span>
+  `;
+  document.getElementById('resultPreview').textContent = data.preview;
+  document.getElementById('resultActions').innerHTML = `
+    <a class="action-btn primary" href="${data.doc_url}" target="_blank">📄 Abrir no Google Docs</a>
+    <button class="action-btn" onclick="navigator.clipboard.writeText('${data.preview.replace(/'/g,"\\'")}').then(()=>this.textContent='✓ Copiado')">📋 Copiar texto</button>
+    <button class="action-btn" onclick="document.getElementById('result').classList.remove('on');document.getElementById('fldFatos').value=''">↻ Nova redação</button>
+  `;
+  r.classList.add('on');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function showErr(msg){ const e = document.getElementById('err'); e.textContent = '⚠ ' + msg; e.classList.add('on'); }
+function hideErr(){ document.getElementById('err').classList.remove('on'); }
+function showLoading(){ document.getElementById('loading').classList.add('on'); document.getElementById('genBtn').disabled = true; }
+function hideLoading(){ document.getElementById('loading').classList.remove('on'); document.getElementById('genBtn').disabled = false; }
+function hideResult(){ document.getElementById('result').classList.remove('on'); }
+
+// Inicializa
+renderTypes();
+selectTipo('oficio'); // pré-seleciona Ofício
+
+// Banner de config se URL vazia
+if (!APPS_SCRIPT_URL) {
+  document.getElementById('configBanner').classList.add('on');
+  document.getElementById('modeStatus').textContent = 'Backend ausente';
+} else {
+  document.getElementById('modeStatus').textContent = 'AI Live · Gemini';
+}
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
