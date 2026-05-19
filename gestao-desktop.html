@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Gestão Estratégica · Desktop · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.tab-rail{display:flex;gap:var(--sp2);background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp1);margin-bottom:var(--sp6);max-width:600px}
+.tab-rail button{flex:1;padding:var(--sp4) var(--sp4);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:500;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;transition:all var(--dur2) var(--ease)}
+.tab-rail button:hover{color:var(--gold)}
+.tab-rail button.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);font-weight:600;box-shadow:var(--sh-gold)}
+.panel{display:none;animation:fadeIn 0.35s ease}.panel.on{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Gauge ring */
+.gauge-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp6);text-align:center;position:relative;overflow:hidden}
+.gauge-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.gauge-svg{width:280px;height:280px;margin:0 auto;display:block}
+.gauge-num{font-family:var(--ff-mono);font-size:80px;font-weight:700;color:var(--gold);line-height:1;letter-spacing:-3px}
+.gauge-from{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--mut);text-transform:uppercase;letter-spacing:2px;margin-top:4px}
+.gauge-meta{font-family:var(--ff-mono);font-size:var(--t-md);color:var(--greenL);margin-top:var(--sp3);letter-spacing:1.5px}
+
+/* Eixos breakdown */
+.eixo-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);position:relative;overflow:hidden}
+.eixo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.eixo-card.g{--acc:var(--greenL)}.eixo-card.b{--acc:var(--blueL)}.eixo-card.p{--acc:var(--purpleL)}.eixo-card.o{--acc:var(--orangeL)}
+.eixo-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp4)}
+.eixo-h .lbl{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.eixo-h .sc{font-family:var(--ff-mono);font-size:var(--t-3xl);color:var(--acc);font-weight:700;line-height:1}
+.eixo-card h3{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--txt);font-weight:600;line-height:1.25;margin-bottom:var(--sp2)}
+.eixo-card .sb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:var(--sp4)}
+.eixo-card .track{height:8px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--line);margin-bottom:var(--sp3)}
+.eixo-card .fill{height:100%;background:linear-gradient(90deg,var(--acc),var(--acc));border-radius:5px;box-shadow:0 0 12px var(--acc);opacity:0.85}
+.subeixos{display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut)}
+.subeixos b{color:var(--txt2);font-weight:500}
+
+/* AADP timeline */
+.aadp-stage{display:grid;grid-template-columns:48px 1fr auto;gap:var(--sp4);align-items:center;padding:var(--sp4);border-radius:var(--r2);background:rgba(255,255,255,0.025);border:1px solid var(--line);margin-bottom:var(--sp2)}
+.aadp-stage.done{border-color:rgba(74,191,122,0.3);background:rgba(74,191,122,0.04)}
+.aadp-stage.cur{border-color:rgba(201,163,72,0.4);background:rgba(201,163,72,0.05);box-shadow:0 0 18px rgba(201,163,72,0.12)}
+.aadp-stage .n{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font-family:var(--ff-serif);font-size:var(--t-xl);font-weight:700;background:var(--bg5);color:var(--mut)}
+.aadp-stage.done .n{background:linear-gradient(135deg,var(--green),var(--greenD));color:#fff}
+.aadp-stage.cur .n{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg)}
+.aadp-stage .nm{font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.3}
+.aadp-stage .mt{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.5px}
+.aadp-stage .tag{font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 10px;border-radius:var(--r1);letter-spacing:0.8px;text-transform:uppercase}
+.aadp-stage.done .tag{background:rgba(74,191,122,0.12);color:var(--greenL);border:1px solid rgba(74,191,122,0.3)}
+.aadp-stage.cur .tag{background:rgba(201,163,72,0.15);color:var(--gold);border:1px solid var(--gold)}
+.aadp-stage.fut .tag{background:var(--bg);color:var(--mut);border:1px solid var(--line2)}
+
+/* Distrib bars */
+.dist-row{display:grid;grid-template-columns:160px 1fr 60px;gap:var(--sp4);align-items:center;padding:var(--sp3) 0;border-bottom:1px solid var(--line)}
+.dist-row:last-child{border-bottom:none}
+.dist-row .lb{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
+.dist-row .ba{height:14px;background:var(--bg);border-radius:7px;overflow:hidden;border:1px solid var(--line);position:relative}
+.dist-row .fl{height:100%;border-radius:7px;display:flex;align-items:center;padding-left:var(--sp3);font-family:var(--ff-mono);font-size:var(--t-xs);font-weight:600;color:#0A0E16}
+.dist-row .pc{font-family:var(--ff-mono);font-size:var(--t-md);color:var(--txt);font-weight:600;text-align:right}
+
+.timeline-bar{position:relative;height:20px;background:var(--bg);border-radius:10px;border:1px solid var(--line);margin:var(--sp4) 0;overflow:hidden}
+.timeline-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:10px;box-shadow:0 0 14px var(--gold)}
+.timeline-now{position:absolute;top:-4px;height:28px;width:3px;background:var(--goldL);box-shadow:0 0 10px var(--goldL)}
+.timeline-labels{display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+.timeline-labels .now{color:var(--gold);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link on" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">★ Gestão v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Gestão Estratégica</h1>
+        <div class="breadcrumb"><b>Hub Central</b> · Gestão · Compliance + AADP</div>
+      </div>
+      <div class="tb-actions">
+        <a class="tb-btn" href="https://sadm-56bpm.github.io/painel/gestao-mobile.html" target="_blank" rel="noopener"><span class="ico">📱</span>Versão mobile</a>
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-stamp"><span class="dot"></span><span>Atualizado em <b id="liveStamp">--:--:--</b> · AGORA</span></div>
+
+    <div class="tab-rail mt-5" id="rail">
+      <button class="on" data-t="compliance"><span style="margin-right:6px">⚖</span>Compliance</button>
+      <button data-t="aadp"><span style="margin-right:6px">📋</span>AADP</button>
+    </div>
+
+    <!-- ═════ COMPLIANCE ═════ -->
+    <div class="panel on" id="compliance">
+
+      <div class="grid">
+        <div class="c4 gauge-card">
+          <svg class="gauge-svg" viewBox="0 0 200 200">
+            <circle cx="100" cy="100" r="82" fill="none" stroke="#1A2336" stroke-width="16"/>
+            <circle cx="100" cy="100" r="82" fill="none" stroke="url(#gradGold)" stroke-width="16" stroke-linecap="round" stroke-dasharray="423 515" transform="rotate(-90 100 100)" style="filter:drop-shadow(0 0 8px rgba(201,163,72,0.5))"/>
+            <defs><linearGradient id="gradGold"><stop offset="0%" stop-color="#E8C77A"/><stop offset="100%" stop-color="#8B6F2E"/></linearGradient></defs>
+          </svg>
+          <div style="margin-top:-180px;position:relative;z-index:2">
+            <div class="gauge-num">82</div>
+            <div class="gauge-from">de 100</div>
+            <div class="gauge-meta">↗ Meta 92 · T4/2027</div>
+          </div>
+          <div style="margin-top:120px;font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--gold);font-weight:600">Programa Integridade</div>
+          <div class="f-mono c-mut" style="font-size:var(--t-xs);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px">PMMG/2024 · 4 eixos · 8 subeixos</div>
+        </div>
+
+        <div class="c8">
+          <div class="grid">
+            <div class="c4"><div class="kpi-card g"><div class="v">+12</div><div class="l">vs 2024</div><div class="d">Evolução anual</div></div></div>
+            <div class="c4"><div class="kpi-card b"><div class="v">−10</div><div class="l">para meta</div><div class="d">Gap para 92</div></div></div>
+            <div class="c4"><div class="kpi-card p"><div class="v">18</div><div class="l">meses</div><div class="d">Até T4/2027</div></div></div>
+          </div>
+
+          <div class="card mt-4">
+            <div class="card-h">
+              <div><h2>Evolução do score</h2><div class="sub">Histórico anual · 2022→2027</div></div>
+              <span class="chip g">+24 pts em 4 anos</span>
+            </div>
+            <svg viewBox="0 0 800 200" style="width:100%;height:auto">
+              <defs>
+                <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(201,163,72,0.3)"/>
+                  <stop offset="100%" stop-color="rgba(201,163,72,0)"/>
+                </linearGradient>
+              </defs>
+              <!-- Grid -->
+              <line x1="40" y1="40" x2="780" y2="40" stroke="#1F2A40" stroke-dasharray="2 4"/>
+              <line x1="40" y1="100" x2="780" y2="100" stroke="#1F2A40" stroke-dasharray="2 4"/>
+              <line x1="40" y1="160" x2="780" y2="160" stroke="#1F2A40" stroke-dasharray="2 4"/>
+              <text x="20" y="44" fill="#5A6478" font-family="IBM Plex Mono" font-size="10">100</text>
+              <text x="20" y="104" fill="#5A6478" font-family="IBM Plex Mono" font-size="10">70</text>
+              <text x="20" y="164" fill="#5A6478" font-family="IBM Plex Mono" font-size="10">40</text>
+              <!-- Line + area -->
+              <path d="M 100 140 L 220 130 L 340 100 L 460 76 L 580 40 L 700 32" fill="none" stroke="#C9A348" stroke-width="3" stroke-linejoin="round" style="filter:drop-shadow(0 0 6px rgba(201,163,72,0.4))"/>
+              <path d="M 100 140 L 220 130 L 340 100 L 460 76 L 580 40 L 700 32 L 700 180 L 100 180 Z" fill="url(#lineGrad)"/>
+              <!-- Dots -->
+              <circle cx="100" cy="140" r="5" fill="#C9A348"/>
+              <circle cx="220" cy="130" r="5" fill="#C9A348"/>
+              <circle cx="340" cy="100" r="5" fill="#C9A348"/>
+              <circle cx="460" cy="76" r="6" fill="#E8C77A" stroke="#C9A348" stroke-width="2"/>
+              <circle cx="580" cy="40" r="5" fill="#5A6478" stroke="#3A4A6E" stroke-dasharray="2 2"/>
+              <circle cx="700" cy="32" r="5" fill="#5A6478" stroke="#3A4A6E" stroke-dasharray="2 2"/>
+              <!-- Labels -->
+              <text x="100" y="195" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10">2022</text>
+              <text x="220" y="195" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10">2023</text>
+              <text x="340" y="195" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10">2024</text>
+              <text x="460" y="195" text-anchor="middle" fill="#E8C77A" font-family="IBM Plex Mono" font-size="10" font-weight="600">2026 ★</text>
+              <text x="580" y="195" text-anchor="middle" fill="#5A6478" font-family="IBM Plex Mono" font-size="10">2027</text>
+              <text x="700" y="195" text-anchor="middle" fill="#5A6478" font-family="IBM Plex Mono" font-size="10">meta</text>
+              <!-- Values -->
+              <text x="100" y="125" text-anchor="middle" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="10">58</text>
+              <text x="220" y="115" text-anchor="middle" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="10">63</text>
+              <text x="340" y="85" text-anchor="middle" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="10">73</text>
+              <text x="460" y="60" text-anchor="middle" fill="#E8C77A" font-family="IBM Plex Mono" font-size="13" font-weight="700">82</text>
+              <text x="580" y="25" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10">89</text>
+              <text x="700" y="17" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10">92</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Breakdown · 4 eixos · 8 subeixos</h3></div>
+      <div class="grid">
+        <div class="c3 eixo-card g">
+          <div class="eixo-h"><span class="lbl">E1 · Liderança</span><span class="sc">88</span></div>
+          <h3>Comprometimento da liderança</h3>
+          <div class="sb">Cultura institucional</div>
+          <div class="track"><div class="fill" style="width:88%"></div></div>
+          <div class="subeixos"><span>1.1 Tom líder <b>92</b></span><span>1.2 Política <b>84</b></span></div>
+        </div>
+        <div class="c3 eixo-card b">
+          <div class="eixo-h"><span class="lbl">E2 · Riscos</span><span class="sc">79</span></div>
+          <h3>Análise de riscos</h3>
+          <div class="sb">Mapeamento contínuo</div>
+          <div class="track"><div class="fill" style="width:79%"></div></div>
+          <div class="subeixos"><span>2.1 Mapa <b>82</b></span><span>2.2 Mitigação <b>76</b></span></div>
+        </div>
+        <div class="c3 eixo-card p">
+          <div class="eixo-h"><span class="lbl">E3 · Códigos</span><span class="sc">85</span></div>
+          <h3>Códigos e políticas</h3>
+          <div class="sb">Normativos publicados</div>
+          <div class="track"><div class="fill" style="width:85%"></div></div>
+          <div class="subeixos"><span>3.1 Documentos <b>88</b></span><span>3.2 Comunicação <b>82</b></span></div>
+        </div>
+        <div class="c3 eixo-card o">
+          <div class="eixo-h"><span class="lbl">E4 · Monitor.</span><span class="sc">76</span></div>
+          <h3>Monitoramento contínuo</h3>
+          <div class="sb">Auditoria · controles</div>
+          <div class="track"><div class="fill" style="width:76%"></div></div>
+          <div class="subeixos"><span>4.1 Auditoria <b>78</b></span><span>4.2 Ajustes <b>74</b></span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ AADP ═════ -->
+    <div class="panel" id="aadp">
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div><h2>Ciclo AADP 2026 · Res. 5.458/2025</h2><div class="sub">Avaliação Anual de Desempenho · 6 etapas · Set/2025 → Ago/2026</div></div>
+            <span class="chip gold">42% concluído</span>
+          </div>
+          <div class="timeline-bar"><div class="timeline-fill" style="width:42%"></div><div class="timeline-now" style="left:42%"></div></div>
+          <div class="timeline-labels"><span>Set/2025</span><span class="now">Hoje · 42%</span><span>Ago/2026</span></div>
+        </div>
+      </div>
+
+      <div class="grid mt-4">
+        <div class="c3"><div class="kpi-card"><div class="v">42%</div><div class="l">do ciclo</div><div class="d">8 meses concluídos</div></div></div>
+        <div class="c3"><div class="kpi-card g"><div class="v">100%</div><div class="l">no ciclo</div><div class="d">Todos avaliados</div></div></div>
+        <div class="c3"><div class="kpi-card o"><div class="v">12</div><div class="l">divergências</div><div class="d">> 20% entre avaliadores</div></div></div>
+        <div class="c3"><div class="kpi-card p"><div class="v">15/Ago</div><div class="l">Homologação</div><div class="d">Marco final · BGPM</div></div></div>
+      </div>
+
+      <div class="section-h"><h3>Etapas do ciclo</h3></div>
+      <div class="grid">
+        <div class="c12 card">
+          <div class="aadp-stage done">
+            <div class="n">✓</div>
+            <div><div class="nm">Auto-avaliação</div><div class="mt">Out/2025 · concluída</div></div>
+            <span class="tag">100%</span>
+          </div>
+          <div class="aadp-stage done">
+            <div class="n">✓</div>
+            <div><div class="nm">Avaliação das chefias</div><div class="mt">Nov/2025 · concluída</div></div>
+            <span class="tag">98%</span>
+          </div>
+          <div class="aadp-stage cur">
+            <div class="n">3</div>
+            <div><div class="nm">Revisão consolidada</div><div class="mt">Mai/2026 · em curso · F1 + Chefia</div></div>
+            <span class="tag">Em curso</span>
+          </div>
+          <div class="aadp-stage fut">
+            <div class="n">4</div>
+            <div><div class="nm">Período de recursos</div><div class="mt">Jun/2026 · 15 dias úteis</div></div>
+            <span class="tag">15 dias</span>
+          </div>
+          <div class="aadp-stage fut">
+            <div class="n">5</div>
+            <div><div class="nm">Análise dos recursos</div><div class="mt">Jul/2026 · Comissão</div></div>
+            <span class="tag">Comissão</span>
+          </div>
+          <div class="aadp-stage fut">
+            <div class="n">6</div>
+            <div><div class="nm">Homologação final</div><div class="mt">15/Ago/2026 · BGPM</div></div>
+            <span class="tag">BGPM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Distribuição · ciclo AADP</h3></div>
+      <div class="grid">
+        <div class="c12 card">
+          <div class="dist-row">
+            <div class="lb">Validado OK</div>
+            <div class="ba"><div class="fl" style="width:72%;background:linear-gradient(90deg,var(--green),var(--greenL))">72%</div></div>
+            <div class="pc">183</div>
+          </div>
+          <div class="dist-row">
+            <div class="lb">Com ressalva</div>
+            <div class="ba"><div class="fl" style="width:18%;background:linear-gradient(90deg,var(--blue),var(--blueL))">18%</div></div>
+            <div class="pc">46</div>
+          </div>
+          <div class="dist-row">
+            <div class="lb">Divergência</div>
+            <div class="ba"><div class="fl" style="width:5%;background:linear-gradient(90deg,var(--orange),var(--orangeL))">5%</div></div>
+            <div class="pc">12</div>
+          </div>
+          <div class="dist-row">
+            <div class="lb">Reavaliação</div>
+            <div class="ba"><div class="fl" style="width:3%;background:linear-gradient(90deg,var(--red),var(--redL))">3%</div></div>
+            <div class="pc">8</div>
+          </div>
+          <div class="dist-row">
+            <div class="lb">Aguarda chefia</div>
+            <div class="ba"><div class="fl" style="width:2%;background:linear-gradient(90deg,var(--red),var(--redL))">2%</div></div>
+            <div class="pc">5</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<a class="tb-btn" href="https://sadm-56bpm.github.io/painel/gestao-mobile.html" target="_blank" rel="noopener" style="position:fixed;bottom:var(--sp5);right:var(--sp5);z-index:var(--z-toast);background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border:none;box-shadow:var(--sh-gold)">📱 Versão Mobile</a>
+
+<script>
+document.getElementById('rail').addEventListener('click', function(e){
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#rail button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  e.target.classList.add('on');
+  document.getElementById(e.target.dataset.t).classList.add('on');
+});
+(function(){
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function pad(n){return n<10?'0'+n:n}
+  function tick(){
+    const d=new Date();
+    const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    document.getElementById('cTime').textContent=t;
+    document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+    document.getElementById('liveStamp').textContent=t;
+  }
+  setInterval(tick,1000);tick();
+})();
+</script>
+
+</body>
+</html>

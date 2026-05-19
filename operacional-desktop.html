@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Operacional Live · Desktop · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.tab-rail{display:flex;gap:var(--sp2);background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp1);margin-bottom:var(--sp6);max-width:700px}
+.tab-rail button{flex:1;padding:var(--sp4) var(--sp4);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:500;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;transition:all var(--dur2) var(--ease)}
+.tab-rail button:hover{color:var(--gold)}
+.tab-rail button.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);font-weight:600;box-shadow:var(--sh-gold)}
+.panel{display:none;animation:fadeIn 0.35s ease}.panel.on{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Countdown card desktop */
+.cd-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r4);
+  padding:var(--sp5);
+  position:relative;overflow:hidden;
+  transition:transform var(--dur2) var(--ease),border-color var(--dur2) var(--ease)
+}
+.cd-card.crit{border-left:4px solid var(--red);background:linear-gradient(180deg,rgba(200,65,65,0.05),var(--bg2))}
+.cd-card.warn{border-left:4px solid var(--orange);background:linear-gradient(180deg,rgba(216,136,56,0.04),var(--bg2))}
+.cd-card.ok{border-left:4px solid var(--green);background:linear-gradient(180deg,rgba(74,191,122,0.03),var(--bg2))}
+.cd-card:hover{transform:translateY(-2px)}
+
+.cd-h{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp4);margin-bottom:var(--sp4)}
+.cd-h .info{flex:1;min-width:0}
+.cd-h h3{font-family:var(--ff-serif);font-size:var(--t-xl);font-weight:600;color:var(--txt);line-height:1.25}
+.cd-h .meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:4px;letter-spacing:0.8px;text-transform:uppercase}
+.cd-h .badge{font-family:var(--ff-mono);font-size:var(--t-xs);font-weight:700;padding:5px 11px;border-radius:var(--r1);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
+.cd-card.crit .badge{background:rgba(200,65,65,0.15);color:var(--redL);border:1px solid rgba(200,65,65,0.4)}
+.cd-card.warn .badge{background:rgba(216,136,56,0.15);color:var(--orangeL);border:1px solid rgba(216,136,56,0.4)}
+.cd-card.ok .badge{background:rgba(74,191,122,0.12);color:var(--greenL);border:1px solid rgba(74,191,122,0.4)}
+
+.cd-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp3)}
+.cd-cell{
+  background:rgba(255,255,255,0.025);
+  border:1px solid var(--line);
+  border-radius:var(--r2);
+  padding:var(--sp4) var(--sp3);
+  text-align:center
+}
+.cd-cell .num{font-family:var(--ff-mono);font-size:var(--t-3xl);font-weight:700;line-height:1;letter-spacing:-1px}
+.cd-card.crit .cd-cell .num{color:var(--redL)}
+.cd-card.warn .cd-cell .num{color:var(--orangeL)}
+.cd-card.ok .cd-cell .num{color:var(--greenL)}
+.cd-cell .lbl{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);text-transform:uppercase;letter-spacing:1.5px;margin-top:6px}
+
+.cd-foot{display:flex;justify-content:space-between;align-items:center;margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.5px}
+.cd-foot .due{color:var(--txt2);font-weight:600}
+
+/* Performance table */
+.perf-table{width:100%;border-collapse:separate;border-spacing:0;font-family:var(--ff-mono);font-size:var(--t-sm)}
+.perf-table th{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);text-align:left;padding:var(--sp3) var(--sp4);text-transform:uppercase;letter-spacing:1.5px;font-weight:500;border-bottom:1px solid var(--line2)}
+.perf-table td{padding:var(--sp4);border-bottom:1px solid var(--line);color:var(--txt2)}
+.perf-table tr:last-child td{border-bottom:none}
+.perf-table tr:hover td{background:rgba(255,255,255,0.02)}
+.perf-table .proc{color:var(--txt);font-weight:500}
+.perf-table .num{color:var(--gold);font-weight:600;text-align:right}
+.perf-table .sla{display:inline-block;padding:3px 9px;border-radius:5px;font-size:var(--t-xs);font-weight:600;letter-spacing:0.5px}
+.perf-table .sla.ok{background:rgba(74,191,122,0.12);color:var(--greenL);border:1px solid rgba(74,191,122,0.3)}
+.perf-table .sla.warn{background:rgba(216,136,56,0.12);color:var(--orangeL);border:1px solid rgba(216,136,56,0.3)}
+.perf-table .sla.crit{background:rgba(200,65,65,0.12);color:var(--redL);border:1px solid rgba(200,65,65,0.3)}
+
+/* Aniv list */
+.aniv-row{
+  display:grid;grid-template-columns:80px 1fr auto;gap:var(--sp4);align-items:center;
+  padding:var(--sp4);border-radius:var(--r2);
+  background:rgba(255,255,255,0.025);border:1px solid var(--line);
+  margin-bottom:var(--sp2)
+}
+.aniv-row .day{font-family:var(--ff-mono);font-size:var(--t-md);font-weight:700;color:var(--gold);text-align:center}
+.aniv-row .body{min-width:0}
+.aniv-row .body .nm{font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.3}
+.aniv-row .body .sb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.5px}
+.aniv-row .tag{font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 10px;border-radius:var(--r1);background:rgba(201,163,72,0.1);color:var(--gold);border:1px solid rgba(201,163,72,0.25);letter-spacing:0.5px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link on" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">★ Operacional v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Operacional Live</h1>
+        <div class="breadcrumb"><b>Hub Central</b> · Operacional · Prazos · Performance · Aniversariantes</div>
+      </div>
+      <div class="tb-actions">
+        <a class="tb-btn" href="https://sadm-56bpm.github.io/painel/operacional-mobile.html" target="_blank" rel="noopener"><span class="ico">📱</span>Versão mobile</a>
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-stamp"><span class="dot"></span><span>Refresh 1s · <b id="liveStamp">--:--:--</b> · AGORA</span></div>
+
+    <div class="grid mt-5">
+      <div class="c3"><div class="kpi-card r"><div class="v">2</div><div class="l">Críticos</div><div class="d">< 7 dias</div></div></div>
+      <div class="c3"><div class="kpi-card o"><div class="v">5</div><div class="l">Atenção</div><div class="d">7-30 dias</div></div></div>
+      <div class="c3"><div class="kpi-card b"><div class="v">—</div><div class="l">Aniv. hoje</div><div class="d">Calendar institucional</div></div></div>
+      <div class="c3"><div class="kpi-card g"><div class="v">37</div><div class="l">No Calendar</div><div class="d">Próximos 30 dias</div></div></div>
+    </div>
+
+    <div class="tab-rail mt-5" id="rail">
+      <button class="on" data-t="prazos"><span style="margin-right:6px">🕐</span>Prazos</button>
+      <button data-t="performance"><span style="margin-right:6px">📊</span>Performance</button>
+      <button data-t="aniv"><span style="margin-right:6px">🎂</span>Aniversariantes</button>
+    </div>
+
+    <!-- ═════ PRAZOS ═════ -->
+    <div class="panel on" id="prazos">
+
+      <div class="section-h"><h3>Countdowns ao vivo · D / H / M / S</h3></div>
+
+      <div class="grid">
+        <div class="c6 cd-card crit" data-due="2026-05-25T23:59:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>Folha pagamento Maio/2026</h3>
+              <div class="meta">F3 conduz · ciclo mensal · Res. SADM</div>
+            </div>
+            <span class="badge">CRÍTICO</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">07</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">03</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">44</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>F3 · processo mensal</span><span class="due">Vence 25/Mai · 23h59</span></div>
+        </div>
+
+        <div class="c6 cd-card crit" data-due="2026-05-22T18:00:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>AADP · divergências > 20%</h3>
+              <div class="meta">F1 + Chefia · 12 itens em análise</div>
+            </div>
+            <span class="badge">CRÍTICO</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">02</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">03</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">44</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>F1 + Chefia · Res. 5.458/2025</span><span class="due">12 itens · revisão</span></div>
+        </div>
+
+        <div class="c6 cd-card warn" data-due="2026-06-01T08:00:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>AADP · abertura recursos</h3>
+              <div class="meta">F1 protocoliza · 15 dias úteis</div>
+            </div>
+            <span class="badge">ATENÇÃO</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">13</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">11</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">45</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>F1 · ciclo AADP</span><span class="due">01/Jun · 08h</span></div>
+        </div>
+
+        <div class="c6 cd-card warn" data-due="2026-06-10T18:00:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>Aux. Alimentação · prestação contas</h3>
+              <div class="meta">F3 conduz · ciclo mensal</div>
+            </div>
+            <span class="badge">ATENÇÃO</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">22</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">20</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">45</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>F3 · mensal</span><span class="due">10/Jun · 18h</span></div>
+        </div>
+
+        <div class="c6 cd-card warn" data-due="2026-06-15T17:00:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>TCAF · Treinamento com Arma de Fogo</h3>
+              <div class="meta">F3 + AET conduzem · DA-041</div>
+            </div>
+            <span class="badge">ATENÇÃO</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">27</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">19</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">45</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>F3 + AET</span><span class="due">15/Jun · 17h</span></div>
+        </div>
+
+        <div class="c6 cd-card ok" data-due="2026-08-15T18:00:00">
+          <div class="cd-h">
+            <div class="info">
+              <h3>AADP · homologação final</h3>
+              <div class="meta">Chefia + BGPM · marco do ciclo</div>
+            </div>
+            <span class="badge">OK</span>
+          </div>
+          <div class="cd-counters">
+            <div class="cd-cell"><div class="num" data-unit="d">88</div><div class="lbl">Dias</div></div>
+            <div class="cd-cell"><div class="num" data-unit="h">20</div><div class="lbl">Horas</div></div>
+            <div class="cd-cell"><div class="num" data-unit="m">46</div><div class="lbl">Min</div></div>
+            <div class="cd-cell"><div class="num" data-unit="s">45</div><div class="lbl">Seg</div></div>
+          </div>
+          <div class="cd-foot"><span>Chefia + BGPM · marco do ciclo</span><span class="due">15/Ago · 18h</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ PERFORMANCE ═════ -->
+    <div class="panel" id="performance">
+
+      <div class="section-h"><h3>Performance por servidor · Top processos</h3></div>
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div><h2>Carga atual · SLA · Top 10 processos</h2><div class="sub">Atualização semanal · base nos últimos 30 dias</div></div>
+            <span class="chip gold">30 dias</span>
+          </div>
+          <table class="perf-table mt-3">
+            <thead>
+              <tr>
+                <th>Processo</th>
+                <th>Servidor</th>
+                <th>Carga</th>
+                <th>Pendente</th>
+                <th>SLA médio</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="proc">Folha de pagamento</td><td>F3</td><td class="num">100%</td><td class="num">0</td><td class="num">3,2 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">AADP · revisão</td><td>F1 + Chefia</td><td class="num">42%</td><td class="num">12</td><td class="num">6,8 dias</td><td><span class="sla warn">Atenção</span></td></tr>
+              <tr><td class="proc">Quinquênios</td><td>F2</td><td class="num">88%</td><td class="num">3</td><td class="num">11,2 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">Diárias</td><td>F3</td><td class="num">95%</td><td class="num">1</td><td class="num">1,8 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">Aux. Alimentação</td><td>F3</td><td class="num">70%</td><td class="num">7</td><td class="num">4,5 dias</td><td><span class="sla warn">Atenção</span></td></tr>
+              <tr><td class="proc">ERF · extrato funcional</td><td>F1</td><td class="num">100%</td><td class="num">0</td><td class="num">2,1 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">Saúde · perícias</td><td>F2</td><td class="num">62%</td><td class="num">9</td><td class="num">14,3 dias</td><td><span class="sla crit">Crítico</span></td></tr>
+              <tr><td class="proc">BI · publicação</td><td>F1</td><td class="num">100%</td><td class="num">0</td><td class="num">1,2 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">Férias · programação</td><td>F2</td><td class="num">85%</td><td class="num">4</td><td class="num">5,1 dias</td><td><span class="sla ok">No prazo</span></td></tr>
+              <tr><td class="proc">Porte de arma · PAF</td><td>F3</td><td class="num">78%</td><td class="num">6</td><td class="num">8,7 dias</td><td><span class="sla warn">Atenção</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Sentinela Legal · cobertura</h3></div>
+      <div class="grid">
+        <div class="c4 card accent g">
+          <div class="card-h"><div><h2>DOU</h2><div class="sub">Diário Oficial União</div></div><span class="chip g">98%</span></div>
+          <div class="kpi-stat mt-3"><div class="v" style="color:var(--greenL)">98%</div><div class="l">Cobertura</div></div>
+        </div>
+        <div class="c4 card accent b">
+          <div class="card-h"><div><h2>BGPM</h2><div class="sub">Boletim Geral PMMG</div></div><span class="chip b">99%</span></div>
+          <div class="kpi-stat mt-3"><div class="v" style="color:var(--blueL)">99%</div><div class="l">Cobertura</div></div>
+        </div>
+        <div class="c4 card accent p">
+          <div class="card-h"><div><h2>IO-MG</h2><div class="sub">Imprensa Oficial MG</div></div><span class="chip p">94%</span></div>
+          <div class="kpi-stat mt-3"><div class="v" style="color:var(--purpleL)">94%</div><div class="l">Cobertura</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ ANIV ═════ -->
+    <div class="panel" id="aniv">
+
+      <div class="section-h"><h3>Próximos 7 dias · Calendar institucional</h3></div>
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div><h2>Aniversariantes da semana</h2><div class="sub">Calendar institucional · pendente enriquecimento da Baliza</div></div>
+            <span class="chip o">Em construção</span>
+          </div>
+          <div class="mt-3">
+            <div class="aniv-row"><div class="day">+1d</div><div class="body"><div class="nm">Adicionar coluna data_nascimento à Baliza</div><div class="sb">F1 atualiza cadastro</div></div><span class="tag">F1</span></div>
+            <div class="aniv-row"><div class="day">+2d</div><div class="body"><div class="nm">Re-rodar calendar_popular_aniversarios()</div><div class="sb">Apps Script · ~2min</div></div><span class="tag">~2min</span></div>
+            <div class="aniv-row"><div class="day">+3d</div><div class="body"><div class="nm">Eventos criados · cor flamingo</div><div class="sb">Calendar · ciclo anual</div></div><span class="tag">Anual</span></div>
+            <div class="aniv-row"><div class="day">+4d</div><div class="body"><div class="nm">Notificação D-7 antes · Chefia + interessado</div><div class="sb">Email automático</div></div><span class="tag">Auto</span></div>
+            <div class="aniv-row"><div class="day">+5d</div><div class="body"><div class="nm">Card destacado neste painel · refresh 00h</div><div class="sb">Atualização diária</div></div><span class="tag">Live</span></div>
+            <div class="aniv-row"><div class="day">+6d</div><div class="body"><div class="nm">Mensagem institucional opcional</div><div class="sb">Configurável por interessado</div></div><span class="tag">Config</span></div>
+            <div class="aniv-row"><div class="day">+7d</div><div class="body"><div class="nm">Integração Programa Integridade · clima organizacional</div><div class="sb">DA-037 · Eixo 1 · liderança</div></div><span class="tag">Eixo 1</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<a class="tb-btn" href="https://sadm-56bpm.github.io/painel/operacional-mobile.html" target="_blank" rel="noopener" style="position:fixed;bottom:var(--sp5);right:var(--sp5);z-index:var(--z-toast);background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border:none;box-shadow:var(--sh-gold)">📱 Versão Mobile</a>
+
+<script>
+// Tabs
+document.getElementById('rail').addEventListener('click', function(e){
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#rail button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  e.target.classList.add('on');
+  document.getElementById(e.target.dataset.t).classList.add('on');
+});
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tickClock(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+  document.getElementById('liveStamp').textContent=t;
+}
+
+// Live countdowns
+function tickCountdowns(){
+  const now=new Date();
+  document.querySelectorAll('.cd-card[data-due]').forEach(card=>{
+    const due=new Date(card.dataset.due);
+    let diff=Math.max(0,(due-now)/1000);
+    const d=Math.floor(diff/86400); diff-=d*86400;
+    const h=Math.floor(diff/3600); diff-=h*3600;
+    const m=Math.floor(diff/60); diff-=m*60;
+    const s=Math.floor(diff);
+    card.querySelector('[data-unit=d]').textContent=pad(d);
+    card.querySelector('[data-unit=h]').textContent=pad(h);
+    card.querySelector('[data-unit=m]').textContent=pad(m);
+    card.querySelector('[data-unit=s]').textContent=pad(s);
+  });
+}
+
+setInterval(function(){tickClock();tickCountdowns();},1000);
+tickClock();tickCountdowns();
+</script>
+
+</body>
+</html>

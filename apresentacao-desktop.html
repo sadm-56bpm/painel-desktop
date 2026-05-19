@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Apresentação Executiva · Desktop · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.tab-rail{display:flex;gap:var(--sp2);background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp1);margin-bottom:var(--sp6)}
+.tab-rail button{
+  flex:1;padding:var(--sp4) var(--sp3);
+  border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:500;
+  color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;
+  transition:all var(--dur2) var(--ease)
+}
+.tab-rail button:hover{color:var(--gold)}
+.tab-rail button.on{
+  background:linear-gradient(135deg,var(--gold),var(--goldD));
+  color:var(--bg);font-weight:600;
+  box-shadow:var(--sh-gold),inset 0 1px 0 rgba(255,255,255,0.2)
+}
+
+.panel{display:none;animation:fadeIn 0.35s ease}
+.panel.on{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SVG containers */
+.svg-frame{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r4);
+  padding:var(--sp6);box-shadow:var(--sh2)
+}
+.svg-frame .cap{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);text-align:center;margin-top:var(--sp4);letter-spacing:1.5px;text-transform:uppercase}
+.svg-frame svg{display:block;width:100%;height:auto;max-height:520px}
+
+/* Function cards */
+.func-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;gap:var(--sp3);
+  min-height:280px
+}
+.func-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent)}
+.func-card.g{--acc:var(--greenL)}.func-card.b{--acc:var(--blueL)}.func-card.p{--acc:var(--purpleL)}
+.func-card .h{display:flex;align-items:center;gap:var(--sp4);padding-bottom:var(--sp3);border-bottom:1px solid var(--line)}
+.func-card .h .badge{
+  width:48px;height:48px;border-radius:var(--r2);
+  background:linear-gradient(135deg,var(--acc),var(--bg4));
+  display:grid;place-items:center;
+  font-family:var(--ff-serif);font-size:var(--t-2xl);font-weight:700;color:var(--bg)
+}
+.func-card .h .t{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--txt);font-weight:600;line-height:1.2}
+.func-card .h .s{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px}
+.func-card .lead{font-size:var(--t-md);color:var(--txt2);line-height:1.6}
+.func-card .scope{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);line-height:1.7;background:rgba(255,255,255,0.02);padding:var(--sp3);border-radius:var(--r2);border:1px solid var(--line);flex:1}
+
+/* Process list */
+.procs{display:grid;gap:var(--sp2)}
+.proc{
+  display:grid;grid-template-columns:36px 1fr auto;gap:var(--sp3);align-items:center;
+  padding:var(--sp3) var(--sp4);border-radius:var(--r2);
+  background:rgba(255,255,255,0.025);border:1px solid var(--line);
+  transition:all var(--dur2) var(--ease)
+}
+.proc:hover{border-color:var(--acc,var(--gold));background:rgba(201,163,72,0.03)}
+.proc .n{
+  width:36px;height:36px;border-radius:var(--r1);
+  background:linear-gradient(135deg,var(--acc,var(--gold)),var(--bg4));
+  display:grid;place-items:center;
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:700;color:var(--bg)
+}
+.proc.g{--acc:var(--green)}.proc.b{--acc:var(--blue)}.proc.p{--acc:var(--purple)}
+.proc .body{min-width:0}
+.proc .body .nm{font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.3}
+.proc .body .sb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.5px}
+.proc .tag{font-family:var(--ff-mono);font-size:9px;padding:3px 8px;border-radius:5px;background:rgba(201,163,72,0.1);color:var(--gold);border:1px solid rgba(201,163,72,0.3);letter-spacing:0.8px;text-transform:uppercase}
+
+/* Layer grid */
+.layers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp3)}
+.layer{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r3);
+  padding:var(--sp4);
+  display:grid;grid-template-columns:36px 1fr;gap:var(--sp3);align-items:start
+}
+.layer .n{
+  width:36px;height:36px;border-radius:var(--r1);
+  background:linear-gradient(135deg,var(--acc),var(--bg4));
+  display:grid;place-items:center;
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:700;color:var(--bg)
+}
+.layer.g{--acc:var(--green)}.layer.p{--acc:var(--purple)}
+.layer .body{min-width:0}
+.layer .t{font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.3}
+.layer .s{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.3px;line-height:1.5}
+
+/* Compliance bars */
+.cb{margin:var(--sp4) 0}
+.cb-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--sp2);font-size:var(--t-sm)}
+.cb-h .n{font-family:var(--ff-mono);color:var(--txt2);text-transform:uppercase;letter-spacing:1px}
+.cb-h .v{font-family:var(--ff-mono);color:var(--acc,var(--gold));font-weight:600}
+.cb-track{height:10px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+.cb-fill{height:100%;background:linear-gradient(90deg,var(--acc,var(--gold)),var(--accL,var(--goldL)));border-radius:6px;box-shadow:0 0 14px var(--acc,var(--gold));transition:width 0.6s ease}
+.cb.g{--acc:var(--green);--accL:var(--greenL)}.cb.b{--acc:var(--blue);--accL:var(--blueL)}.cb.p{--acc:var(--purple);--accL:var(--purpleL)}.cb.o{--acc:var(--orange);--accL:var(--orangeL)}
+
+/* DA chips */
+.da-row{display:flex;flex-wrap:wrap;gap:var(--sp2);margin:var(--sp3) 0}
+.da{font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 10px;border-radius:var(--r1);background:rgba(201,163,72,0.1);border:1px solid var(--gold);color:var(--gold);letter-spacing:0.5px;font-weight:500}
+.da.k{background:rgba(74,191,122,0.1);border-color:var(--green);color:var(--greenL)}
+
+/* Source list */
+.source-list{display:grid;gap:var(--sp3);margin-top:var(--sp3)}
+.source{
+  display:grid;grid-template-columns:42px 1fr;gap:var(--sp4);align-items:center;
+  padding:var(--sp4);border-radius:var(--r2);
+  background:rgba(255,255,255,0.025);border:1px solid var(--line)
+}
+.source .ic{
+  width:42px;height:42px;border-radius:var(--r1);
+  background:linear-gradient(135deg,var(--blueL),var(--blueD));
+  display:grid;place-items:center;
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:700;color:var(--bg)
+}
+.source .nm{font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.25}
+.source .meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.3px}
+
+/* Roadmap cards */
+.road-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp5);
+  position:relative;overflow:hidden
+}
+.road-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc,var(--gold)),transparent)}
+.road-card.g{--acc:var(--greenL)}.road-card.b{--acc:var(--blueL)}.road-card.p{--acc:var(--purpleL)}.road-card.o{--acc:var(--orangeL)}
+.road-card .h{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp3)}
+.road-card .label{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.road-card .when{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);background:var(--bg);padding:3px 8px;border-radius:5px;border:1px solid var(--line)}
+.road-card h3{font-family:var(--ff-serif);font-size:var(--t-lg);color:var(--txt);font-weight:600;line-height:1.25;margin-bottom:var(--sp2)}
+.road-card .d{font-size:var(--t-sm);color:var(--txt2);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link on" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <a class="sb-link" href="https://mail.google.com" target="_blank" rel="noopener"><span class="ico">✉</span><span class="lbl">Gmail</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">★ Apresentação Executiva v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Apresentação Executiva</h1>
+        <div class="breadcrumb"><b>Hub Central</b> · Apresentação · Síntese institucional</div>
+      </div>
+      <div class="tb-actions">
+        <a class="tb-btn" href="https://sadm-56bpm.github.io/painel/apresentacao-mobile.html" target="_blank" rel="noopener"><span class="ico">📱</span>Versão mobile</a>
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-stamp"><span class="dot"></span><span>Atualizado em <b id="liveStamp">--:--:--</b> · AGORA</span></div>
+
+    <div class="tab-rail mt-5" id="rail">
+      <button class="on" data-t="t1">Identidade</button>
+      <button data-t="t2">Arquitetura</button>
+      <button data-t="t3">Processos</button>
+      <button data-t="t4">Inteligência</button>
+      <button data-t="t5">Governança</button>
+      <button data-t="t6">Entrega</button>
+    </div>
+
+    <!-- ═════ TAB 1 · IDENTIDADE ═════ -->
+    <div class="panel on" id="t1">
+
+      <div class="grid">
+        <div class="c8 card accent">
+          <div class="card-h">
+            <div>
+              <h2>Seção Administrativa · 56º BPM</h2>
+              <div class="sub">Quem somos · Escopo · Vinculação</div>
+            </div>
+            <span class="chip gold">SADM</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.7">
+            Seção administrativa do <strong style="color:var(--gold)">56º Batalhão de Polícia Militar</strong>, sediada em <strong style="color:var(--gold)">Itajubá-MG</strong>, vinculada à <strong style="color:var(--gold)">17ª RPM</strong>.
+          </p>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.7;margin-top:var(--sp4)">
+            Escopo: <strong style="color:var(--gold)">gestão jurídico-documental</strong> · produção, classificação, custódia e auditabilidade do acervo de <strong style="color:var(--gold)">49.064 documentos</strong> distribuídos em 10 blocos canônicos (DA-032).
+          </p>
+          <div class="da-row" style="margin-top:var(--sp4)">
+            <span class="da">Res. 4.843/2019</span>
+            <span class="da">DA-027 cloud-first</span>
+            <span class="da">DA-032 taxonomia v2.3</span>
+            <span class="da">DA-040 fases F1-F5</span>
+            <span class="da k">DA-071 ★ GH Pages</span>
+          </div>
+        </div>
+
+        <div class="c4" style="display:flex;flex-direction:column;gap:var(--sp4)">
+          <div class="kpi-card g"><div class="v">49.064</div><div class="l">Documentos</div><div class="d">10 blocos · DA-032</div></div>
+          <div class="kpi-card b"><div class="v">35</div><div class="l">Processos</div><div class="d">DA-048 · POPs</div></div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Organograma SADM</h3></div>
+      <div class="grid">
+        <div class="c12 svg-frame">
+          <svg viewBox="0 0 1000 380" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#E8C77A"/><stop offset="100%" stop-color="#8B6F2E"/></linearGradient>
+              <linearGradient id="gGrn" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#8FD9A8"/><stop offset="100%" stop-color="#2E8654"/></linearGradient>
+              <linearGradient id="gBlu" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7BB4E8"/><stop offset="100%" stop-color="#2E5F94"/></linearGradient>
+              <linearGradient id="gPur" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#B894E8"/><stop offset="100%" stop-color="#5E3F94"/></linearGradient>
+              <filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+
+            <!-- Chefia (raiz) -->
+            <circle cx="500" cy="80" r="58" fill="url(#gGold)" stroke="#E8C77A" stroke-width="3" filter="url(#glow)"/>
+            <text x="500" y="72" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Serif" font-size="22" font-weight="700">CHEFIA</text>
+            <text x="500" y="92" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="600">SADM</text>
+            <text x="500" y="108" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="9" opacity="0.78">DECISÃO · AUDITORIA</text>
+
+            <!-- Trunk -->
+            <line x1="500" y1="138" x2="500" y2="180" stroke="#3A4A6E" stroke-width="2"/>
+            <line x1="180" y1="180" x2="820" y2="180" stroke="#3A4A6E" stroke-width="2"/>
+            <line x1="180" y1="180" x2="180" y2="220" stroke="#3A4A6E" stroke-width="2"/>
+            <line x1="500" y1="180" x2="500" y2="220" stroke="#3A4A6E" stroke-width="2"/>
+            <line x1="820" y1="180" x2="820" y2="220" stroke="#3A4A6E" stroke-width="2"/>
+
+            <!-- F1 -->
+            <rect x="60" y="220" width="240" height="130" rx="14" fill="url(#gGrn)"/>
+            <text x="180" y="252" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Serif" font-size="28" font-weight="700">F1</text>
+            <text x="180" y="278" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="600">MOVIMENTAÇÃO</text>
+            <line x1="80" y1="288" x2="280" y2="288" stroke="#0A0E16" stroke-width="0.5" opacity="0.25"/>
+            <text x="180" y="306" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">Carreira · BI · ERF</text>
+            <text x="180" y="322" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">AADP · Cursos · CTC</text>
+            <text x="180" y="342" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700">13 PROCESSOS</text>
+
+            <!-- F2 -->
+            <rect x="380" y="220" width="240" height="130" rx="14" fill="url(#gBlu)"/>
+            <text x="500" y="252" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Serif" font-size="28" font-weight="700">F2</text>
+            <text x="500" y="278" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="600">DIREITOS</text>
+            <line x1="400" y1="288" x2="600" y2="288" stroke="#0A0E16" stroke-width="0.5" opacity="0.25"/>
+            <text x="500" y="306" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">Quinquênios · Férias</text>
+            <text x="500" y="322" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">Saúde · Família · Licenças</text>
+            <text x="500" y="342" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700">12 PROCESSOS</text>
+
+            <!-- F3 -->
+            <rect x="700" y="220" width="240" height="130" rx="14" fill="url(#gPur)"/>
+            <text x="820" y="252" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Serif" font-size="28" font-weight="700">F3</text>
+            <text x="820" y="278" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="600">PAGAMENTOS</text>
+            <line x1="720" y1="288" x2="920" y2="288" stroke="#0A0E16" stroke-width="0.5" opacity="0.25"/>
+            <text x="820" y="306" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">Folha · Diárias · Aux. Alim.</text>
+            <text x="820" y="322" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="11" opacity="0.85">Arma · Jornada · Integridade</text>
+            <text x="820" y="342" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700">10 PROCESSOS</text>
+
+            <!-- Caption -->
+            <text x="500" y="372" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" letter-spacing="3">ESCOPO SADM · 35 PROCESSOS · DA-029/056</text>
+          </svg>
+          <div class="cap">Organograma interno SADM · Chefia + 3 funções operacionais</div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Funções operacionais · 35 processos distribuídos</h3></div>
+      <div class="grid">
+        <div class="c4 func-card g">
+          <div class="h"><div class="badge">F1</div><div><div class="t">Movimentação</div><div class="s">Carreira · 13 processos</div></div></div>
+          <div class="lead">Ciclo finalístico de carreira: ingresso → movimentação → reserva. Responsável pelo BI e ciclo AADP anual.</div>
+          <div class="scope">ESCOPO · movimentação · ERF · BI · AADP · concursos · cursos · designações · CTC tempo · CFS · CHO · readaptação · agregação · reserva remunerada</div>
+        </div>
+        <div class="c4 func-card b">
+          <div class="h"><div class="badge">F2</div><div><div class="t">Direitos</div><div class="s">Assistência · 12 processos</div></div></div>
+          <div class="lead">Direitos funcionais e tutela institucional. Interface ativa com CMP/CRP para perícias.</div>
+          <div class="scope">ESCOPO · quinquênios · férias · férias-prêmio · abono permanência · CTC · saúde · perícias · família · dependentes · pensões · licenças · auxílio funeral</div>
+        </div>
+        <div class="c4 func-card p">
+          <div class="h"><div class="badge">F3</div><div><div class="t">Pagamentos</div><div class="s">Integridade · 10 processos</div></div></div>
+          <div class="lead">Execução financeira e Programa de Integridade (DA-037 · 4 eixos · 8 subeixos).</div>
+          <div class="scope">ESCOPO · folha · diárias · Aux. Alim. · declarações · porte de arma · jornada · Integridade · indenizações · descontos · pagamentos suplementares</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ TAB 2 · ARQUITETURA ═════ -->
+    <div class="panel" id="t2">
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div>
+              <h2>3 Planos Canônicos · DA-055</h2>
+              <div class="sub">Responsabilidades estanques · evolução independente</div>
+            </div>
+            <span class="chip gold">Arquitetura</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.65">A arquitetura SADM separa <strong style="color:var(--gold)">Dados</strong> (acervo · single source of truth) · <strong style="color:var(--gold)">Inteligência</strong> (processamento · automação) · <strong style="color:var(--gold)">Interface</strong> (apresentação · distribuição). Cada plano evolui de forma independente, com contratos claros entre eles.</p>
+        </div>
+      </div>
+
+      <div class="grid mt-4">
+        <div class="c12 svg-frame">
+          <svg viewBox="0 0 1000 480" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="p1g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4ABF7A" stop-opacity="0.92"/><stop offset="100%" stop-color="#2E8654" stop-opacity="0.92"/></linearGradient>
+              <linearGradient id="p2g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#8A5AD8" stop-opacity="0.92"/><stop offset="100%" stop-color="#5E3F94" stop-opacity="0.92"/></linearGradient>
+              <linearGradient id="p3g2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#C9A348"/><stop offset="100%" stop-color="#8B6F2E"/></linearGradient>
+            </defs>
+
+            <!-- Plano 1 · Dados -->
+            <rect x="40" y="30" width="920" height="120" rx="18" fill="url(#p1g2)"/>
+            <text x="68" y="62" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700" letter-spacing="2">PLANO 1</text>
+            <text x="68" y="98" fill="#0A0E16" font-family="IBM Plex Serif" font-size="32" font-weight="700">DADOS · Single Source of Truth</text>
+            <text x="68" y="126" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" opacity="0.82">Drive Workspace · Sheets COMANDO_SADM · Calendar institucional · Gmail · BigQuery · GitHub privado</text>
+
+            <!-- Setas down -->
+            <path d="M500 150 L500 178 M488 168 L500 178 L512 168" stroke="#3A4A6E" stroke-width="2.5" fill="none"/>
+
+            <!-- Plano 2 · Inteligência -->
+            <rect x="40" y="180" width="920" height="120" rx="18" fill="url(#p2g2)"/>
+            <text x="68" y="212" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700" letter-spacing="2">PLANO 2</text>
+            <text x="68" y="248" fill="#0A0E16" font-family="IBM Plex Serif" font-size="32" font-weight="700">INTELIGÊNCIA · Processamento</text>
+            <text x="68" y="276" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" opacity="0.82">Apps Script (runtime central) · Multi-IA gratuita (DA-067) · Cloud Functions · Pub/Sub · GitHub Actions CI/CD</text>
+
+            <!-- Setas down -->
+            <path d="M500 300 L500 328 M488 318 L500 328 L512 318" stroke="#3A4A6E" stroke-width="2.5" fill="none"/>
+
+            <!-- Plano 3 · Interface -->
+            <rect x="40" y="330" width="920" height="120" rx="18" fill="url(#p3g2)"/>
+            <text x="68" y="362" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" font-weight="700" letter-spacing="2">PLANO 3</text>
+            <text x="68" y="398" fill="#0A0E16" font-family="IBM Plex Serif" font-size="32" font-weight="700">INTERFACE · Apresentação</text>
+            <text x="68" y="426" fill="#0A0E16" font-family="IBM Plex Mono" font-size="13" opacity="0.82">GitHub Pages (DA-071) · Mobile + Desktop · TV Mural · Sites Workspace · Looker · Memory Bank</text>
+
+            <text x="500" y="468" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="11" letter-spacing="3">DA-055 · ARQUITETURA EM 3 CAMADAS · RESPONSABILIDADES ESTANQUES</text>
+          </svg>
+          <div class="cap">3 planos canônicos · cada plano evolui independentemente</div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Detalhamento dos planos</h3></div>
+      <div class="grid">
+        <div class="c4 func-card g">
+          <div class="h"><div class="badge">P1</div><div><div class="t">Dados</div><div class="s">Single source of truth</div></div></div>
+          <div class="lead"><strong>Drive Workspace PMMG</strong> como repositório canônico · <strong>Sheets COMANDO_SADM</strong> como hub estruturado · <strong>Calendar</strong> para ciclos institucionais.</div>
+          <div class="scope">49.064 documentos · 1.415 PiB de cota · 10 blocos canônicos (DA-032) · backup MD5 · pipeline BigQuery em planejamento (DA-054)</div>
+        </div>
+        <div class="c4 func-card p">
+          <div class="h"><div class="badge">P2</div><div><div class="t">Inteligência</div><div class="s">Multi-IA gratuita · 4 provedores</div></div></div>
+          <div class="lead"><strong>Apps Script</strong> como runtime central · triggers diários · auto-redação · auto-classificação. Stack Multi-IA (DA-067) em failover.</div>
+          <div class="scope">Gemini AI Studio (1.5k/dia) · Groq (14.4k/dia) · Cerebras (14.4k/dia) · Mistral (100/dia) = 44.700+ req/dia · cache 30d · audit log</div>
+        </div>
+        <div class="c4 func-card b">
+          <div class="h"><div class="badge">P3</div><div><div class="t">Interface</div><div class="s">Cloud-first · multi-device</div></div></div>
+          <div class="lead"><strong>GitHub Pages</strong> (DA-071) para distribuição pública mobile + desktop · <strong>Drive</strong> como backup auditável · <strong>TV Mural</strong> kiosque sala SADM.</div>
+          <div class="scope">5 painéis mobile + 5 painéis desktop · HTTPS forçado · zero login · navegação 100% · re-deploy 60s via git push</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ TAB 3 · PROCESSOS ═════ -->
+    <div class="panel" id="t3">
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div>
+              <h2>Mapa dos 35 processos · catalogação canônica</h2>
+              <div class="sub">Res. 4.843/2019 · Programa Integridade PMMG/2024 · DA-048 POPs</div>
+            </div>
+            <span class="chip gold">35 processos</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.65">Inventário completo dos processos administrativos da SADM, distribuídos entre 3 servidores operacionais com SLAs auditáveis. Cada processo possui POP canônico (procedimento operacional padrão) e está mapeado às normas PMMG vigentes.</p>
+        </div>
+      </div>
+
+      <div class="grid mt-4">
+        <div class="c4 card accent g">
+          <div class="card-h">
+            <div>
+              <h2>F1 · Movimentação</h2>
+              <div class="sub">13 processos · ciclo carreira</div>
+            </div>
+            <span class="chip g">13</span>
+          </div>
+          <div class="procs mt-3">
+            <div class="proc g"><div class="n">01</div><div class="body"><div class="nm">Movimentação</div><div class="sb">Transferência · designação · permuta</div></div><span class="tag">CICLO</span></div>
+            <div class="proc g"><div class="n">02</div><div class="body"><div class="nm">ERF · Extrato Funcional</div><div class="sb">Res. 4.616/2017</div></div><span class="tag">MENSAL</span></div>
+            <div class="proc g"><div class="n">03</div><div class="body"><div class="nm">BI · Boletim Interno</div><div class="sb">Publicação · indexação</div></div><span class="tag">SEMANAL</span></div>
+            <div class="proc g"><div class="n">04</div><div class="body"><div class="nm">AADP · Avaliação</div><div class="sb">Res. 5.458/2025</div></div><span class="tag">ANUAL</span></div>
+            <div class="proc g"><div class="n">05</div><div class="body"><div class="nm">Concursos internos</div><div class="sb">Inscrição · documentação</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">06</div><div class="body"><div class="nm">Cursos · CTC · CFS · CHO</div><div class="sb">Indicação · matrícula</div></div><span class="tag">CICLO</span></div>
+            <div class="proc g"><div class="n">07</div><div class="body"><div class="nm">CT/CFO</div><div class="sb">Curso de formação oficial</div></div><span class="tag">PERIÓD.</span></div>
+            <div class="proc g"><div class="n">08</div><div class="body"><div class="nm">Designações temporárias</div><div class="sb">Cargo em comissão</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">09</div><div class="body"><div class="nm">Readaptação</div><div class="sb">Restrições funcionais</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">10</div><div class="body"><div class="nm">Agregação</div><div class="sb">Suspensão temporária</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">11</div><div class="body"><div class="nm">Reserva remunerada</div><div class="sb">Inativação · transferência</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">12</div><div class="body"><div class="nm">CTC contagem tempo</div><div class="sb">Certidão de tempo de contribuição</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc g"><div class="n">13</div><div class="body"><div class="nm">Ingresso</div><div class="sb">Posse e exercício</div></div><span class="tag">CICLO</span></div>
+          </div>
+        </div>
+
+        <div class="c4 card accent b">
+          <div class="card-h">
+            <div>
+              <h2>F2 · Direitos</h2>
+              <div class="sub">12 processos · assistência</div>
+            </div>
+            <span class="chip b">12</span>
+          </div>
+          <div class="procs mt-3">
+            <div class="proc b"><div class="n">01</div><div class="body"><div class="nm">Quinquênios</div><div class="sb">Contagem · concessão · pagamento</div></div><span class="tag">QUINQ.</span></div>
+            <div class="proc b"><div class="n">02</div><div class="body"><div class="nm">Férias</div><div class="sb">Programação · gozo</div></div><span class="tag">ANUAL</span></div>
+            <div class="proc b"><div class="n">03</div><div class="body"><div class="nm">Férias-prêmio</div><div class="sb">Gozo · indenização</div></div><span class="tag">DEC.</span></div>
+            <div class="proc b"><div class="n">04</div><div class="body"><div class="nm">Saúde · Perícias CMP/CRP</div><div class="sb">LTS · pareceres</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc b"><div class="n">05</div><div class="body"><div class="nm">Família · Dependentes</div><div class="sb">Cadastro · alteração</div></div><span class="tag">CICLO</span></div>
+            <div class="proc b"><div class="n">06</div><div class="body"><div class="nm">Licenças maternidade/paternidade</div><div class="sb">Adotante · etc</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc b"><div class="n">07</div><div class="body"><div class="nm">Abono de permanência</div><div class="sb">Servidor com tempo para inativar</div></div><span class="tag">CICLO</span></div>
+            <div class="proc b"><div class="n">08</div><div class="body"><div class="nm">CTC tempo</div><div class="sb">Tempo serviço · averbação</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc b"><div class="n">09</div><div class="body"><div class="nm">Auxílio funeral</div><div class="sb">Concessão a beneficiário</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc b"><div class="n">10</div><div class="body"><div class="nm">Benefícios diversos</div><div class="sb">Pensões · auxílios</div></div><span class="tag">CICLO</span></div>
+            <div class="proc b"><div class="n">11</div><div class="body"><div class="nm">Licença especial</div><div class="sb">Casamento · luto · outras</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc b"><div class="n">12</div><div class="body"><div class="nm">Pensões</div><div class="sb">Habilitação · revisão</div></div><span class="tag">DEMANDA</span></div>
+          </div>
+        </div>
+
+        <div class="c4 card accent p">
+          <div class="card-h">
+            <div>
+              <h2>F3 · Pagamentos</h2>
+              <div class="sub">10 processos · integridade</div>
+            </div>
+            <span class="chip p">10</span>
+          </div>
+          <div class="procs mt-3">
+            <div class="proc p"><div class="n">01</div><div class="body"><div class="nm">Folha de pagamento</div><div class="sb">Lançamentos · descontos</div></div><span class="tag">MENSAL</span></div>
+            <div class="proc p"><div class="n">02</div><div class="body"><div class="nm">Diárias</div><div class="sb">Deslocamento · concessão</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc p"><div class="n">03</div><div class="body"><div class="nm">Aux. Alimentação</div><div class="sb">Concessão · controle</div></div><span class="tag">MENSAL</span></div>
+            <div class="proc p"><div class="n">04</div><div class="body"><div class="nm">Porte de Arma · PAF/TCAF</div><div class="sb">Renovação anual</div></div><span class="tag">ANUAL</span></div>
+            <div class="proc p"><div class="n">05</div><div class="body"><div class="nm">Programa Integridade</div><div class="sb">4 eixos · 8 subeixos</div></div><span class="tag">ANUAL</span></div>
+            <div class="proc p"><div class="n">06</div><div class="body"><div class="nm">Declarações funcionais</div><div class="sb">Tempo serviço · cargo · etc</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc p"><div class="n">07</div><div class="body"><div class="nm">Jornada · ponto</div><div class="sb">Controle · justificativas</div></div><span class="tag">MENSAL</span></div>
+            <div class="proc p"><div class="n">08</div><div class="body"><div class="nm">Indenizações</div><div class="sb">Resoluções · sentenças</div></div><span class="tag">DEMANDA</span></div>
+            <div class="proc p"><div class="n">09</div><div class="body"><div class="nm">Descontos</div><div class="sb">Consignações · pensões</div></div><span class="tag">MENSAL</span></div>
+            <div class="proc p"><div class="n">10</div><div class="body"><div class="nm">Pagamentos suplementares</div><div class="sb">Folha suplementar</div></div><span class="tag">DEMANDA</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ TAB 4 · INTELIGÊNCIA ═════ -->
+    <div class="panel" id="t4">
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div>
+              <h2>16 Camadas BI · Inteligência institucional aplicada</h2>
+              <div class="sub">DA-057 · 8 descritivas + 8 preditivas/prescritivas</div>
+            </div>
+            <span class="chip gold">DA-057</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.65">Estratificação canônica das camadas analíticas. As 8 primeiras respondem <strong style="color:var(--gold)">"o que está acontecendo"</strong> · as 8 seguintes respondem <strong style="color:var(--gold)">"o que vai acontecer / o que fazer"</strong>. Cada camada tem fonte (Sheet/Drive), pipeline (Apps Script) e saída (painel/dashboard).</p>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Camadas descritivas · diagnóstico atual</h3></div>
+      <div class="layers-grid">
+        <div class="layer g"><div class="n">01</div><div class="body"><div class="t">KPIs operacionais</div><div class="s">Carga · SLA · backlog por servidor</div></div></div>
+        <div class="layer g"><div class="n">02</div><div class="body"><div class="t">Métricas servidor</div><div class="s">F1/F2/F3 · performance individual</div></div></div>
+        <div class="layer g"><div class="n">03</div><div class="body"><div class="t">Compliance score</div><div class="s">82/100 · DA-037 · 4 eixos</div></div></div>
+        <div class="layer g"><div class="n">04</div><div class="body"><div class="t">Aniversariantes</div><div class="s">Calendar institucional</div></div></div>
+        <div class="layer g"><div class="n">05</div><div class="body"><div class="t">Prazos críticos</div><div class="s">D/H/M/S countdowns ao vivo</div></div></div>
+        <div class="layer g"><div class="n">06</div><div class="body"><div class="t">Sentinela Legal</div><div class="s">DOU/BGPM/IO-MG · 97% cobertura</div></div></div>
+        <div class="layer g"><div class="n">07</div><div class="body"><div class="t">Saúde organizacional</div><div class="s">CMP/CRP · LTS · perícias</div></div></div>
+        <div class="layer g"><div class="n">08</div><div class="body"><div class="t">AADP tracking</div><div class="s">Ciclo Res. 5.458/2025</div></div></div>
+      </div>
+
+      <div class="section-h"><h3>Camadas preditivas · projeção e prescrição</h3></div>
+      <div class="layers-grid">
+        <div class="layer p"><div class="n">09</div><div class="body"><div class="t">Knowledge Graph</div><div class="s">D3.js · grafo institucional</div></div></div>
+        <div class="layer p"><div class="n">10</div><div class="body"><div class="t">Anomaly detection</div><div class="s">Carga atípica · outliers</div></div></div>
+        <div class="layer p"><div class="n">11</div><div class="body"><div class="t">Prophet forecasting</div><div class="s">Demanda 30/60/90 dias</div></div></div>
+        <div class="layer p"><div class="n">12</div><div class="body"><div class="t">Recomendador</div><div class="s">POP sugerido por contexto</div></div></div>
+        <div class="layer p"><div class="n">13</div><div class="body"><div class="t">Sentimento textual</div><div class="s">Análise pareceres</div></div></div>
+        <div class="layer p"><div class="n">14</div><div class="body"><div class="t">Compliance file</div><div class="s">Auto-classificação Gemini</div></div></div>
+        <div class="layer p"><div class="n">15</div><div class="body"><div class="t">Trajetória funcional</div><div class="s">Carreira projetada</div></div></div>
+        <div class="layer p"><div class="n">16</div><div class="body"><div class="t">Auditoria reversa</div><div class="s">Gemini · sanity checks</div></div></div>
+      </div>
+
+      <div class="section-h"><h3>Stack Multi-IA Gratuita · DA-067</h3></div>
+      <div class="grid">
+        <div class="c3"><div class="kpi-card g"><div class="v">1.500</div><div class="l">Gemini/dia</div><div class="d">gemini-1.5-flash</div></div></div>
+        <div class="c3"><div class="kpi-card b"><div class="v">14.400</div><div class="l">Groq/dia</div><div class="d">llama-3.3-70b</div></div></div>
+        <div class="c3"><div class="kpi-card p"><div class="v">14.400</div><div class="l">Cerebras/dia</div><div class="d">llama-3.3-70b</div></div></div>
+        <div class="c3"><div class="kpi-card o"><div class="v">R$ 0</div><div class="l">Custo total</div><div class="d">Failover · cache 30d</div></div></div>
+      </div>
+
+    </div>
+
+    <!-- ═════ TAB 5 · GOVERNANÇA ═════ -->
+    <div class="panel" id="t5">
+
+      <div class="grid">
+        <div class="c8 card accent">
+          <div class="card-h">
+            <div>
+              <h2>71 Decisões Arquiteturais</h2>
+              <div class="sub">Cadeia auditável · DA-001 → DA-071</div>
+            </div>
+            <span class="chip gold">v2.3 Onda 28+</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.65">Cada decisão é versionada, justificada, referenciável e tem trade-offs documentados. Cobertura: taxonomia, segurança, integridade, IA, publicação, identidade e governança.</p>
+          <div class="da-row mt-3">
+            <span class="da">DA-001</span><span class="da">DA-003 ACESSO_RESERVADO</span><span class="da">DA-020 anonim.</span>
+            <span class="da">DA-027 cloud-first</span><span class="da">DA-032 taxonomia v2.3</span><span class="da">DA-040 fases F1-F5</span>
+            <span class="da">DA-049 GitHub 3-camadas</span><span class="da">DA-052 publicação</span>
+            <span class="da">DA-055 3 planos</span><span class="da">DA-057 16 camadas BI</span>
+            <span class="da">DA-066 compart. Claude</span><span class="da">DA-067 Multi-IA</span>
+            <span class="da k">DA-071 ★ GH Pages</span>
+          </div>
+        </div>
+
+        <div class="c4 card accent g">
+          <div class="card-h">
+            <div>
+              <h2>Compliance Score</h2>
+              <div class="sub">Programa Integridade PMMG/2024</div>
+            </div>
+            <span class="chip g">82/100</span>
+          </div>
+          <div class="kpi-stat" style="margin-top:var(--sp3)">
+            <div class="v" style="font-size:var(--t-5xl);color:var(--greenL)">82</div>
+            <div class="l" style="color:var(--mut)">DE 100 · META 92 · T4/2027</div>
+          </div>
+          <div class="cb g mt-4"><div class="cb-h"><span class="n">E1 · Liderança</span><span class="v">88</span></div><div class="cb-track"><div class="cb-fill" style="width:88%"></div></div></div>
+          <div class="cb b"><div class="cb-h"><span class="n">E2 · Riscos</span><span class="v">79</span></div><div class="cb-track"><div class="cb-fill" style="width:79%"></div></div></div>
+          <div class="cb p"><div class="cb-h"><span class="n">E3 · Códigos</span><span class="v">85</span></div><div class="cb-track"><div class="cb-fill" style="width:85%"></div></div></div>
+          <div class="cb o"><div class="cb-h"><span class="n">E4 · Monitoramento</span><span class="v">76</span></div><div class="cb-track"><div class="cb-fill" style="width:76%"></div></div></div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>5 Fontes canônicas PMMG</h3></div>
+      <div class="grid">
+        <div class="c12 card">
+          <div class="source-list">
+            <div class="source"><div class="ic">01</div><div><div class="nm">Resolução 4.843/2019 · Manual de Elaboração e Gestão de Documentos PMMG</div><div class="meta">BGPM 89/2019 · base normativa da gestão documental SADM</div></div></div>
+            <div class="source"><div class="ic">02</div><div><div class="nm">MIV/PMMG/2025 · Manual de Identidade Visual</div><div class="meta">DCO · 102 páginas · 4 cadernos · aplicação canônica em todos artefatos</div></div></div>
+            <div class="source"><div class="ic">03</div><div><div class="nm">Plano Estratégico PMMG 2024-2027</div><div class="meta">BGPM 93/2023 · 58 páginas · alinhamento institucional</div></div></div>
+            <div class="source"><div class="ic">04</div><div><div class="nm">Programa de Integridade PMMG/2024</div><div class="meta">46 páginas · 4 eixos · 8 subeixos · base do score 82/100</div></div></div>
+            <div class="source"><div class="ic">05</div><div><div class="nm">Resolução 5.458/2025 · AADP</div><div class="meta">Avaliação Anual de Desempenho · versão vigente única</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Cobertura legal · Sentinela</h3></div>
+      <div class="grid">
+        <div class="c12 card accent o">
+          <div class="card-h">
+            <div>
+              <h2>97% de cobertura legal</h2>
+              <div class="sub">Meta T4/2027 · 100% · DA-066 · monitoramento DOU/BGPM/IO-MG</div>
+            </div>
+            <span class="chip o">Sentinela Legal</span>
+          </div>
+          <div class="cb o mt-2"><div class="cb-h"><span class="n">Cadeias documentais conferidas</span><span class="v">97%</span></div><div class="cb-track"><div class="cb-fill" style="width:97%"></div></div></div>
+          <p class="f-mono c-mut mt-3" style="font-size:var(--t-xs)">Lacunas residuais: saúde ocupacional · perícias judiciais · em remediação Onda 30-31</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ═════ TAB 6 · ENTREGA ═════ -->
+    <div class="panel" id="t6">
+
+      <div class="grid">
+        <div class="c12 card">
+          <div class="card-h">
+            <div>
+              <h2>Entrega Institucional · Onda 28+ · Ecossistema Ativo</h2>
+              <div class="sub">Cloud-first · Workspace PMMG · Custo R$ 0,00</div>
+            </div>
+            <span class="chip gold">Em produção</span>
+          </div>
+          <p style="font-size:var(--t-md);color:var(--txt2);line-height:1.65">Ambiente digital institucional <strong style="color:var(--gold)">100% operacional</strong> · GitHub Pages como canal primário (DA-071) · 5 painéis mobile + 5 painéis desktop · acesso mobile sem login · cobertura HTTPS · re-deploy em ~60 segundos via git push.</p>
+        </div>
+      </div>
+
+      <div class="grid mt-4">
+        <div class="c3"><div class="kpi-card g"><div class="v">10</div><div class="l">Painéis</div><div class="d">5 mobile + 5 desktop</div></div></div>
+        <div class="c3"><div class="kpi-card b"><div class="v">71</div><div class="l">DAs canônicas</div><div class="d">DA-001 → DA-071</div></div></div>
+        <div class="c3"><div class="kpi-card p"><div class="v">16</div><div class="l">Camadas BI</div><div class="d">8 desc · 8 pred</div></div></div>
+        <div class="c3"><div class="kpi-card o"><div class="v">R$ 0</div><div class="l">Custo</div><div class="d">Stack 100% gratuita</div></div></div>
+      </div>
+
+      <div class="section-h"><h3>Próximas ondas · roadmap</h3></div>
+      <div class="grid">
+        <div class="c4 road-card g">
+          <div class="h"><span class="label">Onda 29</span><span class="when">Em curso</span></div>
+          <h3>Desktop Foundation</h3>
+          <div class="d">5 painéis paritários desktop · sistema de design tokens · cross-link mobile↔desktop · repo dedicado.</div>
+        </div>
+        <div class="c4 road-card b">
+          <div class="h"><span class="label">Onda 30</span><span class="when">Planejado</span></div>
+          <h3>Cockpit Executivo</h3>
+          <div class="d">Painel "Cockpit do Chefe" · central de comando com SLAs em tempo real · alertas críticos · decisões pendentes.</div>
+        </div>
+        <div class="c4 road-card p">
+          <div class="h"><span class="label">Onda 31</span><span class="when">Planejado</span></div>
+          <h3>Inteligência Visual</h3>
+          <div class="d">Knowledge Graph fullscreen · Heatmap dos 35 processos · Sentinela Legal Live com alertas e diff.</div>
+        </div>
+        <div class="c4 road-card o">
+          <div class="h"><span class="label">Onda 32</span><span class="when">★ Surpresa</span></div>
+          <h3>NEXUS Conversacional</h3>
+          <div class="d">AI embedada · perguntas em linguagem natural sobre o acervo · RAG sanitizado (DA-070) · Memory Bank sobre os 49k docs.</div>
+        </div>
+        <div class="c4 road-card b">
+          <div class="h"><span class="label">Onda 33</span><span class="when">Planejado</span></div>
+          <h3>Cadeias Documentais</h3>
+          <div class="d">6 cadeias documentais Res. 4.843/2019 como fluxogramas interativos · POP-driven · click-through nos nós.</div>
+        </div>
+        <div class="c4 road-card g">
+          <div class="h"><span class="label">Onda 34</span><span class="when">Planejado</span></div>
+          <h3>Memória + Mapa</h3>
+          <div class="d">Timeline interativa das 71 DAs · diff entre versões · Mapa Itajubá com polígono de atuação 56º BPM.</div>
+        </div>
+      </div>
+
+      <div class="section-h"><h3>Meta institucional · T4/2027</h3></div>
+      <div class="grid">
+        <div class="c12 card accent">
+          <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:var(--sp5)">
+            <div class="kpi-stat"><div class="v" style="color:var(--greenL)">≥92</div><div class="l">Compliance score</div><div class="d">Atual: 82 · meta T4/2027</div></div>
+            <div class="kpi-stat"><div class="v" style="color:var(--blueL)">100%</div><div class="l">Cobertura legal</div><div class="d">Atual: 97% · gap residual em saúde/perícia</div></div>
+            <div class="kpi-stat"><div class="v" style="color:var(--purpleL)">100%</div><div class="l">Automação ciclo</div><div class="d">F1/F2/F3 · self-healing · DA-051</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<a class="tb-btn" href="https://sadm-56bpm.github.io/painel/apresentacao-mobile.html" target="_blank" rel="noopener" style="position:fixed;bottom:var(--sp5);right:var(--sp5);z-index:var(--z-toast);background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border:none;box-shadow:var(--sh-gold)">📱 Versão Mobile</a>
+
+<script>
+// Tabs
+document.getElementById('rail').addEventListener('click', function(e){
+  if(e.target.tagName!=='BUTTON') return;
+  document.querySelectorAll('#rail button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  e.target.classList.add('on');
+  document.getElementById(e.target.dataset.t).classList.add('on');
+  window.scrollTo({top:document.querySelector('.tab-rail').offsetTop-20,behavior:'smooth'});
+});
+
+// Live clock
+(function(){
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function pad(n){return n<10?'0'+n:n}
+  function tick(){
+    const d=new Date();
+    const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    document.getElementById('cTime').textContent=t;
+    document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+    document.getElementById('liveStamp').textContent=t;
+  }
+  setInterval(tick,1000);tick();
+})();
+</script>
+
+</body>
+</html>

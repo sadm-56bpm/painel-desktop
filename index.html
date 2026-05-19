@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>SADM 56 BPM · Hub Desktop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* Hub-specific */
+.hero-card{
+  grid-column:span 12;
+  background:
+    radial-gradient(circle at 80% 30%,rgba(201,163,72,0.10),transparent 50%),
+    linear-gradient(135deg,var(--bg4) 0%,var(--bg3) 50%,var(--bg2) 100%);
+  border:1px solid var(--line3);
+  border-radius:var(--r5);
+  padding:var(--sp9) var(--sp8);
+  position:relative;overflow:hidden;
+  display:grid;grid-template-columns:auto 1fr auto;gap:var(--sp8);align-items:center
+}
+.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,var(--gold),var(--goldL),var(--gold),transparent)}
+.hero-crest{
+  width:140px;height:140px;border-radius:50%;
+  background:linear-gradient(135deg,var(--bg5),var(--bg6));
+  border:3px solid var(--gold);
+  display:grid;place-items:center;
+  font-family:var(--ff-serif);font-size:56px;font-weight:700;color:var(--gold);
+  box-shadow:0 0 48px rgba(201,163,72,0.5),inset 0 4px 12px rgba(232,199,122,0.25);
+  animation:crestPulse 4s ease-in-out infinite
+}
+.hero-info h1{font-family:var(--ff-serif);font-size:var(--t-4xl);font-weight:600;color:var(--gold);line-height:1.1}
+.hero-info .meta{font-family:var(--ff-mono);font-size:var(--t-md);color:var(--mut);margin-top:var(--sp3);letter-spacing:2px;text-transform:uppercase}
+.hero-info .scope{margin-top:var(--sp5);font-size:var(--t-md);color:var(--txt2);max-width:640px;line-height:1.65}
+.hero-info .scope strong{color:var(--gold);font-weight:600}
+.hero-clock{
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+  padding:var(--sp5) var(--sp6);
+  background:linear-gradient(135deg,var(--gold),var(--goldD));
+  color:var(--bg);border-radius:var(--r4);
+  font-family:var(--ff-mono);font-weight:600;
+  box-shadow:var(--sh-gold),inset 0 2px 0 rgba(255,255,255,0.2);
+  min-width:240px
+}
+.hero-clock .t{font-size:var(--t-3xl);letter-spacing:2px;line-height:1}
+.hero-clock .d{font-size:var(--t-sm);margin-top:var(--sp2);opacity:0.85;letter-spacing:0.5px}
+.hero-clock .label{font-size:var(--t-xs);margin-top:var(--sp3);opacity:0.75;letter-spacing:2px;text-transform:uppercase}
+
+.kpi-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r4);
+  padding:var(--sp6) var(--sp5);
+  position:relative;overflow:hidden;
+  transition:transform var(--dur2) var(--ease),border-color var(--dur2) var(--ease)
+}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.kpi-card.g{--acc:var(--greenL)}.kpi-card.b{--acc:var(--blueL)}.kpi-card.p{--acc:var(--purpleL)}
+.kpi-card.o{--acc:var(--orangeL)}.kpi-card.c{--acc:var(--cyanL)}
+.kpi-card:hover{transform:translateY(-2px);border-color:var(--line3)}
+.kpi-card .v{font-family:var(--ff-mono);font-size:var(--t-5xl);font-weight:700;color:var(--acc,var(--gold));line-height:1;letter-spacing:-2px}
+.kpi-card .l{font-size:var(--t-md);color:var(--txt2);text-transform:uppercase;letter-spacing:1.5px;margin-top:var(--sp3);font-weight:500}
+.kpi-card .d{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:var(--sp2);letter-spacing:0.5px}
+
+.panel-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r4);
+  padding:var(--sp6) var(--sp5);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:var(--sp4);
+  text-decoration:none;color:inherit;
+  transition:transform var(--dur2) var(--ease),border-color var(--dur2) var(--ease),box-shadow var(--dur2) var(--ease);
+  cursor:pointer;min-height:260px
+}
+.panel-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--acc,var(--gold)),transparent)}
+.panel-card.g{--acc:var(--greenL)}.panel-card.b{--acc:var(--blueL)}.panel-card.p{--acc:var(--purpleL)}
+.panel-card.o{--acc:var(--orangeL)}.panel-card.c{--acc:var(--cyanL)}
+.panel-card:hover{transform:translateY(-4px);border-color:var(--acc);box-shadow:var(--sh3)}
+.panel-card .ph{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp4)}
+.panel-card .ph .icon{
+  width:56px;height:56px;border-radius:var(--r3);
+  background:linear-gradient(135deg,var(--acc,var(--gold)),var(--bg3));
+  display:grid;place-items:center;font-size:28px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.18)
+}
+.panel-card .ph .badge{font-family:var(--ff-mono);font-size:9px;padding:3px 7px;border-radius:5px;background:rgba(201,163,72,0.12);border:1px solid var(--gold);color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.panel-card h2{font-family:var(--ff-serif);font-size:var(--t-2xl);color:var(--txt);font-weight:600;line-height:1.2}
+.panel-card .sub{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.panel-card .desc{font-size:var(--t-sm);color:var(--txt2);line-height:1.6;flex:1}
+.panel-card .ft{display:flex;gap:var(--sp2);flex-wrap:wrap}
+
+.shortcut-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);border-radius:var(--r3);
+  padding:var(--sp4) var(--sp4);
+  display:flex;align-items:center;gap:var(--sp3);
+  text-decoration:none;color:var(--txt2);
+  transition:all var(--dur2) var(--ease)
+}
+.shortcut-card:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,163,72,0.04)}
+.shortcut-card .ico{font-size:var(--t-xl);width:32px;text-align:center}
+.shortcut-card .lb{flex:1;font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:500;letter-spacing:0.5px}
+
+.mobile-link{
+  position:fixed;bottom:var(--sp5);right:var(--sp5);z-index:var(--z-toast);
+  padding:var(--sp3) var(--sp4);
+  background:linear-gradient(135deg,var(--gold),var(--goldD));
+  color:var(--bg);border-radius:50px;
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:600;
+  box-shadow:var(--sh-gold);
+  display:flex;align-items:center;gap:var(--sp2);
+  transition:transform var(--dur2) var(--ease);
+  text-transform:uppercase;letter-spacing:1px
+}
+.mobile-link:hover{transform:scale(1.05) translateY(-2px)}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <!-- ═════ SIDEBAR ═════ -->
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link on" href="./">
+      <span class="ico">🏛</span><span class="lbl">Hub Central</span>
+    </a>
+    <a class="sb-link" href="./apresentacao-desktop.html">
+      <span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span>
+    </a>
+    <a class="sb-link" href="./tv-mural-desktop.html">
+      <span class="ico">📺</span><span class="lbl">TV Mural</span>
+    </a>
+    <a class="sb-link" href="./gestao-desktop.html">
+      <span class="ico">⚖</span><span class="lbl">Gestão</span>
+    </a>
+    <a class="sb-link" href="./operacional-desktop.html">
+      <span class="ico">⌚</span><span class="lbl">Operacional</span>
+    </a>
+
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener">
+      <span class="ico">☁</span><span class="lbl">Drive SADM</span>
+    </a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener">
+      <span class="ico">📅</span><span class="lbl">Calendar</span>
+    </a>
+    <a class="sb-link" href="https://mail.google.com" target="_blank" rel="noopener">
+      <span class="ico">✉</span><span class="lbl">Gmail</span>
+    </a>
+    <a class="sb-link" href="https://docs.google.com/spreadsheets/d/1M-G24FHL83UefNL1WVv5oHQFmjeyDnMPCrWbAQ2B8iM" target="_blank" rel="noopener">
+      <span class="ico">▦</span><span class="lbl">COMANDO_SADM</span>
+    </a>
+
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">★ Onda 29 Desktop</div>
+    </div>
+  </aside>
+
+  <!-- ═════ MAIN ═════ -->
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Hub Central</h1>
+        <div class="breadcrumb"><b>Workspace</b> · Visão geral · Ambiente cloud-first</div>
+      </div>
+      <div class="tb-actions">
+        <a class="tb-btn" href="https://sadm-56bpm.github.io/painel/" target="_blank" rel="noopener">
+          <span class="ico">📱</span>Ver versão mobile
+        </a>
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="live-stamp"><span class="dot"></span><span>Atualizado em <b id="liveStamp">--:--:--</b> · AGORA</span></div>
+
+    <!-- Hero -->
+    <div class="grid mt-5">
+      <div class="hero-card">
+        <div class="hero-crest">56</div>
+        <div class="hero-info">
+          <h1>Seção Administrativa · 56º BPM</h1>
+          <div class="meta">Itajubá · Minas Gerais · 17ª RPM</div>
+          <div class="scope">
+            Ambiente digital institucional <strong>cloud-first</strong> sobre o Workspace Polícia Militar.
+            Escopo: <strong>gestão jurídico-documental</strong> · produção, classificação, custódia
+            e auditabilidade de atos administrativos e cadeias documentais.
+          </div>
+        </div>
+        <div class="hero-clock">
+          <div class="t" id="hTime">--:--:--</div>
+          <div class="d" id="hDate">--</div>
+          <div class="label">Tempo real · Local</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="section-h"><h3>Indicadores institucionais</h3></div>
+    <div class="grid">
+      <div class="c3"><div class="kpi-card g"><div class="v">49.064</div><div class="l">Documentos</div><div class="d">10 blocos · 20,3 GB</div></div></div>
+      <div class="c3"><div class="kpi-card b"><div class="v">35</div><div class="l">Processos</div><div class="d">Res. 4.843/2019</div></div></div>
+      <div class="c3"><div class="kpi-card p"><div class="v">16</div><div class="l">Camadas BI</div><div class="d">8 desc · 8 pred</div></div></div>
+      <div class="c3"><div class="kpi-card o"><div class="v">71</div><div class="l">DAs canônicas</div><div class="d">DA-001 → DA-071</div></div></div>
+    </div>
+
+    <!-- Painéis canônicos -->
+    <div class="section-h"><h3>Painéis canônicos · Desktop</h3></div>
+    <div class="grid">
+
+      <a class="c4 panel-card g" href="./apresentacao-desktop.html">
+        <div class="ph">
+          <div class="icon" style="background:linear-gradient(135deg,var(--greenL),var(--greenD))">📋</div>
+          <div class="badge">★ Síntese</div>
+        </div>
+        <div>
+          <h2>Apresentação Executiva</h2>
+          <div class="sub">6 tabs · arquitetura completa</div>
+        </div>
+        <div class="desc">Visão executiva para Comando · organograma SADM · 3 planos canônicos · 35 processos · 16 camadas BI · 71 decisões arquiteturais · entrega Onda 28+.</div>
+        <div class="ft">
+          <span class="chip g">Identidade</span>
+          <span class="chip g">Arquitetura</span>
+          <span class="chip g">Governança</span>
+        </div>
+      </a>
+
+      <a class="c4 panel-card b" href="./tv-mural-desktop.html">
+        <div class="ph">
+          <div class="icon" style="background:linear-gradient(135deg,var(--blueL),var(--blueD))">📺</div>
+          <div class="badge">7 painéis</div>
+        </div>
+        <div>
+          <h2>TV Mural Institucional</h2>
+          <div class="sub">Rotativo · sala SADM</div>
+        </div>
+        <div class="desc">Painéis rotativos com KPIs, operadores, saúde organizacional, aniversariantes, compliance, AADP e identidade institucional · auto-refresh 25s.</div>
+        <div class="ft">
+          <span class="chip b">Auto-refresh</span>
+          <span class="chip b">Kiosque</span>
+          <span class="chip b">Live</span>
+        </div>
+      </a>
+
+      <a class="c4 panel-card p" href="./gestao-desktop.html">
+        <div class="ph">
+          <div class="icon" style="background:linear-gradient(135deg,var(--purpleL),var(--purpleD))">⚖</div>
+          <div class="badge">82/100</div>
+        </div>
+        <div>
+          <h2>Gestão Estratégica</h2>
+          <div class="sub">Compliance · AADP</div>
+        </div>
+        <div class="desc">Score do Programa Integridade PMMG/2024 · 4 eixos · 8 subeixos · cronograma AADP Res. 5.458/2025 · ciclo documental anual com cronograma e marcos.</div>
+        <div class="ft">
+          <span class="chip p">Score 82</span>
+          <span class="chip p">Meta 92</span>
+          <span class="chip p">T4/2027</span>
+        </div>
+      </a>
+
+      <a class="c6 panel-card o" href="./operacional-desktop.html">
+        <div class="ph">
+          <div class="icon" style="background:linear-gradient(135deg,var(--orangeL),var(--orangeD))">⌚</div>
+          <div class="badge">Refresh 1s</div>
+        </div>
+        <div>
+          <h2>Operacional Live</h2>
+          <div class="sub">Prazos · Performance · Aniversariantes</div>
+        </div>
+        <div class="desc">Countdowns ao vivo (D/H/M/S) dos prazos críticos · normas DOU/BGPM/IO-MG · Sentinela Legal com 97% de cobertura · performance por operador · aniversariantes próximos 7 dias.</div>
+        <div class="ft">
+          <span class="chip o">Countdowns</span>
+          <span class="chip o">Sentinela</span>
+          <span class="chip o">Performance</span>
+          <span class="chip o">D-7</span>
+        </div>
+      </a>
+
+      <a class="c6 panel-card c" href="https://drive.google.com/file/d/1HCZ-ATV_5eUp4kaVrIimpJO3XVlFxr_z/view" target="_blank" rel="noopener">
+        <div class="ph">
+          <div class="icon" style="background:linear-gradient(135deg,var(--cyanL),var(--cyanD))">⛓</div>
+          <div class="badge">D3.js</div>
+        </div>
+        <div>
+          <h2>Knowledge Graph</h2>
+          <div class="sub">67 nós · 156 arestas · interativo</div>
+        </div>
+        <div class="desc">Mapa interativo D3.js · blocos · funções · normas · POPs · módulos · DAs · filtros por tipo · visualização das interdependências do sistema institucional.</div>
+        <div class="ft">
+          <span class="chip c">D3 Force</span>
+          <span class="chip c">Interativo</span>
+          <span class="chip c">Filtros</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- Atalhos -->
+    <div class="section-h"><h3>Atalhos Workspace</h3></div>
+    <div class="grid">
+      <a class="c3 shortcut-card" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lb">Drive SADM</span></a>
+      <a class="c3 shortcut-card" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lb">Calendar</span></a>
+      <a class="c3 shortcut-card" href="https://mail.google.com" target="_blank" rel="noopener"><span class="ico">✉</span><span class="lb">Gmail</span></a>
+      <a class="c3 shortcut-card" href="https://docs.google.com/spreadsheets/d/1M-G24FHL83UefNL1WVv5oHQFmjeyDnMPCrWbAQ2B8iM" target="_blank" rel="noopener"><span class="ico">▦</span><span class="lb">COMANDO_SADM</span></a>
+    </div>
+
+    <!-- Foot -->
+    <div class="section-h" style="margin-top:var(--sp9)"><h3>Conformidade institucional</h3></div>
+    <div class="grid">
+      <div class="c12 card">
+        <div class="card-h">
+          <div>
+            <h2>Stack canônica · Onda 28+</h2>
+            <div class="sub">DA-027 · cloud-first · zero billing</div>
+          </div>
+          <span class="chip gold">R$ 0,00</span>
+        </div>
+        <div class="grid" style="grid-template-columns:repeat(4,1fr);gap:var(--sp4)">
+          <div class="kpi-stat"><div class="v" style="font-size:var(--t-2xl)">Workspace</div><div class="l">Polícia Militar · 1.415 PiB</div></div>
+          <div class="kpi-stat"><div class="v" style="font-size:var(--t-2xl)">GitHub Pages</div><div class="l">DA-071 · HTTPS forçado</div></div>
+          <div class="kpi-stat"><div class="v" style="font-size:var(--t-2xl)">Apps Script</div><div class="l">Runtime central · triggers</div></div>
+          <div class="kpi-stat"><div class="v" style="font-size:var(--t-2xl)">Multi-IA</div><div class="l">44.700+ req/dia · DA-067</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+</div>
+
+<a class="mobile-link" href="https://sadm-56bpm.github.io/painel/" target="_blank" rel="noopener">📱 Versão Mobile</a>
+
+<script>
+(function(){
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function pad(n){return n<10?'0'+n:n}
+  function tick(){
+    const d=new Date();
+    const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    const dLong=dias[d.getDay()]+' · '+pad(d.getDate())+' '+meses[d.getMonth()]+' '+d.getFullYear();
+    const dShort=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+    document.getElementById('cTime').textContent=t;
+    document.getElementById('cDate').textContent=dShort;
+    document.getElementById('hTime').textContent=t;
+    document.getElementById('hDate').textContent=dLong;
+    document.getElementById('liveStamp').textContent=t;
+  }
+  setInterval(tick,1000);tick();
+})();
+</script>
+
+</body>
+</html>

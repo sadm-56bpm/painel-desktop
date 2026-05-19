@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>TV Mural · Desktop · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* TV Mural Desktop · 16:9 fullscreen-ready */
+body{padding:0;margin:0;overflow:hidden;background:var(--bg)}
+.tv-wrap{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  background:radial-gradient(ellipse at top,var(--bg2) 0%,var(--bg) 60%);
+  padding:32px 48px;gap:24px
+}
+.tv-top{display:flex;align-items:center;justify-content:space-between;flex-shrink:0;padding-bottom:18px;border-bottom:1px solid var(--line2)}
+.tv-brand{display:flex;align-items:center;gap:18px}
+.tv-crest{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--bg5),var(--bg6));
+  border:2.5px solid var(--gold);
+  display:grid;place-items:center;
+  font-family:var(--ff-serif);font-size:30px;font-weight:700;color:var(--gold);
+  box-shadow:0 0 28px rgba(201,163,72,0.5);
+  animation:crestPulse 4s ease-in-out infinite
+}
+.tv-brand h1{font-family:var(--ff-serif);font-size:26px;color:var(--gold);font-weight:600;line-height:1.1}
+.tv-brand .sub{font-family:var(--ff-mono);font-size:13px;color:var(--mut);margin-top:3px;letter-spacing:2px;text-transform:uppercase}
+.tv-meta{display:flex;align-items:center;gap:24px}
+.tv-clock{font-family:var(--ff-mono);font-size:42px;font-weight:700;color:var(--gold);letter-spacing:3px;line-height:1}
+.tv-date{font-family:var(--ff-mono);font-size:13px;color:var(--mut);text-align:right;margin-top:5px;letter-spacing:1px;text-transform:uppercase}
+
+.tv-dots{display:flex;gap:8px;justify-content:center;padding:8px 0;flex-shrink:0}
+.tv-dot{width:50px;height:5px;border-radius:3px;background:var(--line2);transition:all 0.4s ease}
+.tv-dot.on{background:linear-gradient(90deg,var(--gold),var(--goldL));box-shadow:0 0 10px rgba(201,163,72,0.5)}
+
+.tv-stage{flex:1;position:relative;overflow:hidden}
+.tv-panel{position:absolute;inset:0;opacity:0;transition:opacity 0.6s ease;display:flex;flex-direction:column;gap:24px}
+.tv-panel.on{opacity:1}
+
+.tv-panel h2{font-family:var(--ff-mono);font-size:14px;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-weight:500}
+.tv-panel h1{font-family:var(--ff-serif);font-size:54px;color:var(--txt);font-weight:600;line-height:1.1;margin-top:8px}
+
+.tv-kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:20px;flex:1}
+.tv-kpi{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r4);
+  padding:32px 28px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden
+}
+.tv-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.tv-kpi.g{--acc:var(--greenL)}.tv-kpi.b{--acc:var(--blueL)}.tv-kpi.p{--acc:var(--purpleL)}
+.tv-kpi.c{--acc:var(--cyanL)}.tv-kpi.o{--acc:var(--orangeL)}
+.tv-kpi .v{font-family:var(--ff-mono);font-size:88px;font-weight:700;color:var(--acc,var(--gold));line-height:1;letter-spacing:-3px}
+.tv-kpi .l{font-size:18px;color:var(--txt);text-transform:uppercase;letter-spacing:2px;margin-top:12px;font-weight:500}
+.tv-kpi .d{font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:8px;letter-spacing:1px}
+
+/* Operador panel */
+.op-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;flex:1}
+.op-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:28px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:14px}
+.op-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent)}
+.op-card.g{--acc:var(--green)}.op-card.b{--acc:var(--blue)}.op-card.p{--acc:var(--purple)}
+.op-h{display:flex;align-items:center;gap:18px}
+.op-h .lt{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--acc),var(--bg4));display:grid;place-items:center;font-family:var(--ff-serif);font-size:30px;font-weight:700;color:var(--bg)}
+.op-h .nm{font-family:var(--ff-serif);font-size:26px;color:var(--txt);font-weight:600}
+.op-h .ct{font-family:var(--ff-mono);font-size:12px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase}
+.op-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.op-stats .it{background:rgba(255,255,255,0.025);border-radius:var(--r2);padding:14px;border:1px solid var(--line)}
+.op-stats .it .v{font-family:var(--ff-mono);font-size:32px;font-weight:700;color:var(--acc);line-height:1}
+.op-stats .it .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.op-procs{font-family:var(--ff-mono);font-size:11px;color:var(--txt2);line-height:1.7;letter-spacing:0.3px;margin-top:auto;background:rgba(255,255,255,0.02);border-radius:var(--r2);padding:14px;border:1px solid var(--line);flex:1}
+
+/* Compliance panel */
+.cp-gauge{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1}
+.cp-gauge-num{font-family:var(--ff-mono);font-size:160px;font-weight:700;color:var(--gold);line-height:1;letter-spacing:-6px;text-shadow:0 0 40px rgba(201,163,72,0.4)}
+.cp-gauge-from{font-family:var(--ff-mono);font-size:18px;color:var(--mut);text-transform:uppercase;letter-spacing:4px;margin-top:6px}
+.cp-gauge-meta{font-family:var(--ff-serif);font-size:24px;color:var(--gold);margin-top:24px;font-style:italic}
+.cp-eixos{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:24px}
+.cp-eixo{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:20px}
+.cp-eixo .lb{font-family:var(--ff-mono);font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase}
+.cp-eixo .nm{font-size:14px;color:var(--txt);font-weight:600;margin-top:5px}
+.cp-eixo .v{font-family:var(--ff-mono);font-size:40px;font-weight:700;color:var(--gold);margin-top:8px;line-height:1}
+
+/* Stack panel */
+.st-grid{display:grid;grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(2,1fr);gap:20px;flex:1}
+.st-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:32px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:14px}
+.st-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,var(--acc,var(--gold)),transparent)}
+.st-card.g{--acc:var(--green)}.st-card.b{--acc:var(--blue)}.st-card.p{--acc:var(--purple)}.st-card.o{--acc:var(--orange)}
+.st-card .tit{font-family:var(--ff-serif);font-size:30px;color:var(--acc);font-weight:600;line-height:1.1}
+.st-card .meta{font-family:var(--ff-mono);font-size:12px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.st-card .d{font-size:15px;color:var(--txt2);line-height:1.55}
+
+/* Identidade */
+.id-block{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;gap:24px}
+.id-crest-big{width:160px;height:160px;border-radius:50%;background:linear-gradient(135deg,var(--bg5),var(--bg6));border:4px solid var(--gold);display:grid;place-items:center;font-family:var(--ff-serif);font-size:68px;font-weight:700;color:var(--gold);box-shadow:0 0 60px rgba(201,163,72,0.55);animation:crestPulse 4s ease-in-out infinite}
+.id-title{font-family:var(--ff-serif);font-size:48px;color:var(--gold);font-weight:600;line-height:1.1}
+.id-sub{font-family:var(--ff-mono);font-size:16px;color:var(--mut);letter-spacing:5px;text-transform:uppercase;margin-top:-12px}
+.id-vals{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;width:100%;margin-top:24px}
+.id-val{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:24px;text-align:left;position:relative;overflow:hidden}
+.id-val::before{content:'★';position:absolute;top:14px;right:18px;font-size:20px;color:var(--gold);opacity:0.6}
+.id-val .lbl{font-family:var(--ff-mono);font-size:11px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.id-val .nm{font-family:var(--ff-serif);font-size:20px;color:var(--txt);font-weight:600;margin-top:6px;line-height:1.25}
+.id-val .d{font-size:13px;color:var(--txt2);line-height:1.55;margin-top:8px}
+
+.tv-foot{display:flex;justify-content:space-between;align-items:center;flex-shrink:0;padding-top:12px;border-top:1px solid var(--line);font-family:var(--ff-mono);font-size:12px;color:var(--mut);letter-spacing:1px}
+.tv-foot .live-pulse{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);display:inline-block;margin-right:8px;animation:livePulse 1.6s infinite}
+.tv-foot .gold{color:var(--gold)}
+
+.fs-btn{position:fixed;top:24px;right:24px;z-index:100;padding:10px 16px;background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-radius:var(--r2);font-family:var(--ff-mono);font-size:12px;font-weight:600;letter-spacing:1px;cursor:pointer;border:none;text-transform:uppercase;box-shadow:var(--sh-gold)}
+.fs-btn:hover{transform:translateY(-1px)}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<button class="fs-btn" onclick="document.documentElement.requestFullscreen && document.documentElement.requestFullscreen()">⛶ Fullscreen</button>
+
+<div class="tv-wrap">
+
+  <div class="tv-top">
+    <div class="tv-brand">
+      <div class="tv-crest">56</div>
+      <div>
+        <h1>SADM · 56º BPM</h1>
+        <div class="sub" id="tvSub">Painel 1 / 7 · Estado</div>
+      </div>
+    </div>
+    <div class="tv-meta">
+      <div>
+        <div class="tv-clock" id="tvTime">--:--:--</div>
+        <div class="tv-date" id="tvDate">--</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tv-dots" id="tvDots"></div>
+
+  <div class="tv-stage">
+
+    <!-- ═════ PANEL 1 · ESTADO ═════ -->
+    <div class="tv-panel on" data-p="0">
+      <div>
+        <h2>Estado · Números Auditáveis</h2>
+        <h1>SADM em números</h1>
+      </div>
+      <div class="tv-kpi-grid">
+        <div class="tv-kpi b"><div class="v">49.064</div><div class="l">Documentos</div><div class="d">20,3 GB · 10 blocos canônicos</div></div>
+        <div class="tv-kpi"><div class="v">35</div><div class="l">Processos</div><div class="d">DA-048 · POPs · Res. 4.843/2019</div></div>
+        <div class="tv-kpi g"><div class="v">71</div><div class="l">Decisões</div><div class="d">DA-001 → DA-071</div></div>
+        <div class="tv-kpi p"><div class="v">82</div><div class="l">Compliance</div><div class="d">DA-037 · meta 92 em T4/2027</div></div>
+        <div class="tv-kpi c"><div class="v">16</div><div class="l">Camadas BI</div><div class="d">8 descritivas · 8 preditivas</div></div>
+        <div class="tv-kpi o"><div class="v">R$ 0</div><div class="l">Custo</div><div class="d">Stack 100% gratuita</div></div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 2 · OPERADORES ═════ -->
+    <div class="tv-panel" data-p="1">
+      <div>
+        <h2>Operadores · 3 servidores · 35 processos</h2>
+        <h1>Distribuição funcional</h1>
+      </div>
+      <div class="op-grid">
+        <div class="op-card g">
+          <div class="op-h"><div class="lt">F1</div><div><div class="nm">Movimentação</div><div class="ct">Carreira · 13 procs</div></div></div>
+          <div class="op-stats">
+            <div class="it"><div class="v">13</div><div class="l">Processos</div></div>
+            <div class="it"><div class="v">95%</div><div class="l">SLA médio</div></div>
+          </div>
+          <div class="op-procs">ESCOPO · movimentação · ERF · BI · AADP · concursos · cursos · designações · CTC · CFS · CHO · readaptação · agregação · reserva</div>
+        </div>
+        <div class="op-card b">
+          <div class="op-h"><div class="lt">F2</div><div><div class="nm">Direitos</div><div class="ct">Assistência · 12 procs</div></div></div>
+          <div class="op-stats">
+            <div class="it"><div class="v">12</div><div class="l">Processos</div></div>
+            <div class="it"><div class="v">88%</div><div class="l">SLA médio</div></div>
+          </div>
+          <div class="op-procs">ESCOPO · quinquênios · férias · férias-prêmio · abono · CTC · saúde · perícias · família · dependentes · licenças · pensões · auxílio funeral</div>
+        </div>
+        <div class="op-card p">
+          <div class="op-h"><div class="lt">F3</div><div><div class="nm">Pagamentos</div><div class="ct">Integridade · 10 procs</div></div></div>
+          <div class="op-stats">
+            <div class="it"><div class="v">10</div><div class="l">Processos</div></div>
+            <div class="it"><div class="v">92%</div><div class="l">SLA médio</div></div>
+          </div>
+          <div class="op-procs">ESCOPO · folha · diárias · Aux. Alim. · declarações · porte de arma · jornada · Integridade · indenizações · descontos · pagamentos suplementares</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 3 · COMPLIANCE ═════ -->
+    <div class="tv-panel" data-p="2">
+      <div>
+        <h2>Programa Integridade · PMMG/2024</h2>
+        <h1>Compliance Score</h1>
+      </div>
+      <div class="cp-gauge">
+        <div class="cp-gauge-num">82</div>
+        <div class="cp-gauge-from">de 100 · meta 92 · T4/2027</div>
+        <div class="cp-gauge-meta">↗ Evolução +24 pts em 4 anos</div>
+      </div>
+      <div class="cp-eixos">
+        <div class="cp-eixo"><div class="lb">Eixo 1</div><div class="nm">Liderança</div><div class="v">88</div></div>
+        <div class="cp-eixo"><div class="lb">Eixo 2</div><div class="nm">Riscos</div><div class="v">79</div></div>
+        <div class="cp-eixo"><div class="lb">Eixo 3</div><div class="nm">Códigos</div><div class="v">85</div></div>
+        <div class="cp-eixo"><div class="lb">Eixo 4</div><div class="nm">Monitor.</div><div class="v">76</div></div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 4 · AADP ═════ -->
+    <div class="tv-panel" data-p="3">
+      <div>
+        <h2>Cronograma AADP · Res. 5.458/2025</h2>
+        <h1>Ciclo AADP 2026</h1>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px;flex:1;justify-content:center">
+        <div style="position:relative;height:24px;background:var(--bg);border-radius:12px;border:1px solid var(--line);overflow:hidden">
+          <div style="height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));width:42%;border-radius:12px;box-shadow:0 0 18px rgba(201,163,72,0.5)"></div>
+          <div style="position:absolute;left:42%;top:-6px;height:36px;width:4px;background:var(--goldL);box-shadow:0 0 12px var(--goldL)"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--ff-mono);font-size:14px;color:var(--mut);letter-spacing:2px;text-transform:uppercase">
+          <span>Set/2025</span><span style="color:var(--gold);font-weight:600">Hoje · 42%</span><span>Ago/2026</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:24px">
+          <div style="background:rgba(74,191,122,0.08);border:1px solid rgba(74,191,122,0.3);border-radius:var(--r3);padding:18px"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--greenL);letter-spacing:1.5px">ETAPA 1</div><div style="font-size:16px;color:var(--txt);font-weight:600;margin-top:6px;line-height:1.2">Auto-avaliação</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:6px">Out/2025 · 100% ✓</div></div>
+          <div style="background:rgba(74,191,122,0.08);border:1px solid rgba(74,191,122,0.3);border-radius:var(--r3);padding:18px"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--greenL);letter-spacing:1.5px">ETAPA 2</div><div style="font-size:16px;color:var(--txt);font-weight:600;margin-top:6px;line-height:1.2">Avaliação chefias</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:6px">Nov/2025 · 98% ✓</div></div>
+          <div style="background:rgba(201,163,72,0.08);border:1px solid var(--gold);border-radius:var(--r3);padding:18px;box-shadow:0 0 18px rgba(201,163,72,0.15)"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--gold);letter-spacing:1.5px">ETAPA 3</div><div style="font-size:16px;color:var(--gold);font-weight:600;margin-top:6px;line-height:1.2">Revisão consolidada</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--gold);margin-top:6px">Mai/2026 · em curso</div></div>
+          <div style="background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:18px"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--mut);letter-spacing:1.5px">ETAPA 4</div><div style="font-size:16px;color:var(--txt2);font-weight:600;margin-top:6px;line-height:1.2">Recursos</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:6px">Jun/2026 · 15 dias</div></div>
+          <div style="background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:18px"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--mut);letter-spacing:1.5px">ETAPA 5</div><div style="font-size:16px;color:var(--txt2);font-weight:600;margin-top:6px;line-height:1.2">Análise</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:6px">Jul/2026 · Comissão</div></div>
+          <div style="background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r3);padding:18px"><div style="font-family:var(--ff-mono);font-size:11px;color:var(--mut);letter-spacing:1.5px">ETAPA 6</div><div style="font-size:16px;color:var(--txt2);font-weight:600;margin-top:6px;line-height:1.2">Homologação</div><div style="font-family:var(--ff-mono);font-size:12px;color:var(--mut);margin-top:6px">15/Ago · BGPM</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 5 · STACK ═════ -->
+    <div class="tv-panel" data-p="4">
+      <div>
+        <h2>Stack canônica · Onda 28+</h2>
+        <h1>Arquitetura tecnológica</h1>
+      </div>
+      <div class="st-grid">
+        <div class="st-card g">
+          <div class="meta">Plano 1 · Dados</div>
+          <div class="tit">Workspace PMMG</div>
+          <div class="d">Drive · Sheets · Calendar · Gmail · BigQuery · GitHub · cota 1.415 PiB · single source of truth · DA-027</div>
+        </div>
+        <div class="st-card p">
+          <div class="meta">Plano 2 · Inteligência</div>
+          <div class="tit">Multi-IA Gratuita</div>
+          <div class="d">Gemini AI Studio + Groq + Cerebras + Mistral · failover automático · 44.700+ req/dia · custo R$ 0,00 · DA-067</div>
+        </div>
+        <div class="st-card b">
+          <div class="meta">Plano 3 · Interface</div>
+          <div class="tit">GitHub Pages</div>
+          <div class="d">5 painéis mobile + 5 painéis desktop · HTTPS forçado · zero login · re-deploy 60s · DA-071</div>
+        </div>
+        <div class="st-card o">
+          <div class="meta">Runtime</div>
+          <div class="tit">Apps Script</div>
+          <div class="d">Triggers diários · auto-redação · auto-classificação · auditoria · Self-healing DA-051</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 6 · KG ═════ -->
+    <div class="tv-panel" data-p="5">
+      <div>
+        <h2>Knowledge Graph · D3.js</h2>
+        <h1>Mapa institucional</h1>
+      </div>
+      <div class="tv-kpi-grid" style="grid-template-rows:1fr 1fr">
+        <div class="tv-kpi b"><div class="v">67</div><div class="l">Nós</div><div class="d">Blocos · funções · normas · POPs · DAs</div></div>
+        <div class="tv-kpi g"><div class="v">156</div><div class="l">Arestas</div><div class="d">Interdependências mapeadas</div></div>
+        <div class="tv-kpi p"><div class="v">6</div><div class="l">Tipos</div><div class="d">Categorias filtráveis</div></div>
+        <div class="tv-kpi o"><div class="v">D3</div><div class="l">Force Layout</div><div class="d">Simulação física · interativo</div></div>
+        <div class="tv-kpi c"><div class="v">10</div><div class="l">Blocos</div><div class="d">Taxonomia v2.3 · DA-032</div></div>
+        <div class="tv-kpi"><div class="v">★</div><div class="l">Filtros</div><div class="d">Drill-down por tipo / função</div></div>
+      </div>
+    </div>
+
+    <!-- ═════ PANEL 7 · IDENTIDADE ═════ -->
+    <div class="tv-panel" data-p="6">
+      <div>
+        <h2>Identidade institucional</h2>
+        <h1 style="text-align:center;font-size:32px;color:var(--mut);font-weight:500">&nbsp;</h1>
+      </div>
+      <div class="id-block">
+        <div class="id-crest-big">56</div>
+        <div>
+          <div class="id-title">SADM · 56º BPM</div>
+          <div class="id-sub">Itajubá · Minas Gerais</div>
+        </div>
+        <div class="id-vals">
+          <div class="id-val">
+            <div class="lbl">Escopo</div>
+            <div class="nm">Jurídico-documental</div>
+            <div class="d">Produção, classificação, custódia e auditabilidade de atos administrativos e cadeias documentais.</div>
+          </div>
+          <div class="id-val">
+            <div class="lbl">Visão</div>
+            <div class="nm">SADM-referência</div>
+            <div class="d">Modelo de gestão documental · benchmark replicável a outros batalhões da PMMG.</div>
+          </div>
+          <div class="id-val">
+            <div class="lbl">Princípios</div>
+            <div class="nm">Integridade · Conformidade · Auditabilidade</div>
+            <div class="d">Cloud-first · POP-driven · doutrina Res. 4.843/2019 aplicada · DA-027.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tv-foot">
+    <span><span class="live-pulse"></span>AUTO-ROTATE 25s · <span class="gold">Painel <b id="tvCur">1</b> / 7</span></span>
+    <span>SADM 56 BPM · <span class="gold">Itajubá-MG</span> · Onda 28+ · <span id="liveStamp">--:--:--</span></span>
+  </div>
+
+</div>
+
+<script>
+const panels=document.querySelectorAll('.tv-panel');
+const dotsEl=document.getElementById('tvDots');
+const subEl=document.getElementById('tvSub');
+const curEl=document.getElementById('tvCur');
+const labels=['Estado','Operadores','Compliance','AADP','Stack','Knowledge Graph','Identidade'];
+let idx=0;
+
+// Build dots
+panels.forEach((_,i)=>{
+  const d=document.createElement('div');
+  d.className='tv-dot'+(i===0?' on':'');
+  dotsEl.appendChild(d);
+});
+
+function show(i){
+  panels.forEach((p,j)=>p.classList.toggle('on',i===j));
+  dotsEl.querySelectorAll('.tv-dot').forEach((d,j)=>d.classList.toggle('on',i===j));
+  subEl.textContent='Painel '+(i+1)+' / 7 · '+labels[i];
+  curEl.textContent=i+1;
+  idx=i;
+}
+function next(){show((idx+1)%panels.length)}
+setInterval(next,25000);
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight')next();
+  if(e.key==='ArrowLeft')show((idx-1+panels.length)%panels.length);
+  if(e.key==='f')document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+});
+
+// Clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('tvTime').textContent=t;
+  document.getElementById('tvDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+  document.getElementById('liveStamp').textContent=t;
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
