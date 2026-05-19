@@ -234,7 +234,7 @@
    Foco: gerar Google Doc no Drive (NÃO render HTML)
    ═══════════════════════════════════════════════════════════════════ */
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbymbcehunoyOTZnob9b8wh6LPCgy7sYXgI0IYRfD4TPVe3fK0CRq5cX5r4IrE3Kdd51/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCjZnuY_xHGIBC9jZ-4P27Af9oSXoo8FMEywYQE--Xk0dcqGKVcni9ESOkdVvzF24i/exec';
 
 const TIPOS = [
   {id:'oficio',           nm:'Ofício',                              pref:'Of',     ico:'📨', cor:'gold', desc:'Comunicação formal externa entre autoridades'},
@@ -344,17 +344,38 @@ function selectTipo(id){
   }
   html += `</div>`;
 
+  // Toggle refino IA (gratuito · AI Studio · default desligado)
+  html += `<div class="ai-toggle" style="margin:14px 0 8px;padding:12px 14px;background:rgba(184,134,11,.05);border:1px solid rgba(184,134,11,.2);border-radius:6px;display:flex;align-items:center;gap:12px;">
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--text);margin:0;">
+      <input type="checkbox" id="fldUseAi" style="width:16px;height:16px;cursor:pointer;">
+      <span style="font-weight:600;letter-spacing:.3px">Refino com IA</span>
+    </label>
+    <div style="flex:1;font-size:11px;color:var(--text-dim);line-height:1.4">
+      <span id="aiHintOff">Desligado · texto bruto formatado em Aptos com numeração canônica · 100% institucional</span>
+      <span id="aiHintOn" style="display:none">Ligado · Gemini AI Studio refina ortografia + tom oficial · 1.500 req/dia gratuito</span>
+    </div>
+  </div>`;
+
   html += `<button class="gen-btn" id="genBtn">
     <span style="font-size:18px">${currentTipo.ico}</span>
     <span>Gerar Google Doc · ${currentTipo.nm}</span>
     <span>›</span>
   </button>
-  <div class="loading" id="loading"><div class="spin"></div><span>Gerando texto técnico via Gemini · criando Google Doc no Drive...</span></div>
+  <div class="loading" id="loading"><div class="spin"></div><span id="loadingMsg">Formatando documento · criando Google Doc no Drive...</span></div>
   <div class="err" id="err"></div>
   <div class="result" id="result"></div>`;
 
   document.getElementById('formBody').innerHTML = html;
   document.getElementById('genBtn').onclick = gerar;
+  // Toggle visual do hint IA
+  const ck = document.getElementById('fldUseAi');
+  if (ck) ck.onchange = () => {
+    document.getElementById('aiHintOff').style.display = ck.checked ? 'none' : '';
+    document.getElementById('aiHintOn').style.display  = ck.checked ? '' : 'none';
+    document.getElementById('loadingMsg').textContent = ck.checked
+      ? 'Refinando texto via Gemini AI Studio · criando Google Doc no Drive...'
+      : 'Formatando documento · criando Google Doc no Drive...';
+  };
 }
 
 async function gerar(){
@@ -366,14 +387,32 @@ async function gerar(){
     return;
   }
 
+  const useAi = !!(document.getElementById('fldUseAi') && document.getElementById('fldUseAi').checked);
+  const assinaSel = document.getElementById('fldAssina').value;
+  // Mapeia assinatura selecionada → quem_assina + posto canônico
+  const assinaMap = {
+    'Chefia SADM':        { quem: 'Fillipe Natã Dutra Caldeira',  posto: 'Cap. PM',     setor: 'Chefia SADM/56º BPM' },
+    'F1 Movimentação':    { quem: '[Operador F1]',                 posto: '',            setor: 'F1 · Movimentação · SADM/56º BPM' },
+    'F2 Direitos':        { quem: '[Operador F2]',                 posto: '',            setor: 'F2 · Direitos · SADM/56º BPM' },
+    'F3 Pagamentos':      { quem: '[Operador F3]',                 posto: '',            setor: 'F3 · Pagamentos · SADM/56º BPM' },
+    'Comandante 56º BPM': { quem: '[Comandante]',                  posto: 'Ten. Cel. PM','setor: 56º Batalhão de Polícia Militar' }
+  };
+  const sig = assinaMap[assinaSel] || { quem: assinaSel, posto: '', setor: 'SADM/56º BPM' };
+  const setorNum = f.setor ? document.getElementById('fldSetor').value.trim() : 'SADM/56º BPM';
+
   const payload = {
     tipo: currentTipo.id,
-    fatos: fatos,
-    destinatario: f.dest ? document.getElementById('fldDest').value.trim() : '',
-    referencia: f.ref ? document.getElementById('fldRef').value.trim() : '',
-    assunto: f.assunto ? document.getElementById('fldAssunto').value.trim() : '',
-    assina: document.getElementById('fldAssina').value,
-    setor: f.setor ? document.getElementById('fldSetor').value.trim() : 'SADM/56º BPM'
+    use_ai: useAi,
+    payload: {
+      destinatario: f.dest ? document.getElementById('fldDest').value.trim() : '',
+      referencia:   f.ref ? document.getElementById('fldRef').value.trim() : '',
+      assunto:      f.assunto ? document.getElementById('fldAssunto').value.trim() : '',
+      conteudo:     fatos,
+      quem_assina:  sig.quem,
+      posto:        sig.posto,
+      setor:        setorNum,
+      local_emissao:'Itajubá/MG'
+    }
   };
 
   hideErr();
@@ -388,7 +427,7 @@ async function gerar(){
     });
     if (!r.ok) throw new Error('HTTP ' + r.status);
     const data = await r.json();
-    if (data.error) throw new Error(data.error);
+    if (!data.ok) throw new Error(data.error || 'resposta inválida');
     showResult(data);
   } catch (e) {
     showErr('Falha: ' + e.message);
@@ -399,26 +438,34 @@ async function gerar(){
 
 function showResult(data){
   const r = document.getElementById('result');
+  const ia = data.ia || { used:false };
+  const iaLabel = ia.used
+    ? `IA: ${(ia.provider||'').replace(/\/.*/,'')} · ${ia.tokens||0} tk`
+    : 'Sem refino IA · lógica pura';
   r.innerHTML = `
     <div class="result-h">
       <div class="ico">✓</div>
       <div class="info">
         <h3>Google Doc criado no Drive</h3>
-        <div class="sub">Arquivo formatado em Aptos · pronto para revisão e assinatura</div>
+        <div class="sub">Aptos · cabeçalho PMMG canônico · pronto para revisão e assinatura</div>
       </div>
     </div>
     <div class="result-info">
       <div class="cell">
         <div class="lbl">Número canônico</div>
-        <div class="vl">${data.numero}</div>
+        <div class="vl">${data.numero_canonico || data.numero}</div>
       </div>
       <div class="cell">
         <div class="lbl">Tempo de geração</div>
-        <div class="vl">${data.latency_ms} ms · Gemini</div>
+        <div class="vl">${data.latency_ms} ms</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Processamento</div>
+        <div class="vl" style="font-size:11px">${iaLabel}</div>
       </div>
     </div>
     <div class="result-actions">
-      <a class="act-primary" href="${data.doc_url}" target="_blank">
+      <a class="act-primary" href="${data.url || data.doc_url}" target="_blank">
         <span style="font-size:18px">📄</span>
         <span>Abrir no Google Docs</span>
       </a>
