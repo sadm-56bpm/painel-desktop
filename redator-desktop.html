@@ -85,11 +85,31 @@
 .preview-h .lbl{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:6px}
 .preview-h .miv{font-family:var(--ff-mono);font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(201,163,72,0.10);color:var(--gold);border:1px solid var(--gold);letter-spacing:0.5px}
 
-/* ★ PREVIEW DO DOCUMENTO · Inter (substituto humanista de Aptos · MS 365 / PMMG real) */
+/* ★ APTOS @font-face · self-served fallback · CDN sketchy mas funcional */
+@font-face {
+  font-family: 'Aptos';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Aptos'),
+       local('Aptos Regular'),
+       url('https://db.onlinewebfonts.com/t/7dd5f4bf5d38875ca1822a830b6e6fe4.woff2') format('woff2');
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Aptos';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Aptos Bold'),
+       local('Aptos-Bold'),
+       url('https://db.onlinewebfonts.com/t/7dd5f4bf5d38875ca1822a830b6e6fe4.woff2') format('woff2');
+  font-display: swap;
+}
+
+/* ★ PREVIEW DO DOCUMENTO · Aptos (real PMMG · MS 365) · Inter como fallback */
 .doc-sheet{
   background:#fff;color:#000;
   padding:30mm 25mm;
-  font-family:'Inter','Aptos','Calibri','Segoe UI',sans-serif;
+  font-family:'Aptos','Inter','Calibri','Segoe UI',sans-serif;
   font-size:11pt;line-height:1.5;
   font-feature-settings:'cv11','ss01','ss03';
   border-radius:var(--r2);
@@ -102,7 +122,7 @@
 
 /* Cabeçalho institucional · logo + textos · MIV fiel */
 .doc-header{text-align:center;border-bottom:1.5pt solid #0A2E5C;padding-bottom:6mm;margin-bottom:8mm}
-.doc-logo{width:60px;height:60px;margin:0 auto 4mm;background:linear-gradient(135deg,#1A3E7C,#0A2E5C);border-radius:50%;display:grid;place-items:center;color:#C9A348;font-size:24px;font-weight:700;font-family:'Inter',sans-serif;border:2px solid #C9A348}
+.doc-logo{width:60px;height:60px;margin:0 auto 4mm;background:linear-gradient(135deg,#1A3E7C,#0A2E5C);border-radius:50%;display:grid;place-items:center;color:#C9A348;font-size:24px;font-weight:700;font-family:'Aptos','Inter',sans-serif;border:2px solid #C9A348}
 .doc-header .h1{font-size:11pt;font-weight:700;color:#0A2E5C;letter-spacing:1px;margin-bottom:1mm}
 .doc-header .h2{font-size:10pt;font-weight:600;color:#0A2E5C;letter-spacing:0.5px}
 .doc-header .h3{font-size:9pt;color:#444;letter-spacing:0.3px;margin-top:1mm;font-style:italic}
