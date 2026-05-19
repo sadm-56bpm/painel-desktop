@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Cadeias Documentais · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.cd-layout{display:grid;grid-template-columns:280px 1fr 360px;gap:var(--sp4);height:calc(100vh - 200px);min-height:600px}
+
+/* Sidebar de cadeias */
+.cd-chains{display:flex;flex-direction:column;gap:var(--sp3);overflow-y:auto;padding-right:4px}
+.cd-chains::-webkit-scrollbar{width:5px}
+.cd-chains::-webkit-scrollbar-track{background:transparent}
+.cd-chains::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.chain-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:var(--sp4);
+  cursor:pointer;
+  transition:all var(--dur2) var(--ease);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;gap:var(--sp2)
+}
+.chain-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc),transparent);transition:width 0.2s}
+.chain-card.g{--acc:var(--green)}.chain-card.b{--acc:var(--blue)}.chain-card.p{--acc:var(--purple)}
+.chain-card.o{--acc:var(--orange)}.chain-card.c{--acc:var(--cyan)}.chain-card.r{--acc:var(--red)}
+.chain-card:hover{transform:translateX(2px);border-color:var(--acc)}
+.chain-card:hover::before{width:5px}
+.chain-card.on{background:linear-gradient(180deg,rgba(201,163,72,0.10),var(--bg2));border-color:var(--acc);box-shadow:0 4px 14px rgba(201,163,72,0.2)}
+.chain-card.on::before{width:6px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
+
+.chain-h{display:flex;align-items:center;justify-content:space-between;gap:var(--sp2)}
+.chain-h .num{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;font-weight:700}
+.chain-h .badge{font-family:var(--ff-mono);font-size:9px;padding:2px 7px;border-radius:5px;background:rgba(201,163,72,0.1);color:var(--acc);border:1px solid var(--acc);letter-spacing:0.8px;text-transform:uppercase;font-weight:600}
+.chain-tit{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.25}
+.chain-sub{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.5px;line-height:1.4}
+
+/* Canvas central · fluxograma */
+.cd-canvas-wrap{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r4);
+  overflow:hidden;
+  position:relative;
+  display:flex;flex-direction:column
+}
+.cd-canvas-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
+
+.cd-canvas-head{padding:var(--sp4) var(--sp5);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--sp3)}
+.cd-canvas-head h2{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--gold);font-weight:600;line-height:1.2}
+.cd-canvas-head .breadcrumb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.cd-canvas-head .meta-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cd-meta-chip{font-family:var(--ff-mono);font-size:10px;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.04);color:var(--txt2);border:1px solid var(--line2);letter-spacing:0.5px}
+.cd-meta-chip.gold{background:rgba(201,163,72,0.10);color:var(--gold);border-color:rgba(201,163,72,0.4)}
+
+.cd-flow{flex:1;overflow-y:auto;padding:var(--sp6) var(--sp5);position:relative}
+.cd-flow::-webkit-scrollbar{width:6px}
+.cd-flow::-webkit-scrollbar-track{background:transparent}
+.cd-flow::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* Step cards · fluxograma vertical */
+.step{
+  position:relative;
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:var(--sp4) var(--sp5);
+  margin-bottom:var(--sp5);
+  cursor:pointer;
+  transition:all var(--dur2) var(--ease);
+  overflow:hidden
+}
+.step::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.step.g{--acc:var(--greenL)}.step.b{--acc:var(--blueL)}.step.p{--acc:var(--purpleL)}
+.step.o{--acc:var(--orangeL)}.step.c{--acc:var(--cyanL)}.step.r{--acc:var(--redL)}
+.step:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 4px 14px rgba(0,0,0,0.4)}
+.step.sel{border-color:var(--acc);box-shadow:0 0 0 2px rgba(201,163,72,0.3),0 4px 18px rgba(201,163,72,0.2);background:linear-gradient(180deg,rgba(201,163,72,0.04),var(--bg2))}
+
+.step-row{display:grid;grid-template-columns:52px 1fr auto;gap:var(--sp4);align-items:center}
+.step-num{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc),var(--bg4));
+  border:2px solid var(--acc);
+  display:grid;place-items:center;
+  font-family:var(--ff-serif);font-size:var(--t-xl);font-weight:700;color:var(--bg);
+  flex-shrink:0
+}
+.step-num.done{background:linear-gradient(135deg,var(--green),var(--greenD));border-color:var(--green);color:#fff}
+.step-info{min-width:0}
+.step-info .tt{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.25;margin-bottom:3px}
+.step-info .sb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.3px;line-height:1.5}
+.step-info .sb b{color:var(--acc);font-weight:600}
+.step-tags{display:flex;flex-direction:column;gap:5px;align-items:flex-end}
+.step-tag{font-family:var(--ff-mono);font-size:9.5px;padding:3px 9px;border-radius:5px;letter-spacing:0.5px;font-weight:600;white-space:nowrap;display:inline-flex;align-items:center;gap:4px}
+.step-tag.actor{background:rgba(74,138,216,0.10);color:var(--blueL);border:1px solid rgba(74,138,216,0.3)}
+.step-tag.sla{background:rgba(216,136,56,0.10);color:var(--orangeL);border:1px solid rgba(216,136,56,0.3)}
+.step-tag.doc{background:rgba(138,90,216,0.10);color:var(--purpleL);border:1px solid rgba(138,90,216,0.3)}
+
+/* Conector entre etapas */
+.step-arrow{
+  width:2px;height:30px;background:linear-gradient(180deg,var(--line3),transparent);
+  margin:-12px auto var(--sp1);position:relative
+}
+.step-arrow::after{
+  content:'▼';position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);
+  color:var(--line3);font-size:14px;line-height:1
+}
+
+/* Painel detalhe à direita */
+.cd-detail{display:flex;flex-direction:column;gap:var(--sp3);overflow-y:auto;padding-right:4px}
+.cd-detail::-webkit-scrollbar{width:5px}
+.cd-detail::-webkit-scrollbar-track{background:transparent}
+.cd-detail::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.detail-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp5);position:relative;overflow:hidden}
+.detail-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.detail-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp3);display:flex;align-items:center;gap:8px}
+
+.dt-empty{color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-xs);font-style:italic;text-align:center;padding:var(--sp5) 0;letter-spacing:0.3px;line-height:1.6}
+
+.dt-step .tit{font-family:var(--ff-serif);font-size:var(--t-lg);color:var(--gold);font-weight:600;line-height:1.25;margin-bottom:var(--sp2)}
+.dt-step .num{display:inline-block;padding:3px 9px;border-radius:5px;font-family:var(--ff-mono);font-size:10px;color:var(--bg);font-weight:700;letter-spacing:1px;background:var(--gold);margin-bottom:var(--sp3)}
+.dt-row{display:grid;grid-template-columns:80px 1fr;gap:var(--sp2);padding:var(--sp2) 0;border-bottom:1px solid var(--line);font-size:var(--t-sm)}
+.dt-row:last-child{border-bottom:none}
+.dt-row .lb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);text-transform:uppercase;letter-spacing:0.8px;padding-top:2px}
+.dt-row .vl{color:var(--txt2);line-height:1.5;letter-spacing:0.2px}
+.dt-row .vl b{color:var(--gold);font-weight:600}
+
+.pop-block{margin-top:var(--sp4);padding:var(--sp3);background:rgba(74,138,216,0.05);border:1px solid rgba(74,138,216,0.25);border-radius:var(--r2)}
+.pop-block .l{font-family:var(--ff-mono);font-size:10px;color:var(--blueL);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.pop-block .v{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt);line-height:1.5;letter-spacing:0.2px}
+
+.doc-block{margin-top:var(--sp3);padding:var(--sp3);background:rgba(138,90,216,0.05);border:1px solid rgba(138,90,216,0.25);border-radius:var(--r2)}
+.doc-block .l{font-family:var(--ff-mono);font-size:10px;color:var(--purpleL);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:6px}
+.doc-block .v{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt);line-height:1.5;letter-spacing:0.2px}
+
+.chain-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+.chain-stat{background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp3);text-align:center}
+.chain-stat .v{font-family:var(--ff-mono);font-size:var(--t-xl);font-weight:700;color:var(--gold);line-height:1}
+.chain-stat .l{font-family:var(--ff-mono);font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.legend{padding:var(--sp3);background:rgba(255,255,255,0.015);border:1px dashed var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;color:var(--dim);line-height:1.7;letter-spacing:0.2px}
+.legend b{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./sentinela-desktop.html"><span class="ico">📡</span><span class="lbl">Sentinela Legal</span><span class="tag">★</span></a>
+    <a class="sb-link on" href="./cadeias-desktop.html"><span class="ico">📜</span><span class="lbl">Cadeias</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">📜 Cadeias v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Cadeias Documentais</h1>
+        <div class="breadcrumb"><b>POP-driven</b> · 6 cadeias · Res. 4.843/2019 · DA-048</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cd-layout mt-4">
+
+      <!-- ═════ SIDEBAR DAS CADEIAS ═════ -->
+      <aside class="cd-chains" id="chains"></aside>
+
+      <!-- ═════ CANVAS FLUXOGRAMA ═════ -->
+      <section class="cd-canvas-wrap">
+        <div class="cd-canvas-head" id="canvasHead"></div>
+        <div class="cd-flow" id="flow"></div>
+      </section>
+
+      <!-- ═════ DETALHE LATERAL ═════ -->
+      <aside class="cd-detail">
+
+        <div class="detail-card">
+          <h3><span>ⓘ</span>Detalhe da etapa</h3>
+          <div id="stepDetail"><div class="dt-empty">Clique em uma etapa do fluxograma para ver POP, documento gerado, ator responsável e SLA.</div></div>
+        </div>
+
+        <div class="detail-card" style="--acc:var(--blueL)">
+          <h3><span>📊</span>Estatísticas da cadeia</h3>
+          <div id="chainStats"></div>
+        </div>
+
+        <div class="detail-card" style="--acc:var(--purpleL)">
+          <h3><span>⚡</span>Como usar</h3>
+          <div class="legend">
+            <b>1.</b> Selecione uma cadeia na lateral esquerda<br>
+            <b>2.</b> O fluxograma renderiza as etapas verticalmente<br>
+            <b>3.</b> Clique em uma etapa para ver POP canônico (DA-048), documento gerado, ator e SLA<br>
+            <b>4.</b> Cada cadeia segue Res. 4.843/2019 · cita norma quando aplicável
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   CADEIAS DOCUMENTAIS · 6 cadeias canônicas · Res. 4.843/2019
+   ═══════════════════════════════════════════════════════════════════ */
+
+const CHAINS = [
+  {
+    id:'c1', cor:'g', num:'01', area:'F1', icon:'🎖',
+    titulo:'Movimentação de Carreira',
+    sub:'Transferência · designação · permuta · ingresso',
+    norma:'Res. 4.843/2019 · Res. 4.616/2017 (ERF)',
+    sla_total:'30 dias úteis',
+    steps:[
+      {n:'1', t:'Solicitação inicial', doc:'Requerimento padrão', ator:'Militar interessado', sla:'1 dia', pop:'POP F1-01 · recebe protocolo, abre processo eletrônico, indexa no Drive Bloco 1.1', detalhe:'Documento inicial padronizado (Res. 4.843/2019 art. 12). Deve conter: identificação completa, motivação, anexos pertinentes. F1 protocoliza em até 1 dia útil.'},
+      {n:'2', t:'Análise técnica F1', doc:'Parecer técnico F1', ator:'F1 Movimentação', sla:'5 dias', pop:'POP F1-02 · avalia consistência documental, requisitos legais, prazo · checa ERF do militar', detalhe:'F1 verifica: tempo de serviço, especialização, restrições funcionais, vagas disponíveis. Parecer fundamentado conforme Res. 4.843/2019. Pode pedir complementação.'},
+      {n:'3', t:'Despacho da Chefia', doc:'Despacho de aprovação ou indeferimento', ator:'Chefia SADM', sla:'3 dias', pop:'POP CH-01 · avalia parecer técnico, sustenta decisão, encaminha · ACESSO_RESERVADO DA-003 se necessário', detalhe:'Chefia decide com base no parecer F1. Despacho deve ser motivado (princípio constitucional). Decisões controversas escalam ao Cmt 56º BPM.'},
+      {n:'4', t:'Manifestação superior', doc:'Ofício ou parecer da unidade superior', ator:'Cmt 56º BPM · 17ª RPM (se aplicável)', sla:'10 dias', pop:'POP F1-03 · encaminha via SEI/Email institucional, monitora prazo, registra trâmite', detalhe:'Algumas movimentações exigem aprovação superior (ex: transferência inter-batalhão). F1 monitora protocolo e registra resposta. Se silêncio, F1 cobra após 10 dias.'},
+      {n:'5', t:'Publicação BI', doc:'Boletim Interno (BI)', ator:'F1 Movimentação', sla:'3 dias', pop:'POP F1-04 · redige texto canônico, encaminha para publicação semanal, indexa no Bloco 4.1', detalhe:'BI publicado semanalmente. Texto em linguagem técnica padronizada (Res. 4.843/2019). Indexação automática no acervo digital (Bloco 4 Atos).'},
+      {n:'6', t:'Arquivo & ERF', doc:'Anotação no ERF · arquivo digital', ator:'F1 Movimentação', sla:'2 dias', pop:'POP F1-05 · atualiza ERF (Res. 4.616/2017), MD5 do processo, mantém em Bloco 1.1', detalhe:'Anotação automática no Extrato de Registro Funcional. Hash MD5 do processo (DA-004). Cópia em ACESSO_RESERVADO se contém informação sigilosa. Processo encerra após arquivamento.'}
+    ]
+  },
+
+  {
+    id:'c2', cor:'b', num:'02', area:'F1 + Chefia', icon:'📝',
+    titulo:'Ciclo AADP',
+    sub:'Avaliação Anual de Desempenho · Res. 5.458/2025',
+    norma:'Res. 5.458/2025 · DA-035',
+    sla_total:'~12 meses',
+    steps:[
+      {n:'1', t:'Auto-avaliação', doc:'Formulário AADP-1 preenchido', ator:'Militar avaliado', sla:'30 dias', pop:'POP F1-AADP-01 · disponibiliza formulário, monitora preenchimento, valida assinatura', detalhe:'Etapa 1 do ciclo (Out/2025 no ciclo atual). Cada militar preenche formulário detalhado de auto-avaliação. F1 garante 100% de adesão.'},
+      {n:'2', t:'Avaliação das chefias', doc:'Formulário AADP-2 · parecer chefia', ator:'Chefia imediata + Chefia mediata', sla:'30 dias', pop:'POP F1-AADP-02 · orienta chefias, recebe avaliações, valida consistência', detalhe:'Etapa 2 (Nov/2025). Chefias avaliam subordinados em 8 dimensões. Meta: ≥98% conformidade. Divergências > 20% sinalizam Etapa 3.'},
+      {n:'3', t:'Revisão consolidada', doc:'Relatório consolidado · divergências marcadas', ator:'F1 + Chefia SADM', sla:'90 dias', pop:'POP F1-AADP-03 · consolida planilha mestre, identifica divergências > 20%, gera relatório · alerta Cockpit', detalhe:'Etapa 3 (Mai/2026 · em curso). F1 consolida 100% dos militares avaliados. Itens com divergência > 20% são marcados para revisão. Estado atual: 12 itens em análise. Aparece no Cockpit como decisão crítica.'},
+      {n:'4', t:'Período de recursos', doc:'Recursos formais · 15 dias úteis', ator:'Militar interessado · F1 protocoliza', sla:'15 dias', pop:'POP F1-AADP-04 · publica abertura de prazo (BI), recebe recursos, classifica, encaminha para Etapa 5', detalhe:'Etapa 4 (Jun/2026 · planejado). Prazo legal para apresentação de recursos. F1 publica abertura via BI. Cada recurso é protocolado individualmente.'},
+      {n:'5', t:'Análise dos recursos', doc:'Parecer da comissão por recurso', ator:'Comissão AADP · Chefia 56º BPM', sla:'30 dias', pop:'POP F1-AADP-05 · pauta reunião, distribui recursos para relatoria, registra deliberações em ata', detalhe:'Etapa 5 (Jul/2026). Comissão analisa cada recurso individualmente. Pareceres fundamentados. Deliberação por maioria. Ata oficial registrada.'},
+      {n:'6', t:'Homologação final · BGPM', doc:'Publicação no BGPM', ator:'Cmt 56º BPM · 17ª RPM', sla:'1 dia', pop:'POP F1-AADP-06 · encaminha consolidado ao Cmt, monitora publicação BGPM, atualiza ERF de todos', detalhe:'Etapa 6 (15/Ago/2026). Marco final do ciclo. Publicação oficial no BGPM. F1 atualiza ERF de todos os militares avaliados. Ciclo seguinte abre em Set/2026.'}
+    ]
+  },
+
+  {
+    id:'c3', cor:'p', num:'03', area:'F2', icon:'⚖',
+    titulo:'Direitos Funcionais',
+    sub:'Quinquênios · férias · férias-prêmio · abono',
+    norma:'Res. 4.843/2019 · Lei estadual servidores',
+    sla_total:'~45 dias úteis',
+    steps:[
+      {n:'1', t:'Requerimento do militar', doc:'Requerimento de direito + comprovantes', ator:'Militar interessado', sla:'1 dia', pop:'POP F2-01 · protocoliza, checa documentação mínima, indexa no Bloco 1.2', detalhe:'Documento inicial padronizado. Cada tipo de direito (quinquênio, férias, abono) tem checklist próprio. F2 valida documentação mínima antes de protocolar.'},
+      {n:'2', t:'Análise técnica F2', doc:'Parecer técnico F2 · planilha de tempo', ator:'F2 Direitos', sla:'15 dias', pop:'POP F2-02 · verifica tempo de serviço (CTC), calcula direito, fundamenta concessão · checa ERF', detalhe:'F2 calcula tempo de serviço com base no ERF (Res. 4.616/2017). Parecer cita base legal explícita. Quinquênios: a cada 5 anos. Abono: requisitos da Lei estadual. Cálculo conferido em duplicidade.'},
+      {n:'3', t:'Despacho de concessão', doc:'Despacho da Chefia', ator:'Chefia SADM', sla:'3 dias', pop:'POP CH-02 · valida parecer F2, sustenta concessão, encaminha para folha (F3)', detalhe:'Chefia valida parecer técnico F2. Despacho motivado. Casos com pendência documental retornam à Etapa 2.'},
+      {n:'4', t:'Lançamento na folha', doc:'Lançamento mensal · folha de pagamento', ator:'F3 Pagamentos', sla:'até próximo ciclo mensal', pop:'POP F3-01 · recebe processo de F2, lança valor na folha, gera relatório de conferência', detalhe:'F3 lança o valor na folha mensal. Conferência cruzada com F2 (princípio dos 4 olhos). Lançamento publicado na folha do mês seguinte ao despacho.'},
+      {n:'5', t:'Publicação & arquivo', doc:'Ato publicado em BI · arquivo digital', ator:'F2 Direitos · F1 publica BI', sla:'2 dias', pop:'POP F2-03 · redige ato, encaminha para BI, anota no ERF, MD5 do processo', detalhe:'Ato de concessão publicado no BI semanal. Anotação no ERF. Processo digital arquivado em Bloco 1.2 com hash MD5 (DA-004). Notificação ao militar via email institucional.'}
+    ]
+  },
+
+  {
+    id:'c4', cor:'o', num:'04', area:'F2 + CMP/CRP', icon:'🩺',
+    titulo:'Saúde · Perícias',
+    sub:'LTS · CMP · CRP · pareceres médicos',
+    norma:'Res. SES-MG · convênio PMMG',
+    sla_total:'~20 dias úteis',
+    steps:[
+      {n:'1', t:'Solicitação de perícia', doc:'Requerimento + atestado/laudo', ator:'Militar · médico assistente', sla:'1 dia', pop:'POP F2-SAU-01 · protocoliza, anexa documentos, indexa em Bloco 1.3 (saúde)', detalhe:'Militar apresenta atestado/laudo médico solicitando perícia (Licença Tratamento Saúde · readaptação · aposentadoria por invalidez). F2 protocoliza com sigilo (DA-003 se contém diagnóstico sensível).'},
+      {n:'2', t:'Encaminhamento CMP/CRP', doc:'Ofício de encaminhamento', ator:'F2 Direitos', sla:'3 dias', pop:'POP F2-SAU-02 · gera ofício canônico, encaminha para CMP/CRP, monitora prazo, registra protocolo', detalhe:'F2 encaminha ao Centro Médico (CMP) ou Centro de Reabilitação (CRP). Ofício padronizado contém: identificação, motivo, anexos. Protocolo monitorado para SLA.'},
+      {n:'3', t:'Avaliação médica', doc:'Parecer médico · laudo CMP/CRP', ator:'Junta médica CMP/CRP', sla:'10 dias', pop:'POP CMP-01 (externo · F2 monitora) · aguarda retorno, cobra se necessário, recebe parecer', detalhe:'Junta médica avalia presencialmente. Parecer técnico-médico fundamentado. Decisão: concede LTS · readaptação · invalida pedido · pede complementação. F2 cobra se >10 dias.'},
+      {n:'4', t:'Recepção & análise F2', doc:'Análise do parecer · proposta de ato', ator:'F2 Direitos', sla:'2 dias', pop:'POP F2-SAU-03 · recebe parecer, valida formalmente, propõe ato administrativo, encaminha para Chefia', detalhe:'F2 verifica completude formal do parecer médico. Não interfere no mérito médico. Propõe ato administrativo correspondente (concessão LTS, readaptação, etc).'},
+      {n:'5', t:'Despacho & publicação', doc:'Ato administrativo · BI', ator:'Chefia SADM · F1 publica', sla:'3 dias', pop:'POP CH-03 · valida ato proposto, assina, encaminha para BI · ACESSO_RESERVADO se contém diagnóstico', detalhe:'Chefia valida e assina ato. Publicação no BI. Diagnóstico médico em ACESSO_RESERVADO (DA-003 · proteção dados sensíveis · DA-070). Apenas o ato administrativo é publicado, nunca o diagnóstico.'},
+      {n:'6', t:'Anotação ERF & arquivo', doc:'Anotação ERF · arquivo digital', ator:'F2 Direitos', sla:'1 dia', pop:'POP F2-SAU-04 · atualiza ERF, MD5, arquiva em ACESSO_RESERVADO se aplicável', detalhe:'Anotação no ERF (Res. 4.616/2017). Arquivo digital com hash MD5. Documentos médicos em ACESSO_RESERVADO (sigilo médico · DA-003). Notificação ao militar.'}
+    ]
+  },
+
+  {
+    id:'c5', cor:'c', num:'05', area:'F3', icon:'💰',
+    titulo:'Folha & Pagamentos',
+    sub:'Folha mensal · diárias · Aux. Alim. · suplementares',
+    norma:'Res. 4.843/2019 · normas DRH/PMMG',
+    sla_total:'ciclo mensal · 25 dias',
+    steps:[
+      {n:'1', t:'Lançamentos do mês', doc:'Planilha mestre · lançamentos consolidados', ator:'F3 Pagamentos', sla:'10 dias', pop:'POP F3-FOLHA-01 · recebe processos de F1/F2 com despachos · lança valores · checa duplicidades', detalhe:'F3 consolida todos os lançamentos do mês: vencimentos, gratificações, quinquênios novos, descontos, diárias. Conferência cruzada com origem (F1/F2). Planilha mestre é a fonte da verdade do mês.'},
+      {n:'2', t:'Conferência interna', doc:'Relatório de divergências', ator:'F3 · 4 olhos', sla:'3 dias', pop:'POP F3-FOLHA-02 · conferência cruzada (princípio 4 olhos), gera relatório de divergências, corrige', detalhe:'Segunda pessoa de F3 confere a folha. Divergências geram relatório que retorna ao Etapa 1. Meta: zero divergência. Não há fechamento sem 4 olhos validados.'},
+      {n:'3', t:'Validação da Chefia', doc:'Despacho de validação', ator:'Chefia SADM', sla:'2 dias', pop:'POP CH-04 · valida folha consolidada, autoriza fechamento, assina envio · pode ir ao Cockpit', detalhe:'Chefia revisa indicadores macro: total folha, variação vs mês anterior, exceções > R$ X. Decisão aparece no Cockpit (Mission Control) como pendência crítica.'},
+      {n:'4', t:'Envio ao DRH/PMMG', doc:'Folha digital + protocolo de envio', ator:'F3 Pagamentos', sla:'1 dia', pop:'POP F3-FOLHA-03 · gera arquivos canônicos, envia ao DRH/PMMG via SEI, protocoliza, registra trâmite', detalhe:'F3 envia folha consolidada ao DRH/PMMG no formato padronizado. Protocolo de envio é a evidência de cumprimento de prazo. Falta de envio gera bloqueio do pagamento.'},
+      {n:'5', t:'Publicação & creditamento', doc:'Folha publicada · BGPM/BI · crédito em conta', ator:'DRH/PMMG · F3 monitora', sla:'até último dia útil do mês', pop:'POP F3-FOLHA-04 · monitora publicação BGPM, confere crédito, atende reclamações em D+1 a D+5', detalhe:'DRH/PMMG publica folha em BGPM. Crédito em conta no último dia útil. F3 atende reclamações nos 5 dias úteis seguintes. Erros corrigidos em folha suplementar do mês seguinte.'}
+    ]
+  },
+
+  {
+    id:'c6', cor:'r', num:'06', area:'F3 + Chefia', icon:'🛡',
+    titulo:'Integridade & Compliance',
+    sub:'Programa Integridade PMMG/2024 · 4 eixos · 8 subeixos',
+    norma:'Programa Integridade PMMG/2024 · DA-037',
+    sla_total:'ciclo anual',
+    steps:[
+      {n:'1', t:'Mapeamento de riscos', doc:'Matriz de riscos atualizada', ator:'F3 + Chefia SADM', sla:'30 dias', pop:'POP F3-INT-01 · atualiza matriz anual, identifica riscos novos, classifica probabilidade × impacto', detalhe:'Etapa anual. Identifica processos com risco de integridade (fraude, conflito de interesse, vazamento). Score por eixo (E1-E4 do Programa Integridade). Resultado alimenta E2 do Compliance.'},
+      {n:'2', t:'Plano de mitigação', doc:'Plano anual de ação · controles', ator:'Chefia SADM · F3 executa', sla:'15 dias', pop:'POP CH-05 · prioriza riscos, define controles, atribui responsáveis, registra cronograma', detalhe:'Chefia define controles preventivos, detectivos e corretivos. Cada risco do mapa tem plano associado. Cronograma trimestral. Aparece como decisão no Cockpit.'},
+      {n:'3', t:'Execução & monitoramento', doc:'Relatórios trimestrais de execução', ator:'F3 + responsáveis designados', sla:'trimestral', pop:'POP F3-INT-02 · monitora execução, gera relatório trimestral, alerta desvios, atualiza scores', detalhe:'F3 monitora execução dos controles. Indicadores quantitativos. Desvios > X% alertam Chefia. Score de Compliance atualizado trimestralmente (atual: 82/100). Painel Gestão mostra evolução.'},
+      {n:'4', t:'Auditoria interna', doc:'Relatório de auditoria · NCs', ator:'Chefia SADM · auditor externo se aplicável', sla:'10 dias', pop:'POP CH-06 · auditoria 4 eixos, registra não-conformidades (NCs), valida evidências documentais', detalhe:'Auditoria anual dos 4 eixos. Identifica não-conformidades, recomenda ações corretivas. Evidências documentais arquivadas no Bloco 7.1 (Governança). Score E4 (Monitoramento) atualizado.'},
+      {n:'5', t:'Relatório anual & BGPM', doc:'Relatório anual de integridade · publicação BGPM', ator:'Chefia SADM · Cmt 56º BPM aprova', sla:'15 dias', pop:'POP CH-07 · consolida ciclo anual, redige relatório, encaminha para Cmt, monitora publicação BGPM', detalhe:'Relatório anual consolida ciclo. Publicação BGPM. Score final do ano. Plano para ciclo seguinte. Meta T4/2027: score ≥92. Cobertura legal ≥100%.'}
+    ]
+  }
+];
+
+let currentChain = null;
+let currentStep = null;
+
+/* ─── Renderização ─── */
+
+function renderChainsList(){
+  const wrap = document.getElementById('chains');
+  wrap.innerHTML = CHAINS.map(c => `
+    <div class="chain-card ${c.cor}" data-id="${c.id}">
+      <div class="chain-h">
+        <span class="num">CADEIA ${c.num}</span>
+        <span class="badge">${c.area}</span>
+      </div>
+      <div class="chain-tit">${c.icon} ${c.titulo}</div>
+      <div class="chain-sub">${c.sub}</div>
+      <div class="chain-sub" style="margin-top:6px;color:var(--dim)">${c.steps.length} etapas · ${c.sla_total}</div>
+    </div>
+  `).join('');
+  wrap.querySelectorAll('.chain-card').forEach(el => {
+    el.addEventListener('click', () => selectChain(el.dataset.id));
+  });
+}
+
+function selectChain(id){
+  currentChain = CHAINS.find(c => c.id === id);
+  currentStep = null;
+
+  document.querySelectorAll('.chain-card').forEach(el => {
+    el.classList.toggle('on', el.dataset.id === id);
+  });
+
+  // Header
+  document.getElementById('canvasHead').innerHTML = `
+    <div>
+      <h2>${currentChain.icon} ${currentChain.titulo}</h2>
+      <div class="breadcrumb">${currentChain.sub}</div>
+    </div>
+    <div class="meta-chips">
+      <span class="cd-meta-chip gold">Cadeia ${currentChain.num}</span>
+      <span class="cd-meta-chip">${currentChain.area}</span>
+      <span class="cd-meta-chip">${currentChain.steps.length} etapas</span>
+      <span class="cd-meta-chip">${currentChain.sla_total}</span>
+    </div>
+  `;
+
+  // Fluxograma
+  const flow = document.getElementById('flow');
+  flow.innerHTML = currentChain.steps.map((s, idx) => `
+    <div class="step ${currentChain.cor}" data-step="${idx}">
+      <div class="step-row">
+        <div class="step-num">${s.n}</div>
+        <div class="step-info">
+          <div class="tt">${s.t}</div>
+          <div class="sb">Documento: <b>${s.doc}</b></div>
+        </div>
+        <div class="step-tags">
+          <span class="step-tag actor">👤 ${s.ator.length > 24 ? s.ator.slice(0, 22) + '…' : s.ator}</span>
+          <span class="step-tag sla">⏱ ${s.sla}</span>
+        </div>
+      </div>
+    </div>
+    ${idx < currentChain.steps.length - 1 ? '<div class="step-arrow"></div>' : ''}
+  `).join('');
+  flow.querySelectorAll('.step').forEach(el => {
+    el.addEventListener('click', () => selectStep(parseInt(el.dataset.step)));
+  });
+
+  // Stats
+  document.getElementById('chainStats').innerHTML = `
+    <div class="chain-stats">
+      <div class="chain-stat"><div class="v">${currentChain.steps.length}</div><div class="l">Etapas</div></div>
+      <div class="chain-stat"><div class="v">${currentChain.area}</div><div class="l">Responsável</div></div>
+    </div>
+    <div style="margin-top:var(--sp3);padding:var(--sp3);background:rgba(74,138,216,0.06);border:1px solid rgba(74,138,216,0.25);border-radius:var(--r2)">
+      <div style="font-family:var(--ff-mono);font-size:10px;color:var(--blueL);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px">Base normativa</div>
+      <div style="font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);line-height:1.5">${currentChain.norma}</div>
+    </div>
+    <div style="margin-top:var(--sp2);padding:var(--sp3);background:rgba(216,136,56,0.06);border:1px solid rgba(216,136,56,0.25);border-radius:var(--r2)">
+      <div style="font-family:var(--ff-mono);font-size:10px;color:var(--orangeL);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:4px">SLA total</div>
+      <div style="font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);line-height:1.5">${currentChain.sla_total}</div>
+    </div>
+  `;
+
+  // Auto-seleciona primeira etapa
+  selectStep(0);
+}
+
+function selectStep(idx){
+  if (!currentChain) return;
+  currentStep = idx;
+  const s = currentChain.steps[idx];
+
+  document.querySelectorAll('.step').forEach((el, i) => {
+    el.classList.toggle('sel', i === idx);
+  });
+
+  document.getElementById('stepDetail').innerHTML = `
+    <div class="dt-step">
+      <div class="num">ETAPA ${s.n} / ${currentChain.steps.length}</div>
+      <div class="tit">${s.t}</div>
+      <div class="dt-row"><span class="lb">Ator</span><span class="vl"><b>${s.ator}</b></span></div>
+      <div class="dt-row"><span class="lb">Documento</span><span class="vl">${s.doc}</span></div>
+      <div class="dt-row"><span class="lb">SLA</span><span class="vl"><b>${s.sla}</b></span></div>
+
+      <div class="pop-block">
+        <div class="l">📋 POP canônico · DA-048</div>
+        <div class="v">${s.pop}</div>
+      </div>
+
+      <div class="doc-block">
+        <div class="l">📄 Detalhe operacional</div>
+        <div class="v">${s.detalhe}</div>
+      </div>
+    </div>
+  `;
+}
+
+// Inicializa com Cadeia 1
+renderChainsList();
+selectChain('c1');
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
