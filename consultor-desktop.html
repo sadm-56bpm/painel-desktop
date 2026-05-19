@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0A0E16">
-<title>NEXUS · Conversacional · SADM 56 BPM</title>
+<title>Consultor SADM · 56º BPM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
 <style>
-/* NEXUS Conversacional · interface chat institucional */
+/* Consultor SADM Conversacional · interface chat institucional */
 
 .nexus-layout{display:grid;grid-template-columns:1fr 380px;gap:var(--sp5);min-height:calc(100vh - 180px)}
 
@@ -177,7 +177,7 @@
     </div>
     <div class="sb-section">Painéis</div>
     <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
-    <a class="sb-link on" href="./nexus-desktop.html"><span class="ico">🧠</span><span class="lbl">NEXUS</span><span class="tag">★★★</span></a>
+    <a class="sb-link on" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
     <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
     <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
     <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
@@ -191,7 +191,7 @@
       <div>Cap. <span class="v">Fillipe Caldeira</span></div>
       <div>Chefia SADM</div>
       <div style="margin-top:6px">17ª RPM · PMMG</div>
-      <div style="margin-top:8px;color:var(--gold)">★★★ NEXUS v1.0-local</div>
+      <div style="margin-top:8px;color:var(--gold)">★★★ Consultor SADM v1.0-local</div>
     </div>
   </aside>
 
@@ -199,7 +199,7 @@
 
     <div class="topbar">
       <div class="tb-title">
-        <h1>NEXUS · Conversacional</h1>
+        <h1>Consultor SADM · Conversacional</h1>
         <div class="breadcrumb"><b>Inteligência institucional</b> · Pergunte ao acervo · Resposta com fonte</div>
       </div>
       <div class="tb-actions">
@@ -217,9 +217,9 @@
 
         <div class="chat-header">
           <div class="info">
-            <div class="ai-orb">N</div>
+            <div class="ai-orb">C</div>
             <div>
-              <h2>NEXUS · Assistente Institucional</h2>
+              <h2>Consultor SADM · Assistente Institucional</h2>
               <div class="meta">v1.0 · Local · Knowledge Base · 71 DAs · 35 procs · 5 fontes PMMG</div>
             </div>
           </div>
@@ -242,7 +242,7 @@
             <div class="sugg" data-q="O que é o Programa de Integridade?">Programa de Integridade</div>
           </div>
           <form class="input-row" id="form">
-            <input type="text" id="input" placeholder="Pergunte ao NEXUS · ex: 'qual é o ciclo AADP?' ou 'o que é DA-055?'" autocomplete="off">
+            <input type="text" id="input" placeholder="Pergunte ao Consultor SADM · ex: 'qual é o ciclo AADP?' ou 'o que é DA-055?'" autocomplete="off">
             <button class="send-btn" type="submit"><span>Enviar</span><span>›</span></button>
           </form>
         </div>
@@ -282,9 +282,9 @@
         </div>
 
         <div class="ctx-card">
-          <h3><span class="ico">ⓘ</span>Sobre o NEXUS</h3>
+          <h3><span class="ico">ⓘ</span>Sobre o Consultor SADM</h3>
           <p style="font-size:var(--t-xs);color:var(--txt2);line-height:1.7;letter-spacing:0.2px">
-            NEXUS é o assistente conversacional institucional da SADM. Esta é a <strong style="color:var(--gold)">versão local v1.0</strong>: busca semântica sobre a base de conhecimento canônica embarcada. Próxima versão (32.B) conectará Multi-IA Gratuita (DA-067) via proxy Apps Script com RAG anonimizado (DA-070).
+            Consultor SADM é o assistente conversacional institucional da SADM. Esta é a <strong style="color:var(--gold)">versão local v1.0</strong>: busca semântica sobre a base de conhecimento canônica embarcada. Próxima versão (32.B) conectará Multi-IA Gratuita (DA-067) via proxy Apps Script com RAG anonimizado (DA-070).
           </p>
           <div class="disclaimer" style="margin-top:var(--sp3)">
             ⚠ Esta versão responde apenas sobre arquitetura institucional, processos, governança e normas. Não acessa dados pessoais nem documentos sigilosos (DA-003 ACESSO_RESERVADO).
@@ -301,7 +301,7 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   NEXUS · Knowledge Base inline · Onda 32.A
+   Consultor SADM · Knowledge Base inline · Onda 32.A
    ═══════════════════════════════════════════════════════════════════ */
 
 const KB={
@@ -549,7 +549,7 @@ function answer(q){
   // 13. GitHub Pages
   if(/github|pages|publicacao|paineis|mobile|desktop|deploy/i.test(n)){
     return {
-      text:`<p>A SADM publica painéis institucionais via <strong>GitHub Pages</strong> (DA-071):</p><ul><li><strong>Mobile</strong> · https://sadm-56bpm.github.io/painel/ · 5 painéis 9:16</li><li><strong>Desktop</strong> · https://sadm-56bpm.github.io/painel-desktop/ · 5 painéis 16:9 + Cockpit + NEXUS</li></ul><p>HTTPS forçado · zero login · re-deploy automático em ~60s via git push · custo R$ 0,00. Drive permanece como backup auditável (DA-052).</p>`,
+      text:`<p>A SADM publica painéis institucionais via <strong>GitHub Pages</strong> (DA-071):</p><ul><li><strong>Mobile</strong> · https://sadm-56bpm.github.io/painel/ · 5 painéis 9:16</li><li><strong>Desktop</strong> · https://sadm-56bpm.github.io/painel-desktop/ · 5 painéis 16:9 + Cockpit + Consultor SADM</li></ul><p>HTTPS forçado · zero login · re-deploy automático em ~60s via git push · custo R$ 0,00. Drive permanece como backup auditável (DA-052).</p>`,
       sources:[{type:'da',label:'DA-071'},{type:'da',label:'DA-052'},{type:'painel',label:'Hub',href:'./'}]
     };
   }
@@ -557,7 +557,7 @@ function answer(q){
   // 14. Help / olá / quem é você
   if(/^(oi|ola|hello|hi|bom dia|boa tarde|boa noite|hey|tudo bem)|quem.*voce|o que.*voce|nexus/i.test(n)){
     return {
-      text:`<p>Olá. Sou o <strong>NEXUS</strong>, assistente institucional da SADM 56 BPM (versão 1.0-local · client-side).</p><p>Respondo sobre arquitetura, processos, governança, normas e indicadores. Tente perguntar:</p><ul><li>"O que é a DA-067?"</li><li>"Como funciona o AADP?"</li><li>"Quais os 35 processos?"</li><li>"Qual o score de compliance?"</li></ul><p>Use as sugestões abaixo ou categorias à direita.</p>`,
+      text:`<p>Olá. Sou o <strong>Consultor SADM</strong>, assistente institucional da SADM 56 BPM (versão 1.0-local · client-side).</p><p>Respondo sobre arquitetura, processos, governança, normas e indicadores. Tente perguntar:</p><ul><li>"O que é a DA-067?"</li><li>"Como funciona o AADP?"</li><li>"Quais os 35 processos?"</li><li>"Qual o score de compliance?"</li></ul><p>Use as sugestões abaixo ou categorias à direita.</p>`,
       sources:[]
     };
   }
@@ -586,7 +586,7 @@ function addMsg(role,html,sources){
   const m=document.createElement('div');
   m.className='msg '+role;
   const av=document.createElement('div');av.className='avatar';
-  av.textContent=role==='user'?'EU':'N';
+  av.textContent=role==='user'?'EU':'C';
   const bub=document.createElement('div');bub.className='bubble';
   bub.innerHTML=html;
   if(sources && sources.length){
@@ -650,7 +650,7 @@ document.querySelectorAll('.sugg, .cat-item').forEach(el=>{
 
 // Welcome message
 setTimeout(()=>{
-  addMsg('nexus',`<p>Olá. Sou o <strong>NEXUS</strong> — assistente institucional da SADM 56 BPM (versão 1.0-local).</p><p>Respondo perguntas sobre arquitetura, processos, governança, normas e indicadores da Seção, citando fonte em cada resposta.</p><p>Como posso ajudar? Pergunte ou use as sugestões abaixo.</p>`,[
+  addMsg('nexus',`<p>Olá. Sou o <strong>Consultor SADM</strong> — assistente institucional da SADM 56 BPM (versão 1.0-local).</p><p>Respondo perguntas sobre arquitetura, processos, governança, normas e indicadores da Seção, citando fonte em cada resposta.</p><p>Como posso ajudar? Pergunte ou use as sugestões abaixo.</p>`,[
     {type:'da',label:'DA-071'},
     {type:'painel',label:'Hub Central',href:'./'}
   ]);
