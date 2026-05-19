@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Sentinela Legal · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.sent-grid{display:grid;grid-template-columns:1fr 360px;gap:var(--sp5);align-items:start}
+
+/* Timeline */
+.timeline{position:relative;padding-left:36px}
+.timeline::before{content:'';position:absolute;left:14px;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,var(--gold),var(--goldD),transparent);border-radius:2px}
+
+.tl-item{position:relative;margin-bottom:var(--sp4);animation:itemIn 0.4s var(--ease-out) backwards}
+@keyframes itemIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:translateX(0)}}
+.tl-item:nth-child(2){animation-delay:0.05s}.tl-item:nth-child(3){animation-delay:0.1s}
+.tl-item:nth-child(4){animation-delay:0.15s}.tl-item:nth-child(5){animation-delay:0.2s}
+
+.tl-dot{position:absolute;left:-32px;top:14px;width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,var(--acc,var(--gold)),var(--bg4));border:3px solid var(--bg);box-shadow:0 0 0 2px var(--acc,var(--gold)),0 0 12px var(--acc,var(--gold))}
+.tl-item.dou .tl-dot{--acc:var(--green)}
+.tl-item.bgpm .tl-dot{--acc:var(--gold)}
+.tl-item.iomg .tl-dot{--acc:var(--blue)}
+.tl-item.diff .tl-dot{--acc:var(--orange);animation:pulseAlert 2s ease-in-out infinite}
+@keyframes pulseAlert{0%,100%{box-shadow:0 0 0 2px var(--orange),0 0 12px var(--orange)}50%{box-shadow:0 0 0 4px var(--orange),0 0 22px var(--orange)}}
+
+.tl-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp4) var(--sp5);position:relative;overflow:hidden;transition:transform var(--dur2) var(--ease),border-color var(--dur2) var(--ease)}
+.tl-card:hover{transform:translateX(2px);border-color:var(--line3)}
+.tl-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--acc,var(--gold)),transparent)}
+.tl-item.dou .tl-card::before{--acc:var(--green)}
+.tl-item.bgpm .tl-card::before{--acc:var(--gold)}
+.tl-item.iomg .tl-card::before{--acc:var(--blue)}
+.tl-item.diff .tl-card{background:linear-gradient(180deg,rgba(216,136,56,0.06),var(--bg2));border-color:rgba(216,136,56,0.3)}
+.tl-item.diff .tl-card::before{--acc:var(--orange)}
+
+.tl-h{display:flex;align-items:center;justify-content:space-between;gap:var(--sp3);margin-bottom:var(--sp2)}
+.tl-h .src{font-family:var(--ff-mono);font-size:var(--t-xs);font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.04);border:1px solid var(--line2)}
+.tl-item.dou .tl-h .src{background:rgba(74,191,122,0.12);color:var(--greenL);border-color:rgba(74,191,122,0.35)}
+.tl-item.bgpm .tl-h .src{background:rgba(201,163,72,0.12);color:var(--gold);border-color:rgba(201,163,72,0.35)}
+.tl-item.iomg .tl-h .src{background:rgba(74,138,216,0.12);color:var(--blueL);border-color:rgba(74,138,216,0.35)}
+.tl-h .dt{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.5px}
+.tl-card h3{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.35;margin-bottom:5px}
+.tl-card .desc{font-size:var(--t-sm);color:var(--txt2);line-height:1.55;letter-spacing:0.1px}
+.tl-card .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:var(--sp3)}
+.tl-tag{font-family:var(--ff-mono);font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.04);color:var(--mut);border:1px solid var(--line);letter-spacing:0.3px}
+.tl-tag.al{background:rgba(216,136,56,0.12);color:var(--orangeL);border-color:rgba(216,136,56,0.3);font-weight:600}
+.tl-tag.imp{background:rgba(200,65,65,0.12);color:var(--redL);border-color:rgba(200,65,65,0.3);font-weight:600}
+
+/* Diff block */
+.diff-block{background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp3);margin-top:var(--sp3);font-family:var(--ff-mono);font-size:11px;line-height:1.6}
+.diff-block .d-row{padding:3px 0;border-bottom:1px solid var(--line);display:flex;gap:8px}
+.diff-block .d-row:last-child{border-bottom:none}
+.diff-block .d-row.add{color:var(--greenL)}
+.diff-block .d-row.add::before{content:'+';color:var(--green);font-weight:700;width:14px;flex-shrink:0}
+.diff-block .d-row.rm{color:var(--redL)}
+.diff-block .d-row.rm::before{content:'−';color:var(--red);font-weight:700;width:14px;flex-shrink:0}
+.diff-block .d-row.ch{color:var(--orangeL)}
+.diff-block .d-row.ch::before{content:'~';color:var(--orange);font-weight:700;width:14px;flex-shrink:0}
+
+/* Filtros */
+.sent-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:var(--sp4)}
+.sent-filter{padding:8px 14px;background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-weight:500;transition:all var(--dur1) var(--ease);display:inline-flex;align-items:center;gap:6px}
+.sent-filter:hover{border-color:var(--gold);color:var(--gold)}
+.sent-filter.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:700}
+.sent-filter .dot{width:8px;height:8px;border-radius:50%}
+
+/* Coverage card */
+.cov-card{background:linear-gradient(135deg,rgba(74,191,122,0.08),var(--bg2));border:1px solid rgba(74,191,122,0.3);border-radius:var(--r4);padding:var(--sp5);text-align:center;position:relative;overflow:hidden}
+.cov-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.cov-num{font-family:var(--ff-mono);font-size:64px;font-weight:700;color:var(--greenL);line-height:1;letter-spacing:-2px;text-shadow:0 0 24px rgba(74,191,122,0.4)}
+.cov-meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:2px;text-transform:uppercase;margin-top:6px}
+.cov-target{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--green);margin-top:var(--sp3);letter-spacing:1px}
+
+/* Source breakdown */
+.src-stats{display:flex;flex-direction:column;gap:var(--sp3)}
+.src-stat{display:grid;grid-template-columns:auto 1fr auto;gap:var(--sp3);align-items:center}
+.src-stat .lb{font-family:var(--ff-mono);font-size:var(--t-xs);font-weight:600;width:48px;text-align:right;letter-spacing:1px;text-transform:uppercase}
+.src-stat .lb.dou{color:var(--greenL)}
+.src-stat .lb.bgpm{color:var(--gold)}
+.src-stat .lb.iomg{color:var(--blueL)}
+.src-stat .bar{height:8px;background:var(--bg);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.src-stat .fl{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 10px var(--c1)}
+.src-stat.dou .fl{--c1:var(--green);--c2:var(--greenL)}
+.src-stat.bgpm .fl{--c1:var(--gold);--c2:var(--goldL)}
+.src-stat.iomg .fl{--c1:var(--blue);--c2:var(--blueL)}
+.src-stat .v{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt);font-weight:600;text-align:right;width:50px}
+
+.alerts-card{background:linear-gradient(135deg,rgba(216,136,56,0.06),var(--bg2));border:1px solid rgba(216,136,56,0.3);border-radius:var(--r4);padding:var(--sp4);position:relative;overflow:hidden}
+.alerts-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--orange),transparent)}
+.alert-row{display:flex;gap:var(--sp3);align-items:flex-start;padding:var(--sp3) 0;border-bottom:1px solid rgba(216,136,56,0.15)}
+.alert-row:last-child{border-bottom:none}
+.alert-row .ic{width:24px;height:24px;border-radius:50%;background:rgba(216,136,56,0.18);border:1px solid var(--orange);display:grid;place-items:center;font-size:10px;color:var(--orangeL);font-weight:700;flex-shrink:0;margin-top:2px}
+.alert-row .b{flex:1;min-width:0}
+.alert-row .t{font-size:var(--t-sm);color:var(--txt);font-weight:600;line-height:1.3}
+.alert-row .s{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:3px;letter-spacing:0.3px}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link on" href="./sentinela-desktop.html"><span class="ico">📡</span><span class="lbl">Sentinela Legal</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">📡 Sentinela v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Sentinela Legal Live</h1>
+        <div class="breadcrumb"><b>Inteligência Visual</b> · Monitoramento DOU · BGPM · IO-MG · timeline · diff de normas</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sent-grid mt-4">
+
+      <div>
+        <div class="sent-filters" id="filters">
+          <div class="sent-filter on" data-src="all">Todas fontes</div>
+          <div class="sent-filter" data-src="DOU"><span class="dot" style="background:var(--green)"></span>DOU</div>
+          <div class="sent-filter" data-src="BGPM"><span class="dot" style="background:var(--gold)"></span>BGPM</div>
+          <div class="sent-filter" data-src="IO-MG"><span class="dot" style="background:var(--blue)"></span>IO-MG</div>
+          <div class="sent-filter" data-src="diff"><span class="dot" style="background:var(--orange)"></span>★ Com diff</div>
+        </div>
+
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <aside style="display:flex;flex-direction:column;gap:var(--sp4);position:sticky;top:var(--sp4)">
+
+        <div class="cov-card">
+          <div class="cov-num">97<small style="font-size:32px">%</small></div>
+          <div class="cov-meta">Cobertura legal</div>
+          <div class="cov-target">↗ Meta 100% · T4/2027</div>
+        </div>
+
+        <div class="hm-card" style="background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)"></div>
+          <h3 style="font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp4)">📊 Distribuição por fonte</h3>
+          <div class="src-stats">
+            <div class="src-stat dou"><span class="lb dou">DOU</span><div class="bar"><div class="fl" style="width:98%"></div></div><span class="v">98%</span></div>
+            <div class="src-stat bgpm"><span class="lb bgpm">BGPM</span><div class="bar"><div class="fl" style="width:99%"></div></div><span class="v">99%</span></div>
+            <div class="src-stat iomg"><span class="lb iomg">IO-MG</span><div class="bar"><div class="fl" style="width:94%"></div></div><span class="v">94%</span></div>
+          </div>
+        </div>
+
+        <div class="alerts-card">
+          <h3 style="font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--orange);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:var(--sp3)">⚠ Alertas ativos · 3</h3>
+          <div class="alert-row"><div class="ic">!</div><div class="b"><div class="t">Res. 5.458/2025 · alteração art. 12</div><div class="s">DOU · 17/Mai/2026 · impacta AADP em curso</div></div></div>
+          <div class="alert-row"><div class="ic">!</div><div class="b"><div class="t">BGPM 41/2026 · publicado hoje</div><div class="s">8 atos do 56º BPM · indexação pendente</div></div></div>
+          <div class="alert-row"><div class="ic">!</div><div class="b"><div class="t">IO-MG · alteração tabelas remuneração</div><div class="s">16/Mai/2026 · F3 valida impacto folha</div></div></div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   Sentinela Legal · Timeline mock realístico
+   ═══════════════════════════════════════════════════════════════════ */
+
+const TIMELINE=[
+  {
+    src:'DOU',date:'19/Mai/2026 · 09:42',
+    title:'Decreto 12.583/2026 · regulamentação porte de arma para servidores civis',
+    desc:'Atualização regulamentar. Não impacta diretamente o 56º BPM, mas requer revisão de TCAF para servidores administrativos da SADM.',
+    tags:['regulamentar','TCAF']
+  },
+  {
+    src:'BGPM',date:'19/Mai/2026 · 08:15',
+    title:'BGPM 41/2026 · publicação semanal',
+    desc:'Boletim Geral PMMG · 8 atos administrativos do 56º BPM publicados (movimentações, designações, cursos). Indexação F1 pendente.',
+    tags:['publicação','F1','indexação'],
+    alert:true,important:true
+  },
+  {
+    src:'IO-MG',date:'18/Mai/2026 · 16:30',
+    title:'Imprensa Oficial MG · alteração tabelas remuneração',
+    desc:'Atualização nos vencimentos e gratificações. F3 deve validar impacto na folha de Maio/2026 antes do fechamento (D-7).',
+    tags:['remuneração','F3','folha'],
+    diff:[
+      {op:'ch',txt:'Tabela X · reajuste 4,2% sobre vencimento base'},
+      {op:'ch',txt:'Gratificação Y · novo escalonamento por tempo de serviço'},
+      {op:'add',txt:'Adicional Z · criado para postos em zonas rurais'},
+      {op:'rm',txt:'Bonificação W · revogada (transição 90 dias)'}
+    ]
+  },
+  {
+    src:'DOU',date:'17/Mai/2026 · 14:20',
+    title:'Res. 5.458/2025 · alteração art. 12',
+    desc:'Mudança nos critérios de divergência > 20% no ciclo AADP. Impacto direto: 12 itens em revisão consolidada precisam ser reanalisados sob nova métrica.',
+    tags:['AADP','F1','impacto-alto'],
+    alert:true,important:true,
+    diff:[
+      {op:'ch',txt:'Art. 12 · margem aceita reduzida de 25% para 20%'},
+      {op:'add',txt:'Inciso novo · obrigatoriedade de parecer técnico em divergências > 30%'}
+    ]
+  },
+  {
+    src:'BGPM',date:'15/Mai/2026 · 10:05',
+    title:'Instrução 03-26 · padronização declarações funcionais',
+    desc:'Nova padronização para declarações emitidas. F3 atualiza templates. Sem impacto retroativo.',
+    tags:['F3','templates']
+  },
+  {
+    src:'DOU',date:'14/Mai/2026 · 11:48',
+    title:'Portaria conjunta SDS/SES · perícias médicas integradas',
+    desc:'Procedimento integrado entre CMP/CRP e SES-MG. F2 monitora alterações no fluxo de perícias.',
+    tags:['F2','saúde','CMP']
+  },
+  {
+    src:'IO-MG',date:'12/Mai/2026 · 09:30',
+    title:'Decreto estadual · feriado regional Itajubá',
+    desc:'Reconhecimento de feriado em data específica. Compensação no calendário institucional pelo F1.',
+    tags:['calendário','F1']
+  },
+  {
+    src:'BGPM',date:'12/Mai/2026 · 08:00',
+    title:'BGPM 40/2026 · publicação semanal',
+    desc:'5 atos administrativos do 56º BPM. Indexação concluída no acervo Bloco 4.',
+    tags:['publicação','rotina']
+  },
+  {
+    src:'DOU',date:'10/Mai/2026 · 16:15',
+    title:'Lei 14.928/2026 · servidores militares estaduais',
+    desc:'Novos direitos previdenciários para integrantes de força auxiliar. Análise jurídica em curso pela Chefia.',
+    tags:['lei','previdência','impacto-alto'],
+    important:true
+  },
+  {
+    src:'IO-MG',date:'08/Mai/2026 · 14:00',
+    title:'Resolução SES-MG · perícias por telemedicina',
+    desc:'Autorização ampliada para perícias remotas. F2 avalia adoção para 56º BPM.',
+    tags:['F2','telemedicina','perícias']
+  },
+  {
+    src:'BGPM',date:'05/Mai/2026 · 08:30',
+    title:'BGPM 39/2026 · publicação semanal',
+    desc:'Boletim regular · 6 atos do 56º BPM. Sem alterações normativas. Indexação rotineira.',
+    tags:['publicação','rotina']
+  },
+  {
+    src:'DOU',date:'03/Mai/2026 · 10:12',
+    title:'Instrução normativa AGU · convênios federais',
+    desc:'Atualização de procedimento. Sem impacto direto na SADM. Arquivado em referência.',
+    tags:['normativo','referência']
+  }
+];
+
+const tl=document.getElementById('timeline');
+let currentSrc='all';
+
+function render(){
+  tl.innerHTML='';
+  const filtered=TIMELINE.filter(e=>{
+    if(currentSrc==='all')return true;
+    if(currentSrc==='diff')return e.diff&&e.diff.length;
+    return e.src===currentSrc;
+  });
+  filtered.forEach(e=>{
+    const cls=e.src.toLowerCase().replace(/[^a-z]/g,'');
+    const item=document.createElement('div');
+    item.className='tl-item '+cls+(e.diff?' diff':'');
+    item.innerHTML=`
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-h">
+          <span class="src">${e.src}</span>
+          <span class="dt">${e.date}</span>
+        </div>
+        <h3>${e.title}</h3>
+        <div class="desc">${e.desc}</div>
+        <div class="tags">
+          ${e.alert?'<span class="tl-tag al">⚠ ALERTA</span>':''}
+          ${e.important?'<span class="tl-tag imp">★ ALTO IMPACTO</span>':''}
+          ${e.tags.map(t=>`<span class="tl-tag">${t}</span>`).join('')}
+        </div>
+        ${e.diff?`<div class="diff-block">${e.diff.map(d=>`<div class="d-row ${d.op}">${d.txt}</div>`).join('')}</div>`:''}
+      </div>`;
+    tl.appendChild(item);
+  });
+  if(!filtered.length){
+    tl.innerHTML='<div style="color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-sm);text-align:center;padding:var(--sp7);font-style:italic">Nenhuma norma encontrada para este filtro.</div>';
+  }
+}
+
+document.querySelectorAll('.sent-filter').forEach(f=>{
+  f.addEventListener('click',()=>{
+    document.querySelectorAll('.sent-filter').forEach(x=>x.classList.remove('on'));
+    f.classList.add('on');
+    currentSrc=f.dataset.src;
+    render();
+  });
+});
+
+render();
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Heatmap Operacional · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.hm-toolbar{display:flex;align-items:center;gap:var(--sp3);margin-bottom:var(--sp4);flex-wrap:wrap}
+.hm-toolbar .label{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;margin-right:var(--sp2)}
+.hm-btn{padding:8px 14px;background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-weight:500;transition:all var(--dur1) var(--ease)}
+.hm-btn:hover{border-color:var(--gold);color:var(--gold)}
+.hm-btn.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:600;box-shadow:var(--sh1)}
+
+.hm-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);position:relative;overflow:hidden}
+.hm-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+.hm-grid{display:grid;grid-template-columns:200px repeat(12,1fr);gap:3px;align-items:center;margin-top:var(--sp4)}
+.hm-grid .h-month{font-family:var(--ff-mono);font-size:10px;color:var(--gold);text-align:center;letter-spacing:1px;text-transform:uppercase;padding-bottom:6px;font-weight:600}
+.hm-grid .h-month.now{background:rgba(201,163,72,0.12);border-radius:5px}
+.hm-grid .h-proc{font-family:var(--ff-mono);font-size:11px;color:var(--txt2);padding:6px 10px 6px 0;text-align:right;letter-spacing:0.3px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hm-grid .h-proc .fn{display:inline-block;width:20px;height:14px;border-radius:3px;font-size:9px;font-weight:700;text-align:center;line-height:14px;margin-right:6px;color:#0A0E16;vertical-align:middle}
+.hm-grid .h-proc .fn.f1{background:linear-gradient(135deg,#8FD9A8,#2E8654)}
+.hm-grid .h-proc .fn.f2{background:linear-gradient(135deg,#7BB4E8,#2E5F94)}
+.hm-grid .h-proc .fn.f3{background:linear-gradient(135deg,#B894E8,#5E3F94)}
+.hm-cell{aspect-ratio:1;border-radius:4px;border:1px solid var(--line);position:relative;cursor:pointer;transition:transform 0.12s ease,box-shadow 0.12s ease}
+.hm-cell:hover{transform:scale(1.5);z-index:10;box-shadow:0 4px 14px rgba(0,0,0,0.6),0 0 0 2px var(--gold)}
+.hm-cell.l0{background:rgba(255,255,255,0.02)}
+.hm-cell.l1{background:rgba(74,191,122,0.25);border-color:rgba(74,191,122,0.35)}
+.hm-cell.l2{background:rgba(74,191,122,0.5);border-color:rgba(74,191,122,0.6)}
+.hm-cell.l3{background:rgba(216,136,56,0.55);border-color:rgba(216,136,56,0.7)}
+.hm-cell.l4{background:rgba(200,65,65,0.6);border-color:rgba(200,65,65,0.75);box-shadow:0 0 6px rgba(200,65,65,0.3)}
+.hm-cell.now{outline:2px solid var(--gold);outline-offset:1px}
+
+.hm-tooltip{position:fixed;background:rgba(10,14,22,0.97);backdrop-filter:blur(8px);border:1px solid var(--gold);border-radius:var(--r2);padding:var(--sp3) var(--sp4);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt);box-shadow:var(--sh3);pointer-events:none;z-index:1000;opacity:0;transition:opacity 0.15s ease;max-width:260px;letter-spacing:0.3px;line-height:1.5}
+.hm-tooltip.on{opacity:1}
+.hm-tooltip b{color:var(--gold)}
+.hm-tooltip .lv{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-top:6px}
+.hm-tooltip .lv.l0{background:rgba(255,255,255,0.06);color:var(--mut)}
+.hm-tooltip .lv.l1{background:rgba(74,191,122,0.25);color:var(--greenL)}
+.hm-tooltip .lv.l2{background:rgba(74,191,122,0.5);color:#fff}
+.hm-tooltip .lv.l3{background:rgba(216,136,56,0.55);color:#fff}
+.hm-tooltip .lv.l4{background:rgba(200,65,65,0.6);color:#fff}
+
+.hm-legend{display:flex;align-items:center;gap:var(--sp3);justify-content:center;margin-top:var(--sp5);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.8px;text-transform:uppercase;padding-top:var(--sp4);border-top:1px solid var(--line)}
+.hm-legend .dot{width:14px;height:14px;border-radius:4px;border:1px solid rgba(255,255,255,0.08)}
+
+/* Sumário cards */
+.sum-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);position:relative;overflow:hidden;height:100%}
+.sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.sum-card.r{--acc:var(--redL)}.sum-card.o{--acc:var(--orangeL)}.sum-card.g{--acc:var(--greenL)}.sum-card.b{--acc:var(--blueL)}
+.sum-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp4);display:flex;align-items:center;gap:8px}
+.sum-item{display:grid;grid-template-columns:32px 1fr auto;gap:var(--sp3);align-items:center;padding:var(--sp3) var(--sp3);border-radius:var(--r2);background:rgba(255,255,255,0.025);border:1px solid var(--line);margin-bottom:8px}
+.sum-item .fn{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-family:var(--ff-mono);font-size:11px;font-weight:700;color:#0A0E16}
+.sum-item .fn.f1{background:linear-gradient(135deg,#8FD9A8,#2E8654)}
+.sum-item .fn.f2{background:linear-gradient(135deg,#7BB4E8,#2E5F94)}
+.sum-item .fn.f3{background:linear-gradient(135deg,#B894E8,#5E3F94)}
+.sum-item .nm{font-size:var(--t-sm);color:var(--txt);font-weight:500;line-height:1.3}
+.sum-item .nm .sb{font-family:var(--ff-mono);font-size:10px;color:var(--mut);display:block;margin-top:2px;letter-spacing:0.3px}
+.sum-item .val{font-family:var(--ff-mono);font-size:var(--t-lg);font-weight:700;color:var(--acc,var(--gold));text-align:right}
+.sum-card.r .val{color:var(--redL)}.sum-card.o .val{color:var(--orangeL)}.sum-card.g .val{color:var(--greenL)}.sum-card.b .val{color:var(--blueL)}
+
+.fn-totals{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp3);margin-top:var(--sp4)}
+.fn-card{padding:var(--sp4);border-radius:var(--r3);background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);position:relative;overflow:hidden;text-align:center}
+.fn-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--acc),transparent)}
+.fn-card.f1{--acc:#4ABF7A}.fn-card.f2{--acc:#4A8AD8}.fn-card.f3{--acc:#8A5AD8}
+.fn-card .lbl{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--acc);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.fn-card .v{font-family:var(--ff-mono);font-size:var(--t-3xl);font-weight:700;color:var(--acc);line-height:1;letter-spacing:-1px;margin-top:6px}
+.fn-card .sub{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-top:6px;letter-spacing:0.5px}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link on" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">🌡 Heatmap v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Heatmap Operacional</h1>
+        <div class="breadcrumb"><b>Inteligência Visual</b> · 35 processos × 12 meses × 3 servidores</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hm-toolbar mt-4">
+      <span class="label">Filtrar servidor:</span>
+      <button class="hm-btn on" data-fn="all">Todos</button>
+      <button class="hm-btn" data-fn="F1">F1 · Movimentação</button>
+      <button class="hm-btn" data-fn="F2">F2 · Direitos</button>
+      <button class="hm-btn" data-fn="F3">F3 · Pagamentos</button>
+    </div>
+
+    <div class="grid">
+
+      <div class="c12 hm-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--sp3);flex-wrap:wrap;gap:var(--sp3)">
+          <div>
+            <h2 style="font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--txt);font-weight:600">Carga operacional · 12 meses · Mai/2025 → Abr/2026</h2>
+            <div style="font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px">Hover para detalhes · 4 níveis de carga</div>
+          </div>
+          <span class="chip gold">35 processos</span>
+        </div>
+
+        <div class="hm-grid" id="hmGrid"></div>
+
+        <div class="hm-legend">
+          <span>Carga:</span>
+          <span class="dot l0"></span><span>Vazio</span>
+          <span class="dot l1"></span><span>Leve</span>
+          <span class="dot l2"></span><span>Normal</span>
+          <span class="dot l3"></span><span>Alta</span>
+          <span class="dot l4"></span><span>Crítica</span>
+          <span style="margin-left:var(--sp4);color:var(--gold)">★ Mês atual</span>
+        </div>
+      </div>
+
+      <div class="c12 fn-totals">
+        <div class="fn-card f1"><div class="lbl">F1 · Movimentação</div><div class="v" id="fn1Avg">—</div><div class="sub">carga média · 13 procs</div></div>
+        <div class="fn-card f2"><div class="lbl">F2 · Direitos</div><div class="v" id="fn2Avg">—</div><div class="sub">carga média · 12 procs</div></div>
+        <div class="fn-card f3"><div class="lbl">F3 · Pagamentos</div><div class="v" id="fn3Avg">—</div><div class="sub">carga média · 10 procs</div></div>
+      </div>
+
+      <div class="c6 sum-card r">
+        <h3>⚠ Top 5 Gargalos · cargas críticas</h3>
+        <div id="topCrit"></div>
+      </div>
+
+      <div class="c6 sum-card g">
+        <h3>✓ Top 5 Saudáveis · cargas leves consistentes</h3>
+        <div id="topOk"></div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<div class="hm-tooltip" id="tip"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   Heatmap Operacional · 35 procs × 12 meses
+   ═══════════════════════════════════════════════════════════════════ */
+
+const PROCS=[
+  // F1 · 13
+  {fn:'F1',nm:'Movimentação'},{fn:'F1',nm:'ERF · Extrato'},{fn:'F1',nm:'BI · Boletim Interno'},{fn:'F1',nm:'AADP avaliação'},
+  {fn:'F1',nm:'Concursos internos'},{fn:'F1',nm:'Cursos · CTC/CFS/CHO'},{fn:'F1',nm:'CT/CFO'},{fn:'F1',nm:'Designações temp.'},
+  {fn:'F1',nm:'Readaptação'},{fn:'F1',nm:'Agregação'},{fn:'F1',nm:'Reserva remunerada'},{fn:'F1',nm:'CTC tempo'},{fn:'F1',nm:'Ingresso'},
+  // F2 · 12
+  {fn:'F2',nm:'Quinquênios'},{fn:'F2',nm:'Férias'},{fn:'F2',nm:'Férias-prêmio'},{fn:'F2',nm:'Saúde · Perícias'},
+  {fn:'F2',nm:'Família · Dependentes'},{fn:'F2',nm:'Licenças mat/paternidade'},{fn:'F2',nm:'Abono permanência'},{fn:'F2',nm:'CTC tempo serviço'},
+  {fn:'F2',nm:'Auxílio funeral'},{fn:'F2',nm:'Benefícios diversos'},{fn:'F2',nm:'Licenças especiais'},{fn:'F2',nm:'Pensões'},
+  // F3 · 10
+  {fn:'F3',nm:'Folha pagamento'},{fn:'F3',nm:'Diárias'},{fn:'F3',nm:'Aux. Alimentação'},{fn:'F3',nm:'Porte arma · TCAF'},
+  {fn:'F3',nm:'Programa Integridade'},{fn:'F3',nm:'Declarações funcionais'},{fn:'F3',nm:'Jornada · ponto'},{fn:'F3',nm:'Indenizações'},
+  {fn:'F3',nm:'Descontos'},{fn:'F3',nm:'Pagamentos suplementares'}
+];
+
+const MONTHS=['Mai/25','Jun/25','Jul/25','Ago/25','Set/25','Out/25','Nov/25','Dez/25','Jan/26','Fev/26','Mar/26','Abr/26'];
+const NOW_IDX=11; // Abr/26 como "mês atual"
+
+// Padrões de carga por processo (12 meses cada · 0-4)
+// Determinístico para realismo: ciclos mensais altos, anuais picam em meses específicos
+function genPattern(proc,idx){
+  const cycles={
+    'Folha pagamento':[3,3,3,3,3,3,3,3,3,3,3,3],
+    'Aux. Alimentação':[2,2,2,2,2,2,2,2,2,2,2,2],
+    'Diárias':[1,2,1,2,1,1,2,1,1,2,1,1],
+    'Jornada · ponto':[2,2,2,2,2,2,2,2,2,2,2,2],
+    'BI · Boletim Interno':[2,2,2,2,2,2,2,2,2,2,2,2],
+    'ERF · Extrato':[3,3,3,3,3,3,3,3,3,3,3,3],
+    'AADP avaliação':[1,1,0,2,3,4,3,2,1,2,4,2],
+    'Quinquênios':[1,1,1,1,2,2,1,1,2,2,1,1],
+    'Férias':[3,4,3,2,1,2,2,2,3,3,2,2],
+    'Férias-prêmio':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Saúde · Perícias':[2,3,3,3,4,3,2,2,3,4,3,3],
+    'Movimentação':[2,2,3,3,2,2,3,3,2,2,3,3],
+    'Porte arma · TCAF':[1,1,1,2,3,3,2,1,1,2,3,3],
+    'Programa Integridade':[0,0,0,1,1,2,2,3,4,3,2,1],
+    'Concursos internos':[0,1,1,0,0,2,3,2,0,0,1,1],
+    'Cursos · CTC/CFS/CHO':[1,1,2,2,2,1,1,2,2,1,1,2],
+    'Pensões':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'CTC tempo':[1,1,2,1,1,1,1,2,1,1,1,1],
+    'Família · Dependentes':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Licenças mat/paternidade':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Abono permanência':[0,0,1,0,1,0,1,0,1,0,1,0],
+    'CTC tempo serviço':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Auxílio funeral':[0,0,0,0,0,0,0,0,0,0,0,0],
+    'Benefícios diversos':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Licenças especiais':[0,1,0,1,0,1,0,1,0,1,0,1],
+    'CT/CFO':[0,0,0,1,2,0,0,1,2,0,0,1],
+    'Designações temp.':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Readaptação':[0,0,1,0,0,1,0,0,1,0,0,1],
+    'Agregação':[0,0,0,0,1,0,0,0,1,0,0,0],
+    'Reserva remunerada':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Ingresso':[0,0,2,1,0,0,1,2,1,0,0,1],
+    'Declarações funcionais':[2,2,2,2,2,2,2,2,2,2,2,2],
+    'Indenizações':[1,1,1,1,1,1,1,1,1,1,1,1],
+    'Descontos':[2,2,2,2,2,2,2,2,2,2,2,2],
+    'Pagamentos suplementares':[1,1,1,1,1,1,2,1,1,2,1,1]
+  };
+  const p=cycles[proc];
+  return p?p[idx]:1;
+}
+
+// Build grid
+const grid=document.getElementById('hmGrid');
+let currentFilter='all';
+
+function renderGrid(){
+  grid.innerHTML='';
+  // Linha de cabeçalho: 1 espaço + 12 meses
+  const empty=document.createElement('div');grid.appendChild(empty);
+  MONTHS.forEach((m,i)=>{
+    const h=document.createElement('div');
+    h.className='h-month'+(i===NOW_IDX?' now':'');
+    h.textContent=m;
+    grid.appendChild(h);
+  });
+  // Linhas dos processos
+  PROCS.forEach(p=>{
+    if(currentFilter!=='all'&&p.fn!==currentFilter)return;
+    const label=document.createElement('div');
+    label.className='h-proc';
+    label.innerHTML=`<span class="fn ${p.fn.toLowerCase()}">${p.fn}</span>${p.nm}`;
+    label.title=p.nm;
+    grid.appendChild(label);
+    for(let i=0;i<12;i++){
+      const lv=genPattern(p.nm,i);
+      const cell=document.createElement('div');
+      cell.className='hm-cell l'+lv+(i===NOW_IDX?' now':'');
+      cell.dataset.proc=p.nm;
+      cell.dataset.fn=p.fn;
+      cell.dataset.month=MONTHS[i];
+      cell.dataset.lv=lv;
+      cell.addEventListener('mouseenter',e=>showTip(e,p,MONTHS[i],lv));
+      cell.addEventListener('mouseleave',hideTip);
+      cell.addEventListener('mousemove',moveTip);
+      grid.appendChild(cell);
+    }
+  });
+}
+
+// Tooltip
+const tip=document.getElementById('tip');
+const lvLabels=['Vazio','Leve','Normal','Alta','Crítica'];
+function showTip(e,p,m,lv){
+  tip.innerHTML=`<div><b>${p.nm}</b></div><div style="color:var(--mut);margin-top:3px">${p.fn} · ${m}</div><div class="lv l${lv}">${lvLabels[lv]} · nível ${lv}</div>`;
+  tip.classList.add('on');
+  moveTip(e);
+}
+function moveTip(e){
+  const x=e.clientX+14,y=e.clientY+14;
+  tip.style.left=Math.min(x,window.innerWidth-280)+'px';
+  tip.style.top=Math.min(y,window.innerHeight-100)+'px';
+}
+function hideTip(){tip.classList.remove('on');}
+
+// Filtros
+document.querySelectorAll('.hm-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.hm-btn').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    currentFilter=b.dataset.fn;
+    renderGrid();
+  });
+});
+
+// Sumário
+function calcStats(){
+  const data=PROCS.map(p=>{
+    const vals=Array.from({length:12},(_,i)=>genPattern(p.nm,i));
+    const sum=vals.reduce((a,b)=>a+b,0);
+    const avg=sum/12;
+    const max=Math.max(...vals);
+    const crits=vals.filter(v=>v===4).length;
+    return {...p,vals,sum,avg,max,crits};
+  });
+
+  // Top gargalos (crit count + avg)
+  const critList=data.filter(d=>d.crits>0||d.avg>=2.5).sort((a,b)=>{
+    if(b.crits!==a.crits)return b.crits-a.crits;
+    return b.avg-a.avg;
+  }).slice(0,5);
+
+  const okList=data.filter(d=>d.max<=1).sort((a,b)=>a.avg-b.avg).slice(0,5);
+
+  const renderItem=(d,critMode)=>{
+    return `<div class="sum-item"><div class="fn ${d.fn.toLowerCase()}">${d.fn}</div><div class="nm">${d.nm}<span class="sb">${critMode?d.crits+' meses críticos · ':''}avg ${d.avg.toFixed(1)}</span></div><div class="val">${critMode?(d.max===4?'L4':'L'+d.max):'L'+d.max}</div></div>`;
+  };
+
+  document.getElementById('topCrit').innerHTML=critList.length?critList.map(d=>renderItem(d,true)).join(''):'<div style="color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-xs);font-style:italic;text-align:center;padding:var(--sp3)">Nenhum processo crítico atual.</div>';
+  document.getElementById('topOk').innerHTML=okList.map(d=>renderItem(d,false)).join('');
+
+  // Médias por função
+  const fnAvg={F1:0,F2:0,F3:0},fnCount={F1:0,F2:0,F3:0};
+  data.forEach(d=>{fnAvg[d.fn]+=d.avg;fnCount[d.fn]++;});
+  document.getElementById('fn1Avg').textContent=(fnAvg.F1/fnCount.F1).toFixed(1);
+  document.getElementById('fn2Avg').textContent=(fnAvg.F2/fnCount.F2).toFixed(1);
+  document.getElementById('fn3Avg').textContent=(fnAvg.F3/fnCount.F3).toFixed(1);
+}
+
+renderGrid();
+calcStats();
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>

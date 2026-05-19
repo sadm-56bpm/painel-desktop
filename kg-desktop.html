@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Knowledge Graph · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+.kg-layout{display:grid;grid-template-columns:1fr 320px;gap:var(--sp4);height:calc(100vh - 200px);min-height:600px}
+
+.kg-canvas-wrap{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);overflow:hidden;position:relative;box-shadow:var(--sh2)}
+.kg-canvas-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
+#kg-svg{width:100%;height:100%;display:block;cursor:grab}
+#kg-svg:active{cursor:grabbing}
+
+.kg-toolbar{position:absolute;top:14px;left:14px;display:flex;gap:8px;z-index:10;align-items:center;flex-wrap:wrap}
+.kg-search{background:rgba(10,14,22,0.8);backdrop-filter:blur(6px);border:1px solid var(--line2);border-radius:var(--r2);padding:var(--sp2) var(--sp3);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt);width:240px;outline:none;transition:border-color var(--dur2) var(--ease)}
+.kg-search:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
+.kg-search::placeholder{color:var(--dim)}
+
+.kg-btn{padding:7px 12px;background:rgba(10,14,22,0.8);backdrop-filter:blur(6px);border:1px solid var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;font-weight:500;transition:all var(--dur1) var(--ease)}
+.kg-btn:hover{border-color:var(--gold);color:var(--gold)}
+.kg-btn.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:600}
+
+.kg-stats{position:absolute;bottom:14px;left:14px;display:flex;gap:var(--sp4);background:rgba(10,14,22,0.85);backdrop-filter:blur(6px);border:1px solid var(--line2);border-radius:var(--r2);padding:var(--sp2) var(--sp4);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);z-index:10}
+.kg-stats span b{color:var(--gold);font-weight:600;margin-right:4px}
+
+.kg-side{display:flex;flex-direction:column;gap:var(--sp3);overflow-y:auto;padding-right:4px}
+.kg-side::-webkit-scrollbar{width:5px}
+.kg-side::-webkit-scrollbar-track{background:transparent}
+.kg-side::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.kg-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp4);position:relative;overflow:hidden}
+.kg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.kg-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp3);display:flex;align-items:center;gap:6px}
+
+.kg-legend{display:flex;flex-direction:column;gap:8px}
+.kg-legend .li{display:flex;align-items:center;gap:var(--sp3);padding:6px 8px;border-radius:var(--r1);cursor:pointer;transition:background var(--dur1) var(--ease)}
+.kg-legend .li:hover{background:rgba(255,255,255,0.03)}
+.kg-legend .li.muted{opacity:0.35}
+.kg-legend .dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;border:1px solid rgba(255,255,255,0.1)}
+.kg-legend .nm{flex:1;font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);letter-spacing:0.5px;text-transform:uppercase}
+.kg-legend .ct{font-family:var(--ff-mono);font-size:11px;color:var(--mut);font-weight:500}
+
+.kg-node-info{min-height:200px}
+.kg-empty{color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-xs);font-style:italic;text-align:center;padding:var(--sp4) 0;letter-spacing:0.3px}
+
+.node-detail .tit{font-family:var(--ff-serif);font-size:var(--t-lg);color:var(--gold);font-weight:600;line-height:1.25;margin-bottom:6px}
+.node-detail .typ{display:inline-block;padding:3px 9px;border-radius:5px;font-family:var(--ff-mono);font-size:10px;color:var(--bg);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:var(--sp3)}
+.node-detail .meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);line-height:1.6;margin-bottom:var(--sp3);letter-spacing:0.3px}
+.node-detail .links{display:flex;flex-direction:column;gap:5px;margin-top:var(--sp3);padding-top:var(--sp3);border-top:1px solid var(--line)}
+.node-detail .links .lbl{font-family:var(--ff-mono);font-size:9px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.node-detail .link-row{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);padding:5px 8px;background:rgba(255,255,255,0.02);border-radius:5px;border:1px solid var(--line);display:flex;align-items:center;gap:6px;cursor:pointer;transition:all var(--dur1) var(--ease)}
+.node-detail .link-row:hover{background:rgba(201,163,72,0.06);color:var(--gold);border-color:rgba(201,163,72,0.3)}
+.node-detail .link-row .arrow{color:var(--dim)}
+
+.kg-hint{padding:var(--sp3);background:rgba(255,255,255,0.015);border:1px dashed var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;color:var(--dim);line-height:1.6;letter-spacing:0.2px}
+.kg-hint b{color:var(--gold)}
+
+/* D3 SVG styles */
+.link{stroke:#3A4A6E;stroke-opacity:0.45;stroke-width:1.2;transition:stroke-opacity 0.2s,stroke-width 0.2s,stroke 0.2s}
+.link.hl{stroke:#E8C77A;stroke-opacity:0.95;stroke-width:2.5}
+.link.fade{stroke-opacity:0.08}
+.node circle{stroke:#0A0E16;stroke-width:1.5;cursor:pointer;transition:r 0.2s,filter 0.2s}
+.node:hover circle{filter:drop-shadow(0 0 8px rgba(201,163,72,0.6))}
+.node.hl circle{stroke:#E8C77A;stroke-width:3;filter:drop-shadow(0 0 12px rgba(232,199,122,0.8))}
+.node.fade{opacity:0.18}
+.node text{font-family:'IBM Plex Mono',monospace;font-size:10px;fill:#C5CBD8;pointer-events:none;text-anchor:middle;font-weight:500;letter-spacing:0.3px}
+.node.fade text{opacity:0.5}
+.node.hl text{fill:#E8C77A;font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link on" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">⛓ KG v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Knowledge Graph</h1>
+        <div class="breadcrumb"><b>Inteligência Visual</b> · Mapa institucional interativo · D3.js Force</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="kg-layout mt-4">
+
+      <div class="kg-canvas-wrap">
+        <div class="kg-toolbar">
+          <input type="text" class="kg-search" id="kgSearch" placeholder="🔍 Buscar nó (DA, processo, função...)">
+          <button class="kg-btn" id="kgReset">↻ Reset</button>
+          <button class="kg-btn" id="kgFreeze">⏸ Pausar</button>
+        </div>
+        <svg id="kg-svg" viewBox="0 0 1200 700"></svg>
+        <div class="kg-stats">
+          <span><b id="kgN">--</b>nós</span>
+          <span><b id="kgE">--</b>arestas</span>
+          <span><b id="kgT">--</b>tipos</span>
+          <span><b id="kgSel">—</b>selecionado</span>
+        </div>
+      </div>
+
+      <div class="kg-side">
+
+        <div class="kg-card" style="--acc:var(--gold)">
+          <h3>🎨 Legenda · clique para filtrar</h3>
+          <div class="kg-legend" id="kgLegend"></div>
+        </div>
+
+        <div class="kg-card" style="--acc:var(--blueL)">
+          <h3>ⓘ Nó selecionado</h3>
+          <div class="kg-node-info" id="kgInfo">
+            <div class="kg-empty">Clique em um nó para ver detalhes e conexões.</div>
+          </div>
+        </div>
+
+        <div class="kg-card" style="--acc:var(--purpleL)">
+          <h3>⚡ Como usar</h3>
+          <div class="kg-hint">
+            <b>Arraste</b> nós para reorganizar · <b>scroll</b> para zoom · <b>clique</b> em um nó para ver detalhes e destacar conexões · <b>clique na legenda</b> para isolar tipo · <b>busque</b> por nome no campo acima.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   KG · Knowledge Graph SADM · Onda 31.1
+   ═══════════════════════════════════════════════════════════════════ */
+
+const TYPES={
+  bloco:{nm:'Bloco',color:'#C9A348'},
+  funcao:{nm:'Função',color:'#4ABF7A'},
+  norma:{nm:'Norma PMMG',color:'#4A8AD8'},
+  pop:{nm:'POP / Processo',color:'#8A5AD8'},
+  da:{nm:'Decisão DA',color:'#D88838'},
+  painel:{nm:'Painel',color:'#3AB5C8'},
+  modulo:{nm:'Módulo técnico',color:'#C84141'}
+};
+
+// Nós (~80)
+const NODES=[
+  // Blocos (10)
+  {id:'b1',label:'1·Vida Funcional',type:'bloco',desc:'1.1→1.6 · acervo de carreira'},
+  {id:'b2',label:'2·Capacitação',type:'bloco',desc:'2.1→2.7 · cursos e instrução'},
+  {id:'b3',label:'3·Recursos',type:'bloco',desc:'3.1→3.4 · materiais'},
+  {id:'b4',label:'4·Atos',type:'bloco',desc:'4.1→4.9 · atos administrativos'},
+  {id:'b5',label:'5·Legislação',type:'bloco',desc:'5.1→5.6 · normativos'},
+  {id:'b6',label:'6·Processos',type:'bloco',desc:'6.1→6.7 · POPs canônicos'},
+  {id:'b7',label:'7·Governança',type:'bloco',desc:'7.1→7.8 · 4 subeixos integridade'},
+  {id:'b8',label:'8·Dashboards',type:'bloco',desc:'8.1→8.5 · painéis institucionais'},
+  {id:'b9',label:'9·Arquivo',type:'bloco',desc:'9.1→9.5 · semiativo histórico'},
+  {id:'b10',label:'10·Baliza',type:'bloco',desc:'10.1→10.5 · efetivo'},
+  // Funções (4)
+  {id:'fCh',label:'Chefia SADM',type:'funcao',desc:'Coordenação · auditoria · ACESSO_RESERVADO'},
+  {id:'f1',label:'F1·Movimentação',type:'funcao',desc:'13 processos · carreira'},
+  {id:'f2',label:'F2·Direitos',type:'funcao',desc:'12 processos · assistência'},
+  {id:'f3',label:'F3·Pagamentos',type:'funcao',desc:'10 processos · integridade'},
+  // Normas (5)
+  {id:'n1',label:'Res. 4.843/2019',type:'norma',desc:'Manual elaboração documentos · base normativa'},
+  {id:'n2',label:'MIV/PMMG/2025',type:'norma',desc:'Identidade visual · 102 págs'},
+  {id:'n3',label:'PE 2024-2027',type:'norma',desc:'Plano Estratégico PMMG'},
+  {id:'n4',label:'Prog.Integridade/2024',type:'norma',desc:'4 eixos · 8 subeixos'},
+  {id:'n5',label:'Res. 5.458/2025',type:'norma',desc:'AADP · ciclo anual'},
+  // POPs (10 representativos dos 35)
+  {id:'p1',label:'Folha pagamento',type:'pop',desc:'F3 · ciclo mensal'},
+  {id:'p2',label:'Diárias',type:'pop',desc:'F3 · demanda'},
+  {id:'p3',label:'AADP avaliação',type:'pop',desc:'F1 · ciclo anual'},
+  {id:'p4',label:'Quinquênios',type:'pop',desc:'F2 · ciclo quinquenal'},
+  {id:'p5',label:'BI publicação',type:'pop',desc:'F1 · semanal'},
+  {id:'p6',label:'ERF mensal',type:'pop',desc:'F1 · ciclo mensal'},
+  {id:'p7',label:'Saúde · perícias',type:'pop',desc:'F2 · interface CMP/CRP'},
+  {id:'p8',label:'Porte arma TCAF',type:'pop',desc:'F3 · anual'},
+  {id:'p9',label:'Aux.Alimentação',type:'pop',desc:'F3 · mensal'},
+  {id:'p10',label:'Integridade prog.',type:'pop',desc:'F3 · anual · DA-037'},
+  // DAs canônicas (15 mais importantes)
+  {id:'da003',label:'DA-003',type:'da',desc:'ACESSO_RESERVADO solo-Chefia'},
+  {id:'da020',label:'DA-020',type:'da',desc:'Anonimização por função'},
+  {id:'da027',label:'DA-027',type:'da',desc:'Cloud-first'},
+  {id:'da029',label:'DA-029',type:'da',desc:'Permissão por função'},
+  {id:'da032',label:'DA-032',type:'da',desc:'Taxonomia v2.3 · 10 blocos'},
+  {id:'da037',label:'DA-037',type:'da',desc:'Programa de Integridade'},
+  {id:'da040',label:'DA-040',type:'da',desc:'Execução F1-F5'},
+  {id:'da048',label:'DA-048',type:'da',desc:'POP substitui BPMN'},
+  {id:'da049',label:'DA-049',type:'da',desc:'Versionamento 3 camadas'},
+  {id:'da052',label:'DA-052',type:'da',desc:'Publicação Workspace'},
+  {id:'da055',label:'DA-055',type:'da',desc:'3 planos canônicos'},
+  {id:'da056',label:'DA-056',type:'da',desc:'4 perfis operador'},
+  {id:'da057',label:'DA-057',type:'da',desc:'16 camadas BI'},
+  {id:'da067',label:'DA-067',type:'da',desc:'Multi-IA Gratuita'},
+  {id:'da070',label:'DA-070',type:'da',desc:'Vedação dados sensíveis IA'},
+  {id:'da071',label:'DA-071',type:'da',desc:'GitHub Pages canônico'},
+  // Painéis (7)
+  {id:'pHub',label:'Hub',type:'painel',desc:'Entrada · index.html',href:'./'},
+  {id:'pCons',label:'Consultor',type:'painel',desc:'★★★ Conversacional',href:'./consultor-desktop.html'},
+  {id:'pCock',label:'Cockpit',type:'painel',desc:'★★ Mission Control',href:'./cockpit-desktop.html'},
+  {id:'pApre',label:'Apresentação',type:'painel',desc:'★ Visão executiva',href:'./apresentacao-desktop.html'},
+  {id:'pTv',label:'TV Mural',type:'painel',desc:'Rotativo kiosque',href:'./tv-mural-desktop.html'},
+  {id:'pGes',label:'Gestão',type:'painel',desc:'Compliance + AADP',href:'./gestao-desktop.html'},
+  {id:'pOpe',label:'Operacional',type:'painel',desc:'Countdowns + perf',href:'./operacional-desktop.html'},
+  // Módulos técnicos (6)
+  {id:'mGS',label:'Apps Script',type:'modulo',desc:'Runtime central · triggers'},
+  {id:'mDrive',label:'Drive Workspace',type:'modulo',desc:'SSOT · 49.064 docs'},
+  {id:'mIA',label:'Multi-IA',type:'modulo',desc:'Gemini+Groq+Cerebras+Mistral'},
+  {id:'mGH',label:'GitHub Pages',type:'modulo',desc:'12 painéis · HTTPS'},
+  {id:'mCal',label:'Calendar',type:'modulo',desc:'Ciclos institucionais'},
+  {id:'mBQ',label:'BigQuery',type:'modulo',desc:'Warehouse analítico'}
+];
+
+// Arestas (~170)
+const LINKS=[
+  // Chefia → 3 funções operacionais
+  {s:'fCh',t:'f1'},{s:'fCh',t:'f2'},{s:'fCh',t:'f3'},
+  // Funções → POPs principais
+  {s:'f1',t:'p3'},{s:'f1',t:'p5'},{s:'f1',t:'p6'},
+  {s:'f2',t:'p4'},{s:'f2',t:'p7'},
+  {s:'f3',t:'p1'},{s:'f3',t:'p2'},{s:'f3',t:'p8'},{s:'f3',t:'p9'},{s:'f3',t:'p10'},
+  // POPs → Normas
+  {s:'p1',t:'n1'},{s:'p3',t:'n5'},{s:'p5',t:'n1'},{s:'p6',t:'n1'},{s:'p10',t:'n4'},
+  // POPs → DAs
+  {s:'p1',t:'da027'},{s:'p3',t:'da027'},{s:'p10',t:'da037'},
+  // Funções → Blocos
+  {s:'f1',t:'b1'},{s:'f1',t:'b2'},
+  {s:'f2',t:'b1'},
+  {s:'f3',t:'b3'},{s:'f3',t:'b4'},
+  {s:'fCh',t:'b7'},{s:'fCh',t:'b10'},
+  // Blocos → Normas (governança)
+  {s:'b5',t:'n1'},{s:'b5',t:'n2'},{s:'b5',t:'n3'},{s:'b5',t:'n4'},{s:'b5',t:'n5'},
+  // DAs → DAs (cadeias arquiteturais)
+  {s:'da032',t:'da029'},{s:'da055',t:'da027'},{s:'da055',t:'da049'},
+  {s:'da057',t:'da053'},{s:'da067',t:'da068'},{s:'da067',t:'da069'},{s:'da067',t:'da070'},
+  {s:'da071',t:'da052'},{s:'da071',t:'da027'},
+  {s:'da037',t:'da020'},{s:'da003',t:'da029'},
+  {s:'da040',t:'da027'},{s:'da056',t:'da029'},
+  // DAs → Módulos
+  {s:'da067',t:'mIA'},{s:'da049',t:'mGS'},{s:'da049',t:'mGH'},
+  {s:'da027',t:'mDrive'},{s:'da027',t:'mCal'},{s:'da027',t:'mGH'},
+  {s:'da071',t:'mGH'},
+  // Painéis → Módulos
+  {s:'pHub',t:'mGH'},{s:'pCons',t:'mGH'},{s:'pCock',t:'mGH'},
+  {s:'pApre',t:'mGH'},{s:'pTv',t:'mGH'},{s:'pGes',t:'mGH'},{s:'pOpe',t:'mGH'},
+  // Painéis → DAs
+  {s:'pHub',t:'da071'},{s:'pCons',t:'da067'},{s:'pCons',t:'da070'},
+  {s:'pCock',t:'da056'},{s:'pApre',t:'da055'},
+  {s:'pGes',t:'da037'},{s:'pOpe',t:'da048'},
+  // Hub → outros painéis (estrutura de navegação)
+  {s:'pHub',t:'pCons'},{s:'pHub',t:'pCock'},{s:'pHub',t:'pApre'},
+  {s:'pHub',t:'pTv'},{s:'pHub',t:'pGes'},{s:'pHub',t:'pOpe'},
+  // Blocos → POPs
+  {s:'b4',t:'p1'},{s:'b4',t:'p5'},{s:'b6',t:'p3'},{s:'b6',t:'p10'},
+  {s:'b1',t:'p4'},{s:'b1',t:'p6'},{s:'b1',t:'p7'},
+  // Módulos → Módulos (interdependência)
+  {s:'mGS',t:'mDrive'},{s:'mGS',t:'mIA'},{s:'mGS',t:'mCal'},{s:'mGS',t:'mBQ'},
+  {s:'mDrive',t:'mBQ'},
+  // Normas → DAs
+  {s:'n4',t:'da037'},{s:'n5',t:'da040'},{s:'n1',t:'da048'},
+  // Cross-links adicionais
+  {s:'da020',t:'da070'},{s:'da003',t:'da020'},{s:'da003',t:'da066'},
+  {s:'mIA',t:'da068'},{s:'mIA',t:'da069'}
+];
+
+// Filtrar arestas órfãs (referenciam nós que não existem)
+const nodeIds=new Set(NODES.map(n=>n.id));
+const validLinks=LINKS.filter(l=>nodeIds.has(l.s)&&nodeIds.has(l.t));
+
+// Setup
+const svg=d3.select('#kg-svg');
+const W=1200,H=700;
+const g=svg.append('g');
+
+// Zoom
+svg.call(d3.zoom().scaleExtent([0.3,3]).on('zoom',e=>g.attr('transform',e.transform)));
+
+// Simulation
+let sim=d3.forceSimulation(NODES)
+  .force('link',d3.forceLink(validLinks).id(d=>d.id).distance(80).strength(0.4))
+  .force('charge',d3.forceManyBody().strength(-220))
+  .force('center',d3.forceCenter(W/2,H/2))
+  .force('collision',d3.forceCollide().radius(28));
+
+const link=g.append('g').selectAll('line').data(validLinks).join('line').attr('class','link');
+
+const node=g.append('g').selectAll('g').data(NODES).join('g').attr('class','node')
+  .call(d3.drag()
+    .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+    .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+    .on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;}));
+
+const nodeSize={bloco:18,funcao:20,norma:14,pop:11,da:9,painel:13,modulo:14};
+
+node.append('circle')
+  .attr('r',d=>nodeSize[d.type]||10)
+  .attr('fill',d=>TYPES[d.type].color);
+
+node.append('text')
+  .attr('dy',d=>(nodeSize[d.type]||10)+14)
+  .text(d=>d.label.length>18?d.label.slice(0,16)+'…':d.label);
+
+node.on('click',(e,d)=>{
+  e.stopPropagation();
+  showInfo(d);
+  highlightConnections(d);
+});
+
+svg.on('click',()=>{
+  clearHighlight();
+  document.getElementById('kgInfo').innerHTML='<div class="kg-empty">Clique em um nó para ver detalhes e conexões.</div>';
+  document.getElementById('kgSel').textContent='—';
+});
+
+sim.on('tick',()=>{
+  link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+  node.attr('transform',d=>`translate(${d.x},${d.y})`);
+});
+
+// Highlight
+function highlightConnections(d){
+  const connected=new Set([d.id]);
+  validLinks.forEach(l=>{
+    if(l.source.id===d.id)connected.add(l.target.id);
+    if(l.target.id===d.id)connected.add(l.source.id);
+  });
+  node.classed('hl',n=>n.id===d.id).classed('fade',n=>!connected.has(n.id));
+  link.classed('hl',l=>l.source.id===d.id||l.target.id===d.id).classed('fade',l=>l.source.id!==d.id&&l.target.id!==d.id);
+}
+function clearHighlight(){
+  node.classed('hl',false).classed('fade',false);
+  link.classed('hl',false).classed('fade',false);
+}
+
+// Info panel
+function showInfo(d){
+  const t=TYPES[d.type];
+  const conns=validLinks.filter(l=>l.source.id===d.id||l.target.id===d.id);
+  const linkRows=conns.slice(0,12).map(l=>{
+    const other=l.source.id===d.id?l.target:l.source;
+    const ot=TYPES[other.type];
+    return `<div class="link-row" data-id="${other.id}"><span style="width:10px;height:10px;border-radius:50%;background:${ot.color};display:inline-block;flex-shrink:0"></span>${other.label}<span class="arrow" style="margin-left:auto">›</span></div>`;
+  }).join('');
+  document.getElementById('kgInfo').innerHTML=`
+    <div class="node-detail">
+      <div class="typ" style="background:${t.color}">${t.nm}</div>
+      <div class="tit">${d.label}</div>
+      <div class="meta">${d.desc||''}</div>
+      ${d.href?`<a href="${d.href}" target="_blank" class="src-chip painel" style="display:inline-flex;align-items:center;gap:6px;font-family:var(--ff-mono);font-size:11px;padding:5px 10px;border-radius:5px;background:rgba(74,138,216,0.1);color:var(--blueL);border:1px solid rgba(74,138,216,0.3);text-decoration:none;letter-spacing:0.5px">🔗 Abrir painel</a>`:''}
+      <div class="links">
+        <div class="lbl">${conns.length} conexão${conns.length!==1?'ões':''}</div>
+        ${linkRows}
+        ${conns.length>12?`<div style="font-family:var(--ff-mono);font-size:10px;color:var(--mut);text-align:center;padding:6px 0;font-style:italic">+ ${conns.length-12} outras</div>`:''}
+      </div>
+    </div>`;
+  document.getElementById('kgSel').textContent=d.label.slice(0,14);
+  // Link clicks
+  document.querySelectorAll('.link-row').forEach(el=>{
+    el.onclick=()=>{const n=NODES.find(x=>x.id===el.dataset.id);if(n){showInfo(n);highlightConnections(n);}};
+  });
+}
+
+// Legend
+const legend=document.getElementById('kgLegend');
+const counts={};
+NODES.forEach(n=>counts[n.type]=(counts[n.type]||0)+1);
+const activeTypes=new Set(Object.keys(TYPES));
+Object.entries(TYPES).forEach(([k,v])=>{
+  const li=document.createElement('div');
+  li.className='li';li.dataset.type=k;
+  li.innerHTML=`<span class="dot" style="background:${v.color}"></span><span class="nm">${v.nm}</span><span class="ct">${counts[k]||0}</span>`;
+  li.onclick=()=>{
+    if(activeTypes.has(k))activeTypes.delete(k);else activeTypes.add(k);
+    li.classList.toggle('muted');
+    node.style('display',n=>activeTypes.has(n.type)?null:'none');
+    link.style('display',l=>activeTypes.has(l.source.type)&&activeTypes.has(l.target.type)?null:'none');
+  };
+  legend.appendChild(li);
+});
+
+// Stats
+document.getElementById('kgN').textContent=NODES.length;
+document.getElementById('kgE').textContent=validLinks.length;
+document.getElementById('kgT').textContent=Object.keys(TYPES).length;
+
+// Search
+document.getElementById('kgSearch').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  if(!q){clearHighlight();return;}
+  const hit=NODES.find(n=>n.label.toLowerCase().includes(q)||n.id.toLowerCase().includes(q));
+  if(hit){showInfo(hit);highlightConnections(hit);}
+});
+
+// Reset
+document.getElementById('kgReset').onclick=()=>{
+  sim.alpha(1).restart();
+  NODES.forEach(n=>{n.fx=null;n.fy=null;});
+  clearHighlight();
+};
+
+// Freeze
+let frozen=false;
+document.getElementById('kgFreeze').onclick=function(){
+  frozen=!frozen;
+  if(frozen){sim.stop();this.textContent='▶ Retomar';this.classList.add('on');}
+  else{sim.alpha(0.3).restart();this.textContent='⏸ Pausar';this.classList.remove('on');}
+};
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
