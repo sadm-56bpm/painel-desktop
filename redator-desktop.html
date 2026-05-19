@@ -4,18 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0A0E16">
-<title>Redator SADM · 56º BPM · MIV/PMMG/2025 · Aptos/Inter</title>
+<title>Redator SADM · 56º BPM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
-<!-- Rawline · fonte oficial gov.br · adotada PMMG MIV/2025 -->
-<!-- Inter · substituto humanista de Aptos (real PMMG/MS 365) · Google Fonts livre -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="tokens.css">
 <style>
-.red-layout{display:grid;grid-template-columns:300px 1fr 420px;gap:var(--sp4);min-height:calc(100vh - 200px)}
+.red-layout{display:grid;grid-template-columns:320px 1fr;gap:var(--sp4);min-height:calc(100vh - 200px)}
 
-/* ─── Coluna 1 · 11 tipos ─── */
+/* Coluna 1 · 11 tipos */
 .types-col{display:flex;flex-direction:column;gap:var(--sp2);overflow-y:auto;padding-right:4px}
 .types-col::-webkit-scrollbar{width:5px}.types-col::-webkit-scrollbar-track{background:transparent}.types-col::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
 
@@ -33,22 +30,23 @@
 .type-card:hover::before{width:5px}
 .type-card.on{background:linear-gradient(135deg,rgba(201,163,72,0.10),var(--bg2));border-color:var(--acc);box-shadow:0 4px 14px rgba(201,163,72,0.2)}
 .type-card.on::before{width:6px;background:var(--acc);box-shadow:0 0 12px var(--acc)}
-.tc-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center}
+.tc-icon{font-size:22px;flex-shrink:0;width:32px;text-align:center}
 .tc-info{flex:1;min-width:0}
-.tc-nm{font-family:var(--ff-serif);font-size:var(--t-sm);color:var(--txt);font-weight:600;line-height:1.2}
+.tc-nm{font-family:var(--ff-serif);font-size:var(--t-sm);color:var(--txt);font-weight:600;line-height:1.25}
 .tc-pref{font-family:var(--ff-mono);font-size:9.5px;color:var(--acc);letter-spacing:0.8px;font-weight:700;margin-top:2px}
 
-/* ─── Coluna 2 · formulário ─── */
+/* Coluna 2 · form único */
 .form-wrap{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);overflow:hidden;display:flex;flex-direction:column;position:relative}
 .form-wrap::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
 
-.form-h{padding:var(--sp4) var(--sp5);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:var(--sp4);flex-wrap:wrap}
-.form-h .info h2{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--gold);font-weight:600;line-height:1.2}
-.form-h .info .breadcrumb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
-.form-h .status{display:flex;align-items:center;gap:6px;font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 11px;border-radius:var(--r1);background:rgba(74,191,122,0.10);color:var(--greenL);border:1px solid rgba(74,191,122,0.3);letter-spacing:0.8px;text-transform:uppercase;font-weight:600}
+.form-h{padding:var(--sp5) var(--sp5) var(--sp4);border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:var(--sp4);flex-wrap:wrap}
+.form-h .info h2{font-family:var(--ff-serif);font-size:var(--t-2xl);color:var(--gold);font-weight:600;line-height:1.2}
+.form-h .info .breadcrumb{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px}
+.form-h .info .desc{font-size:var(--t-sm);color:var(--txt2);margin-top:var(--sp3);max-width:600px;line-height:1.55}
+.form-h .status{display:flex;align-items:center;gap:6px;font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 11px;border-radius:var(--r1);background:rgba(74,191,122,0.10);color:var(--greenL);border:1px solid rgba(74,191,122,0.3);letter-spacing:0.8px;text-transform:uppercase;font-weight:600;white-space:nowrap}
 .form-h .status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:livePulse 1.6s infinite}
 
-.form-body{flex:1;overflow-y:auto;padding:var(--sp4) var(--sp5)}
+.form-body{flex:1;overflow-y:auto;padding:var(--sp5)}
 .form-body::-webkit-scrollbar{width:6px}.form-body::-webkit-scrollbar-track{background:transparent}.form-body::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
 
 .field{margin-bottom:var(--sp4)}
@@ -59,12 +57,13 @@
   color:var(--txt);outline:none;transition:border-color var(--dur2) var(--ease);
   letter-spacing:0.1px;line-height:1.5
 }
-.field textarea{min-height:120px;resize:vertical;font-family:var(--ff-sans)}
+.field textarea{min-height:160px;resize:vertical;font-family:var(--ff-sans)}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
 .field input::placeholder,.field textarea::placeholder{color:var(--dim);font-style:italic}
 .field .hint{font-family:var(--ff-mono);font-size:10px;color:var(--mut);margin-top:4px;letter-spacing:0.2px}
 
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+.field-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--sp3)}
 
 .gen-btn{
   width:100%;padding:var(--sp4) var(--sp5);
@@ -78,100 +77,73 @@
 .gen-btn:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(201,163,72,0.45)}
 .gen-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
 
-/* ─── Coluna 3 · preview com Rawline (fiel MIV) ─── */
-.preview-col{display:flex;flex-direction:column;gap:var(--sp3)}
-.preview-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp4);display:flex;flex-direction:column;flex:1;overflow:hidden}
-.preview-h{display:flex;align-items:center;justify-content:space-between;padding-bottom:var(--sp3);margin-bottom:var(--sp3);border-bottom:1px solid var(--line)}
-.preview-h .lbl{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;display:flex;align-items:center;gap:6px}
-.preview-h .miv{font-family:var(--ff-mono);font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(201,163,72,0.10);color:var(--gold);border:1px solid var(--gold);letter-spacing:0.5px}
-
-/* ★ APTOS @font-face · self-served fallback · CDN sketchy mas funcional */
-@font-face {
-  font-family: 'Aptos';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Aptos'),
-       local('Aptos Regular'),
-       url('https://db.onlinewebfonts.com/t/7dd5f4bf5d38875ca1822a830b6e6fe4.woff2') format('woff2');
-  font-display: swap;
+/* ─── Resultado · simples e focado ─── */
+.result{
+  margin-top:var(--sp5);
+  background:linear-gradient(135deg,rgba(74,191,122,0.10),var(--bg2));
+  border:1px solid rgba(74,191,122,0.4);
+  border-radius:var(--r4);
+  padding:var(--sp6);
+  display:none;animation:fadeIn 0.4s ease;
+  position:relative;overflow:hidden
 }
-@font-face {
-  font-family: 'Aptos';
-  font-style: normal;
-  font-weight: 700;
-  src: local('Aptos Bold'),
-       local('Aptos-Bold'),
-       url('https://db.onlinewebfonts.com/t/7dd5f4bf5d38875ca1822a830b6e6fe4.woff2') format('woff2');
-  font-display: swap;
+.result.on{display:block}
+.result::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--greenL),transparent)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.result-h{display:flex;align-items:center;gap:var(--sp3);margin-bottom:var(--sp4)}
+.result-h .ico{
+  width:48px;height:48px;border-radius:50%;
+  background:linear-gradient(135deg,var(--green),var(--greenD));
+  display:grid;place-items:center;
+  font-size:24px;color:var(--bg);
+  box-shadow:0 0 18px rgba(74,191,122,0.4)
 }
+.result-h .info h3{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--greenL);font-weight:600;line-height:1.2}
+.result-h .info .sub{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
 
-/* ★ PREVIEW DO DOCUMENTO · Aptos (real PMMG · MS 365) · Inter como fallback */
-.doc-sheet{
-  background:#fff;color:#000;
-  padding:30mm 25mm;
-  font-family:'Aptos','Inter','Calibri','Segoe UI',sans-serif;
-  font-size:11pt;line-height:1.5;
-  font-feature-settings:'cv11','ss01','ss03';
-  border-radius:var(--r2);
-  box-shadow:0 8px 26px rgba(0,0,0,0.5);
-  overflow-y:auto;flex:1;
-  letter-spacing:0;
-  min-height:400px
+.result-info{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3);margin-bottom:var(--sp4)}
+.result-info .cell{background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp3)}
+.result-info .lbl{font-family:var(--ff-mono);font-size:10px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.result-info .vl{font-family:var(--ff-mono);font-size:var(--t-md);color:var(--txt);font-weight:600;word-break:break-all}
+
+.result-actions{display:flex;gap:var(--sp3);flex-wrap:wrap}
+.act-primary{
+  flex:1;padding:var(--sp4) var(--sp5);
+  background:linear-gradient(135deg,#4285F4,#1A73E8);
+  color:#fff;border:none;border-radius:var(--r3);
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all var(--dur2) var(--ease)
 }
-.doc-sheet *{font-family:inherit !important}
+.act-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(66,133,244,0.35)}
 
-/* Cabeçalho institucional · logo + textos · MIV fiel */
-.doc-header{text-align:center;border-bottom:1.5pt solid #0A2E5C;padding-bottom:6mm;margin-bottom:8mm}
-.doc-logo{width:60px;height:60px;margin:0 auto 4mm;background:linear-gradient(135deg,#1A3E7C,#0A2E5C);border-radius:50%;display:grid;place-items:center;color:#C9A348;font-size:24px;font-weight:700;font-family:'Aptos','Inter',sans-serif;border:2px solid #C9A348}
-.doc-header .h1{font-size:11pt;font-weight:700;color:#0A2E5C;letter-spacing:1px;margin-bottom:1mm}
-.doc-header .h2{font-size:10pt;font-weight:600;color:#0A2E5C;letter-spacing:0.5px}
-.doc-header .h3{font-size:9pt;color:#444;letter-spacing:0.3px;margin-top:1mm;font-style:italic}
-
-/* Numero e data */
-.doc-num{font-weight:700;font-size:10pt;color:#0A2E5C;margin-bottom:2mm}
-.doc-data{text-align:right;font-size:10pt;margin-bottom:8mm}
-
-/* Destinatário · estilo institucional */
-.doc-dest{margin-bottom:6mm;font-size:10pt;line-height:1.4}
-
-/* Assunto / Referência · bold */
-.doc-assunto{font-weight:700;font-size:10pt;margin-bottom:2mm}
-.doc-ref{font-weight:700;font-size:10pt;margin-bottom:6mm}
-
-/* Corpo · justificado */
-.doc-body{text-align:justify;font-size:11pt;line-height:1.6;margin-bottom:10mm}
-.doc-body p{margin-bottom:3mm;text-indent:1cm}
-.doc-body p.no-indent{text-indent:0}
-.doc-body strong{font-weight:700}
-.doc-body h3{font-weight:700;font-size:10pt;margin:5mm 0 2mm;text-indent:0}
-
-/* Assinatura */
-.doc-sign{margin-top:14mm;text-align:center}
-.doc-sign .line{margin:0 auto 1mm;width:65%;border-top:0.7pt solid #000}
-.doc-sign .nome{font-weight:700;font-size:10pt}
-.doc-sign .cargo{font-size:9pt;font-style:italic;color:#444;margin-top:0.5mm}
-
-/* Rodapé endereço · canônico */
-.doc-footer{margin-top:12mm;padding-top:3mm;border-top:0.5pt solid #888;text-align:center;font-size:8pt;color:#555;letter-spacing:0.2px;line-height:1.5}
+.act-secondary{
+  padding:var(--sp4) var(--sp5);
+  background:var(--bg);border:1px solid var(--line2);
+  color:var(--txt2);border-radius:var(--r3);
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:600;letter-spacing:1px;text-transform:uppercase;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all var(--dur2) var(--ease)
+}
+.act-secondary:hover{border-color:var(--gold);color:var(--gold)}
 
 /* Loading / err / banner */
 .loading{display:none;align-items:center;gap:10px;padding:var(--sp4);background:rgba(201,163,72,0.05);border:1px solid rgba(201,163,72,0.25);border-radius:var(--r2);margin-top:var(--sp3);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--gold)}
 .loading.on{display:flex}
-.loading .spin{width:16px;height:16px;border:2px solid rgba(201,163,72,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+.loading .spin{width:18px;height:18px;border:2px solid rgba(201,163,72,0.3);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.err{margin-top:var(--sp3);padding:var(--sp3);background:rgba(200,65,65,0.06);border:1px solid rgba(200,65,65,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--redL);display:none;line-height:1.5}
+.err{margin-top:var(--sp3);padding:var(--sp4);background:rgba(200,65,65,0.06);border:1px solid rgba(200,65,65,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--redL);display:none;line-height:1.5}
 .err.on{display:block}
 
 .config-banner{margin-bottom:var(--sp4);padding:var(--sp4);background:rgba(216,136,56,0.06);border:1px solid rgba(216,136,56,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:11px;color:var(--orangeL);line-height:1.6;display:none}
 .config-banner.on{display:block}
 .config-banner b{color:var(--orange);font-weight:700}
 
-.action-btn{padding:8px 14px;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);text-decoration:none;letter-spacing:0.8px;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all var(--dur1) var(--ease)}
-.action-btn:hover{border-color:var(--gold);color:var(--gold)}
-.action-btn.primary{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:700}
-
-.actions-row{display:flex;gap:var(--sp2);margin-top:var(--sp3);flex-wrap:wrap}
+.section-divider{display:flex;align-items:center;gap:var(--sp3);margin:var(--sp4) 0 var(--sp3);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600}
+.section-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0.4}
 </style>
 </head>
 <body>
@@ -206,7 +178,7 @@
       <div>Cap. <span class="v">Fillipe Caldeira</span></div>
       <div>Chefia SADM</div>
       <div style="margin-top:6px">17ª RPM · PMMG</div>
-      <div style="margin-top:8px;color:var(--gold)">✍ Redator v2.0 · MIV/2025</div>
+      <div style="margin-top:8px;color:var(--gold)">✍ Redator v3.0 · Drive-native</div>
     </div>
   </aside>
 
@@ -214,8 +186,8 @@
 
     <div class="topbar">
       <div class="tb-title">
-        <h1>Redator · MIV/PMMG/2025</h1>
-        <div class="breadcrumb"><b>DA-058 · DA-036</b> · 11 tipos administrativos · Rawline · logo cabeçalho · endereço rodapé</div>
+        <h1>Redator · Google Docs</h1>
+        <div class="breadcrumb"><b>DA-058 · DA-036</b> · 11 tipos administrativos · Aptos nativa · cabeçalho/rodapé canônicos PMMG</div>
       </div>
       <div class="tb-actions">
         <div class="tb-clock"><div class="t" id="cTime">--:--:--</div><div class="d" id="cDate">--</div></div>
@@ -223,7 +195,7 @@
     </div>
 
     <div id="configBanner" class="config-banner mt-3">
-      <b>⚠ Backend não configurado.</b> Para gerar Google Docs reais no Drive, deploy o Apps Script <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">gerador_docs_gemini_v3.gs</code> e configure a URL. Preview à direita já funciona em modo local com Gemini visual placeholder.
+      <b>⚠ Backend Apps Script não configurado.</b> Para gerar Google Docs reais, faça deploy do <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">gerador_docs_gemini_v3.gs</code> no Workspace PMMG e cole a URL na constante <code>APPS_SCRIPT_URL</code> deste arquivo. Veja <b>GUIA_DEPLOY_REDATOR.md</b>.
     </div>
 
     <div class="red-layout mt-4">
@@ -235,7 +207,8 @@
         <div class="form-h">
           <div class="info">
             <h2 id="formTitle">Selecione um tipo</h2>
-            <div class="breadcrumb" id="formSub">11 tipos administrativos PMMG canônicos</div>
+            <div class="breadcrumb" id="formSub">11 tipos administrativos PMMG · MIV/2025</div>
+            <div class="desc" id="formDesc">O sistema gera um Google Doc nativo no Drive, formatado conforme o padrão canônico PMMG (fonte Aptos, cabeçalho institucional, rodapé com endereço, numeração sequencial automática). Você descreve os fatos em linguagem natural · o Gemini estrutura o texto técnico Res. 4.843/2019.</div>
           </div>
           <div class="status"><span class="dot"></span><span id="modeStatus">Aguardando config</span></div>
         </div>
@@ -243,37 +216,11 @@
         <div class="form-body" id="formBody">
           <div style="color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-sm);font-style:italic;text-align:center;padding:var(--sp9) 0;letter-spacing:0.3px;line-height:1.6">
             ← Selecione um tipo administrativo na lateral esquerda.<br>
-            <span style="font-size:var(--t-xs);color:var(--dim);margin-top:6px;display:inline-block">Preview com fonte Rawline (MIV/2025) à direita.</span>
+            <span style="font-size:var(--t-xs);color:var(--dim);margin-top:6px;display:inline-block">O formulário aparece aqui · após preencher e clicar "Gerar" · o Google Doc é criado no Drive e o link é exibido.</span>
           </div>
         </div>
 
       </section>
-
-      <aside class="preview-col">
-        <div class="preview-card">
-          <div class="preview-h">
-            <div class="lbl">🔍 PREVIEW · Rawline</div>
-            <span class="miv">MIV/PMMG/2025</span>
-          </div>
-          <div class="doc-sheet" id="docSheet">
-            <div class="doc-header">
-              <div class="doc-logo">56</div>
-              <div class="h1">POLÍCIA MILITAR DE MINAS GERAIS</div>
-              <div class="h2">17ª REGIÃO DE POLÍCIA MILITAR</div>
-              <div class="h2">56º BATALHÃO DE POLÍCIA MILITAR</div>
-              <div class="h3">Seção Administrativa · SADM</div>
-            </div>
-            <div style="text-align:center;color:#888;padding:60px 20px;font-style:italic;font-size:10pt">
-              ← Selecione um tipo e preencha os fatos<br>
-              <span style="font-size:9pt;color:#aaa">o preview do documento aparece aqui em tempo real</span>
-            </div>
-            <div class="doc-footer">
-              Rua Antiogo Poddis, 120 · Vila Poddis · Itajubá-MG · CEP 37503-002<br>
-              56º Batalhão de Polícia Militar · 17ª RPM · PMMG
-            </div>
-          </div>
-        </div>
-      </aside>
 
     </div>
 
@@ -283,38 +230,38 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   REDATOR v2.0 · MIV/PMMG/2025 · 11 tipos administrativos
+   REDATOR v3.0 · Drive-native · 11 tipos administrativos
+   Foco: gerar Google Doc no Drive (NÃO render HTML)
    ═══════════════════════════════════════════════════════════════════ */
 
 const APPS_SCRIPT_URL = ''; // EXEMPLO: 'https://script.google.com/macros/s/AKfycb.../exec'
 
 const TIPOS = [
-  {id:'oficio',           nm:'Ofício',                              pref:'Of',     ico:'📨', cor:'gold'},
-  {id:'memorando',        nm:'Memorando',                           pref:'Mem',    ico:'📝', cor:'b'},
-  {id:'ci',               nm:'Comunicação Interna',                 pref:'CI',     ico:'💼', cor:'b'},
-  {id:'despacho',         nm:'Despacho',                            pref:'Desp',   ico:'⚖',  cor:'p'},
-  {id:'parecer',          nm:'Parecer',                             pref:'Par',    ico:'🔍', cor:'c'},
-  {id:'requerimento',     nm:'Requerimento',                        pref:'Req',    ico:'📋', cor:'gold'},
-  {id:'solicitacao',      nm:'Solicitação',                         pref:'Sol',    ico:'📤', cor:'g'},
-  {id:'atestado',         nm:'Atestado',                            pref:'At',     ico:'✓',  cor:'g'},
-  {id:'atestado_fixacao', nm:'Atestado de Fixação de Residência',   pref:'AtFix',  ico:'🏠', cor:'g'},
-  {id:'certidao',         nm:'Certidão',                            pref:'Cert',   ico:'📜', cor:'o'},
-  {id:'declaracao',       nm:'Declaração',                          pref:'Decl',   ico:'📄', cor:'o'}
+  {id:'oficio',           nm:'Ofício',                              pref:'Of',     ico:'📨', cor:'gold', desc:'Comunicação formal externa entre autoridades'},
+  {id:'memorando',        nm:'Memorando',                           pref:'Mem',    ico:'📝', cor:'b',    desc:'Comunicação interna entre setores'},
+  {id:'ci',               nm:'Comunicação Interna',                 pref:'CI',     ico:'💼', cor:'b',    desc:'CI · variante simplificada do Memorando'},
+  {id:'despacho',         nm:'Despacho',                            pref:'Desp',   ico:'⚖',  cor:'p',    desc:'Decisão administrativa motivada sobre processo'},
+  {id:'parecer',          nm:'Parecer',                             pref:'Par',    ico:'🔍', cor:'c',    desc:'Manifestação técnica · I-Relatório · II-Fund. · III-Conclusão'},
+  {id:'requerimento',     nm:'Requerimento',                        pref:'Req',    ico:'📋', cor:'gold', desc:'Solicitação formal · I-Fundamentação · II-Fatos · III-Pedidos'},
+  {id:'solicitacao',      nm:'Solicitação',                         pref:'Sol',    ico:'📤', cor:'g',    desc:'Pedido administrativo direto'},
+  {id:'atestado',         nm:'Atestado',                            pref:'At',     ico:'✓',  cor:'g',    desc:'Declaração de fato verificado pessoalmente'},
+  {id:'atestado_fixacao', nm:'Atestado de Fixação de Residência',   pref:'AtFix',  ico:'🏠', cor:'g',    desc:'Anexo A · IP 192/2001-DP · comprovação fixação'},
+  {id:'certidao',         nm:'Certidão',                            pref:'Cert',   ico:'📜', cor:'o',    desc:'Declaração extrativa · cita fonte arquivística'},
+  {id:'declaracao',       nm:'Declaração',                          pref:'Decl',   ico:'📄', cor:'o',    desc:'Manifestação simples · sem inquirição'}
 ];
 
-// Estrutura de campos por tipo (define qual aparece no form)
 const FIELDS = {
-  oficio:           {dest:true,  ref:true,  assunto:true,  setor:true},
-  memorando:        {dest:true,  ref:true,  assunto:true,  setor:true},
-  ci:               {dest:true,  ref:false, assunto:true,  setor:true},
-  despacho:         {dest:false, ref:true,  assunto:false, setor:true},
-  parecer:          {dest:false, ref:true,  assunto:true,  setor:true},
-  requerimento:     {dest:true,  ref:false, assunto:true,  setor:false},
-  solicitacao:      {dest:true,  ref:false, assunto:true,  setor:true},
-  atestado:         {dest:false, ref:false, assunto:false, setor:false},
-  atestado_fixacao: {dest:false, ref:false, assunto:false, setor:false},
-  certidao:         {dest:false, ref:true,  assunto:false, setor:false},
-  declaracao:       {dest:false, ref:false, assunto:false, setor:false}
+  oficio:           {dest:true,  ref:true,  assunto:true,  setor:true,  destPlaceholder:'Ao Senhor Coronel\\n[Nome]\\nComandante\\n17ª RPM'},
+  memorando:        {dest:true,  ref:true,  assunto:true,  setor:true,  destPlaceholder:'Ao Senhor Major Chefe da Seção [X]'},
+  ci:               {dest:true,  ref:false, assunto:true,  setor:true,  destPlaceholder:'À Seção [X] · A/C [Função]'},
+  despacho:         {dest:false, ref:true,  assunto:false, setor:true,  destPlaceholder:''},
+  parecer:          {dest:false, ref:true,  assunto:true,  setor:true,  destPlaceholder:''},
+  requerimento:     {dest:true,  ref:false, assunto:true,  setor:false, destPlaceholder:'Senhor Tenente Coronel PM Comandante do 56º Batalhão de Polícia Militar'},
+  solicitacao:      {dest:true,  ref:false, assunto:true,  setor:true,  destPlaceholder:'Ao Senhor [Posto] [Cargo]'},
+  atestado:         {dest:false, ref:false, assunto:false, setor:false, destPlaceholder:''},
+  atestado_fixacao: {dest:false, ref:false, assunto:false, setor:false, destPlaceholder:''},
+  certidao:         {dest:false, ref:true,  assunto:false, setor:false, destPlaceholder:''},
+  declaracao:       {dest:false, ref:false, assunto:false, setor:false, destPlaceholder:''}
 };
 
 let currentTipo = null;
@@ -340,43 +287,43 @@ function selectTipo(id){
   document.querySelectorAll('.type-card').forEach(el => el.classList.toggle('on', el.dataset.tipo === id));
 
   document.getElementById('formTitle').textContent = `${currentTipo.ico} ${currentTipo.nm}`;
-  document.getElementById('formSub').textContent = `Prefixo: ${currentTipo.pref} · padrão MIV/PMMG/2025`;
+  document.getElementById('formSub').textContent = `Prefixo: ${currentTipo.pref} · ${currentTipo.desc}`;
+  document.getElementById('formDesc').textContent = 'Preencha os campos abaixo e clique "Gerar Google Doc". O documento será criado no Drive da SADM, formatado em Aptos, com cabeçalho institucional e rodapé canônico. Você receberá o link para abrir e revisar.';
 
   const f = FIELDS[id];
-
   let html = '';
 
   if (f.dest) {
     html += `<div class="field">
       <label>Destinatário</label>
-      <input type="text" id="fldDest" placeholder="${id === 'requerimento' ? 'Senhor Tenente Coronel Comandante do 56º BPM' : 'Ao Senhor Coronel · [Nome] · Comandante · 17ª RPM'}">
-      <div class="hint">${id === 'requerimento' ? 'Vocativo em maiúsculas · padrão PMMG' : 'Destinatário com posto + nome + cargo + unidade'}</div>
+      <input type="text" id="fldDest" placeholder="${f.destPlaceholder}">
+      <div class="hint">${id === 'requerimento' ? 'Vocativo em maiúsculas · padrão real PMMG' : 'Posto + nome + cargo + unidade (uma linha)'}</div>
     </div>`;
   }
 
   if (f.assunto) {
     html += `<div class="field">
       <label>Assunto</label>
-      <input type="text" id="fldAssunto" placeholder="${id === 'requerimento' ? 'DE AJUDA DE CUSTO · DE LICENÇA · etc' : 'Síntese do assunto · 1 linha'}">
-      <div class="hint">Aparece em bold no cabeçalho</div>
+      <input type="text" id="fldAssunto" placeholder="${id === 'requerimento' ? 'DE AJUDA DE CUSTO · DE LICENÇA · DE FÉRIAS · etc' : 'Síntese clara · uma linha'}">
+      <div class="hint">Aparece em negrito no cabeçalho do documento</div>
     </div>`;
   }
 
   if (f.ref) {
     html += `<div class="field">
       <label>Referência</label>
-      <input type="text" id="fldRef" placeholder="Processo 045/2026 · BI 12/2024 · BGPM 97/2025">
-      <div class="hint">Documento ou processo referenciado</div>
+      <input type="text" id="fldRef" placeholder="Processo nº 045/2026 · BI 12/2024 · BGPM 97/2025">
+      <div class="hint">Documento ou processo a que se refere · opcional</div>
     </div>`;
   }
 
   html += `<div class="field">
     <label>Fatos / Conteúdo (linguagem natural)</label>
-    <textarea id="fldFatos" placeholder="Descreva os fatos, motivação ou conteúdo a redigir em linguagem natural. O Gemini estrutura no padrão canônico PMMG. Não inclua dados pessoais (CPF, matrícula, nomes) · use placeholders [MILITAR] [CPF] [DATA]."></textarea>
-    <div class="hint">Mínimo 20 caracteres · Gemini gera texto técnico Res. 4.843/2019 · MIV/PMMG/2025</div>
+    <textarea id="fldFatos" placeholder="Descreva os fatos, motivação ou conteúdo a redigir em linguagem natural. Exemplo para Ofício: 'encaminhar relação de militares aptos para participação no TPB do segundo semestre · 18 militares com TCAF vigente'. O Gemini estrutura conforme padrão Res. 4.843/2019."></textarea>
+    <div class="hint">Mínimo 20 caracteres · NÃO inclua CPF/matrícula/nomes (sistema usa placeholders [MILITAR] [CPF])</div>
   </div>`;
 
-  html += `<div class="field-row">
+  html += `<div class="${f.setor ? 'field-row' : ''}">
     <div class="field">
       <label>Quem assina</label>
       <select id="fldAssina">
@@ -392,38 +339,32 @@ function selectTipo(id){
     html += `<div class="field">
       <label>Setor (numeração)</label>
       <input type="text" id="fldSetor" value="SADM/56º BPM">
-      <div class="hint">Aparece no número canônico</div>
+      <div class="hint">Aparece no número canônico (ex: Of nº 67/2026-SADM/56º BPM)</div>
     </div>`;
-  } else {
-    html += `<div></div>`;
   }
-
   html += `</div>`;
 
-  html += `<button class="gen-btn" id="genBtn"><span>${currentTipo.ico}</span><span>Gerar ${currentTipo.nm}</span><span>›</span></button>
-    <div class="loading" id="loading"><div class="spin"></div><span>Gerando texto técnico Gemini · padrão MIV/PMMG/2025...</span></div>
-    <div class="err" id="err"></div>`;
+  html += `<button class="gen-btn" id="genBtn">
+    <span style="font-size:18px">${currentTipo.ico}</span>
+    <span>Gerar Google Doc · ${currentTipo.nm}</span>
+    <span>›</span>
+  </button>
+  <div class="loading" id="loading"><div class="spin"></div><span>Gerando texto técnico via Gemini · criando Google Doc no Drive...</span></div>
+  <div class="err" id="err"></div>
+  <div class="result" id="result"></div>`;
 
   document.getElementById('formBody').innerHTML = html;
   document.getElementById('genBtn').onclick = gerar;
-
-  // Atualizar preview com placeholder do tipo
-  renderPreview({
-    tipo: id,
-    numero: currentTipo.pref + ' nº __/2026',
-    assunto: '[ASSUNTO]',
-    destinatario: '',
-    referencia: '',
-    corpo: 'Selecione "Gerar ' + currentTipo.nm + '" para visualizar o documento renderizado no padrão MIV/PMMG/2025 (fonte Rawline, logo no cabeçalho, endereço no rodapé).',
-    assina: 'Chefia SADM',
-    localData: hojeFormatado()
-  });
 }
 
 async function gerar(){
   const f = FIELDS[currentTipo.id];
   const fatos = document.getElementById('fldFatos').value.trim();
-  if (fatos.length < 20) { showErr('Fatos muito curtos · mínimo 20'); return; }
+  if (fatos.length < 20) { showErr('Fatos muito curtos · mínimo 20 caracteres'); return; }
+  if (!APPS_SCRIPT_URL) {
+    showErr('Backend Apps Script ainda não configurado. Para gerar Google Docs reais, complete o deploy seguindo GUIA_DEPLOY_REDATOR.md (~15 min · 100% gratuito).');
+    return;
+  }
 
   const payload = {
     tipo: currentTipo.id,
@@ -436,145 +377,74 @@ async function gerar(){
   };
 
   hideErr();
+  hideResult();
   showLoading();
 
-  let corpo = '';
-  let numero = currentTipo.pref + ' nº __/2026-' + payload.setor;
-  let docUrl = null;
-
-  if (APPS_SCRIPT_URL) {
-    try {
-      const r = await fetch(APPS_SCRIPT_URL, {
-        method: 'POST', mode: 'cors',
-        headers: {'Content-Type': 'text/plain;charset=utf-8'},
-        body: JSON.stringify(payload)
-      });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const data = await r.json();
-      if (data.error) throw new Error(data.error);
-      corpo = data.preview;
-      numero = data.numero;
-      docUrl = data.doc_url;
-    } catch (e) {
-      showErr('Backend falhou: ' + e.message + '. Usando preview local.');
-      corpo = gerarPlaceholder(payload);
-    }
-  } else {
-    // Modo local · placeholder didático
-    corpo = gerarPlaceholder(payload);
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST', mode: 'cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    showResult(data);
+  } catch (e) {
+    showErr('Falha: ' + e.message);
+  } finally {
+    hideLoading();
   }
-
-  hideLoading();
-
-  renderPreview({...payload, numero, corpo, localData: hojeFormatado(), docUrl});
 }
 
-function gerarPlaceholder(p){
-  // Placeholder local · enquanto backend não configurado
-  const exemplos = {
-    oficio: `Senhor Coronel,\n\n1. Em atenção ao requerimento referenciado, encaminho a Vossa Senhoria os documentos atinentes ao caso em referência, para análise e providências cabíveis.\n\n2. ${p.fatos}\n\n3. Coloco-me à disposição para esclarecimentos.\n\nRespeitosamente,`,
-    memorando: `${p.fatos}\n\nAtenciosamente,`,
-    ci: `${p.fatos}\n\nAtenciosamente,`,
-    despacho: `Em referência ao processo supra, considerando ${p.fatos}, DEFIRO o pleito nos termos da legislação aplicável. Encaminhe-se ao setor competente para as providências subsequentes.`,
-    parecer: `I — RELATÓRIO\n\n${p.fatos}\n\nII — FUNDAMENTAÇÃO\n\nA matéria encontra suporte na legislação aplicável e na regulamentação interna da PMMG.\n\nIII — CONCLUSÃO\n\nDiante do exposto, manifesto-me favoravelmente ao pleito, com as ressalvas pertinentes.`,
-    requerimento: `O nº [MATRÍCULA], [POSTO] [NOME], CPF [CPF], atualmente lotado [LOTAÇÃO], vem, respeitosamente, à presença de Vossa Senhoria, requerer o que segue.\n\nI — DA FUNDAMENTAÇÃO LEGAL\n\nO presente requerimento encontra suporte legal na legislação de regência.\n\nII — DOS FATOS\n\n1. ${p.fatos}\n\nIII — DOS PEDIDOS\n\na) deferimento do pleito, na forma da legislação aplicável.\n\nNestes termos, pede deferimento.`,
-    solicitacao: `Senhor Comandante,\n\nSolicito a Vossa Senhoria ${p.fatos}\n\nAgradeço a atenção.\n\nAtenciosamente,`,
-    atestado: `Atesto, para os devidos fins, que ${p.fatos}\n\nPor ser verdade, firmo o presente para os fins de direito.`,
-    atestado_fixacao: `Atesto, para fins de comprovação de fixação de residência, nos termos do artigo 4º e 5º da Instrução de Pessoal nº 192/2001-DP, que o nº [MATRICULA], [POSTO] [NOME], fixou residência em Itajubá/MG.\n\n${p.fatos}\n\nPor ser verdade, firmo o presente para os fins de direito.`,
-    certidao: `CERTIFICO, em cumprimento ao requerimento de [REQUERENTE], que ${p.fatos}\n\nDou fé.`,
-    declaracao: `Declaro, para os devidos fins, que ${p.fatos}\n\nPor ser expressão da verdade, firmo a presente declaração.`
-  };
-  return exemplos[p.tipo] || p.fatos;
-}
-
-function renderPreview(p){
-  const sheet = document.getElementById('docSheet');
-  const tipoLabel = (TIPOS.find(t => t.id === p.tipo)?.nm || '').toUpperCase();
-
-  // Renderizar corpo · transformar parágrafos
-  const bodyHTML = p.corpo.split(/\n\n+/).map(par => {
-    const trim = par.trim();
-    if (!trim) return '';
-    // Detectar seções (I — / 1. / etc)
-    if (/^(I|II|III|IV|V|VI|VII|VIII)\s*[—–-]/.test(trim)) {
-      const [head, ...rest] = trim.split('\n');
-      return `<h3>${head}</h3>${rest.length ? '<p class="no-indent">' + rest.join('<br>') + '</p>' : ''}`;
-    }
-    return `<p>${trim.replace(/\n/g, '<br>')}</p>`;
-  }).join('');
-
-  const showAssunto = ['oficio','memorando','ci','requerimento','solicitacao'].includes(p.tipo);
-  const showRef = ['oficio','memorando','despacho','parecer','certidao'].includes(p.tipo);
-  const isCentered = ['atestado','atestado_fixacao','certidao','declaracao','requerimento'].includes(p.tipo);
-
-  let titleCentered = '';
-  if (p.tipo === 'requerimento' && p.destinatario) {
-    titleCentered = `<div style="text-align:left;font-weight:700;font-size:11pt;margin-bottom:6mm;text-transform:uppercase">${p.destinatario}</div>
-                     <div style="text-align:center;font-weight:700;font-size:11pt;margin-bottom:6mm">REQUERIMENTO${p.assunto ? ' ' + p.assunto.toUpperCase() : ''}</div>`;
-  } else if (p.tipo === 'atestado_fixacao') {
-    titleCentered = `<div style="text-align:center;font-weight:700;font-size:10pt;margin-bottom:2mm">ANEXO A — INSTRUÇÃO DE PESSOAL Nº 192/2001-DP</div>
-                     <div style="text-align:center;font-weight:700;font-size:11pt;margin-bottom:6mm">ATESTADO DE FIXAÇÃO DE RESIDÊNCIA</div>`;
-  } else if (p.tipo === 'atestado') {
-    titleCentered = `<div style="text-align:center;font-weight:700;font-size:11pt;margin-bottom:6mm">ATESTADO</div>`;
-  } else if (p.tipo === 'certidao') {
-    titleCentered = `<div style="text-align:center;font-weight:700;font-size:11pt;margin-bottom:6mm">CERTIDÃO</div>`;
-  } else if (p.tipo === 'declaracao') {
-    titleCentered = `<div style="text-align:center;font-weight:700;font-size:11pt;margin-bottom:6mm">DECLARAÇÃO</div>`;
-  }
-
-  sheet.innerHTML = `
-    <div class="doc-header">
-      <div class="doc-logo">56</div>
-      <div class="h1">POLÍCIA MILITAR DE MINAS GERAIS</div>
-      <div class="h2">17ª REGIÃO DE POLÍCIA MILITAR</div>
-      <div class="h2">56º BATALHÃO DE POLÍCIA MILITAR</div>
-      <div class="h3">Seção Administrativa · SADM</div>
+function showResult(data){
+  const r = document.getElementById('result');
+  r.innerHTML = `
+    <div class="result-h">
+      <div class="ico">✓</div>
+      <div class="info">
+        <h3>Google Doc criado no Drive</h3>
+        <div class="sub">Arquivo formatado em Aptos · pronto para revisão e assinatura</div>
+      </div>
     </div>
-
-    ${titleCentered}
-
-    ${!isCentered ? `<div class="doc-num">${p.numero}</div>` : ''}
-    ${!['atestado_fixacao','atestado','certidao','declaracao'].includes(p.tipo) || isCentered ? `<div class="doc-data">${p.localData}</div>` : ''}
-
-    ${!isCentered && p.destinatario ? `<div class="doc-dest">${p.destinatario.split('\n').filter(Boolean).join('<br>')}</div>` : ''}
-
-    ${showAssunto && p.assunto && p.tipo !== 'requerimento' ? `<div class="doc-assunto">Assunto: ${p.assunto}</div>` : ''}
-    ${showRef && p.referencia ? `<div class="doc-ref">Referência: ${p.referencia}</div>` : ''}
-
-    <div class="doc-body">${bodyHTML}</div>
-
-    ${isCentered ? `<div class="doc-data" style="text-align:right;margin-top:8mm">${p.localData}</div>` : ''}
-
-    <div class="doc-sign">
-      <div class="line"></div>
-      <div class="nome">[POSTO POR EXTENSO] [NOME COMPLETO]</div>
-      <div class="cargo">${p.assina}</div>
+    <div class="result-info">
+      <div class="cell">
+        <div class="lbl">Número canônico</div>
+        <div class="vl">${data.numero}</div>
+      </div>
+      <div class="cell">
+        <div class="lbl">Tempo de geração</div>
+        <div class="vl">${data.latency_ms} ms · Gemini</div>
+      </div>
     </div>
-
-    <div class="doc-footer">
-      Rua Antiogo Poddis, 120 · Vila Poddis · Itajubá-MG · CEP 37503-002<br>
-      56º Batalhão de Polícia Militar · 17ª RPM · PMMG
+    <div class="result-actions">
+      <a class="act-primary" href="${data.doc_url}" target="_blank">
+        <span style="font-size:18px">📄</span>
+        <span>Abrir no Google Docs</span>
+      </a>
+      <button class="act-secondary" onclick="document.getElementById('result').classList.remove('on');document.getElementById('fldFatos').value=''">
+        <span>↻</span>
+        <span>Nova redação</span>
+      </button>
     </div>
-
-    ${p.docUrl ? `<div class="actions-row" style="margin-top:8mm;justify-content:center">
-      <a class="action-btn primary" href="${p.docUrl}" target="_blank">📄 Abrir no Google Docs</a>
-      <button class="action-btn" onclick="window.print()">🖨 Imprimir HTML (Rawline)</button>
-    </div>` : `<div class="actions-row" style="margin-top:8mm;justify-content:center">
-      <button class="action-btn" onclick="window.print()">🖨 Imprimir preview (Rawline)</button>
-    </div>`}
+    <div style="margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid rgba(74,191,122,0.2);font-family:var(--ff-mono);font-size:10px;color:var(--mut);line-height:1.6">
+      <b style="color:var(--greenL)">PRÓXIMOS PASSOS:</b><br>
+      1. Abrir o Doc no Drive · revisar texto técnico gerado<br>
+      2. Substituir placeholders ([MILITAR] · [CPF] · [DATA] · etc) com dados reais<br>
+      3. Inserir destinatário completo e demais campos pendentes<br>
+      4. Assinar (impressão ou assinatura digital eCPF/Gov.br)<br>
+      5. Tramitar via SEI · Email institucional · ou BI conforme cadeia documental
+    </div>
   `;
-}
-
-function hojeFormatado(){
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  const d = new Date();
-  return 'Quartel em Itajubá-MG, ' + d.getDate() + ' de ' + meses[d.getMonth()] + ' de ' + d.getFullYear() + '.';
+  r.classList.add('on');
+  r.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 function showErr(m){ const e = document.getElementById('err'); if(e){e.textContent = '⚠ ' + m; e.classList.add('on');} }
 function hideErr(){ const e = document.getElementById('err'); if(e) e.classList.remove('on'); }
 function showLoading(){ const l = document.getElementById('loading'); if(l) l.classList.add('on'); const b = document.getElementById('genBtn'); if(b) b.disabled = true; }
 function hideLoading(){ const l = document.getElementById('loading'); if(l) l.classList.remove('on'); const b = document.getElementById('genBtn'); if(b) b.disabled = false; }
+function hideResult(){ const r = document.getElementById('result'); if(r) r.classList.remove('on'); }
 
 // Init
 renderTypes();
@@ -582,9 +452,9 @@ selectTipo('oficio');
 
 if (!APPS_SCRIPT_URL) {
   document.getElementById('configBanner').classList.add('on');
-  document.getElementById('modeStatus').textContent = 'Preview local · Rawline';
+  document.getElementById('modeStatus').textContent = 'Aguardando deploy';
 } else {
-  document.getElementById('modeStatus').textContent = 'AI Live · Gemini · Rawline';
+  document.getElementById('modeStatus').textContent = 'Drive · Gemini · Aptos';
 }
 
 // Live clock
