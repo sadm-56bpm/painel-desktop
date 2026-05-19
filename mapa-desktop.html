@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Mapa Itajubá · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.map-layout{display:grid;grid-template-columns:1fr 380px;gap:var(--sp4);align-items:start}
+
+.map-canvas{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);padding:var(--sp5);position:relative;overflow:hidden;min-height:600px}
+.map-canvas::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
+
+.map-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--sp4);flex-wrap:wrap;gap:var(--sp3)}
+.map-h h2{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--gold);font-weight:600;line-height:1.2}
+.map-h .sub{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.map-h .chips{display:flex;gap:6px;flex-wrap:wrap}
+.map-chip{font-family:var(--ff-mono);font-size:10px;padding:4px 10px;border-radius:5px;background:rgba(255,255,255,0.04);color:var(--txt2);border:1px solid var(--line2);letter-spacing:0.5px}
+.map-chip.gold{background:rgba(201,163,72,0.10);color:var(--gold);border-color:rgba(201,163,72,0.4)}
+
+.map-svg-wrap{position:relative;background:linear-gradient(135deg,var(--bg2),var(--bg));border:1px solid var(--line);border-radius:var(--r3);padding:var(--sp4);overflow:hidden}
+#mapSvg{display:block;width:100%;height:auto;max-height:540px}
+
+.disclaimer{margin-top:var(--sp3);padding:var(--sp3);background:rgba(216,136,56,0.05);border:1px dashed rgba(216,136,56,0.3);border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;color:var(--orangeL);line-height:1.6;letter-spacing:0.2px}
+.disclaimer b{color:var(--orange)}
+
+/* Cards laterais */
+.info-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp5);position:relative;overflow:hidden;margin-bottom:var(--sp3)}
+.info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.info-card.b{--acc:var(--blueL)}.info-card.g{--acc:var(--greenL)}.info-card.p{--acc:var(--purpleL)}.info-card.o{--acc:var(--orangeL)}
+
+.info-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp3);display:flex;align-items:center;gap:8px}
+
+.kpi-pair{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+.kpi-cell{background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp3);text-align:center}
+.kpi-cell .v{font-family:var(--ff-mono);font-size:var(--t-2xl);font-weight:700;color:var(--acc,var(--gold));line-height:1;letter-spacing:-1px}
+.kpi-cell .l{font-family:var(--ff-mono);font-size:9.5px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.hierarchy{display:flex;flex-direction:column;gap:0}
+.hier-node{display:grid;grid-template-columns:32px 1fr;gap:var(--sp3);align-items:center;padding:var(--sp2) var(--sp3);background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:var(--r2);position:relative}
+.hier-node + .hier-node::before{content:'↑';position:absolute;left:14px;top:-12px;color:var(--gold);font-size:12px;line-height:1}
+.hier-node + .hier-node{margin-top:18px}
+.hier-node .ic{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--goldD));display:grid;place-items:center;font-family:var(--ff-mono);font-size:11px;font-weight:700;color:var(--bg)}
+.hier-node .nm{font-family:var(--ff-serif);font-size:var(--t-sm);color:var(--txt);font-weight:600;line-height:1.25}
+.hier-node .sb{font-family:var(--ff-mono);font-size:10px;color:var(--mut);margin-top:2px;letter-spacing:0.3px}
+
+.viz-list{display:flex;flex-direction:column;gap:5px}
+.viz-row{display:grid;grid-template-columns:100px 1fr;gap:var(--sp3);padding:6px 0;border-bottom:1px solid var(--line);font-family:var(--ff-mono);font-size:var(--t-xs);align-items:baseline}
+.viz-row:last-child{border-bottom:none}
+.viz-row .lb{color:var(--mut);text-transform:uppercase;letter-spacing:0.8px}
+.viz-row .vl{color:var(--txt2);line-height:1.5}
+.viz-row .vl b{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./sentinela-desktop.html"><span class="ico">📡</span><span class="lbl">Sentinela Legal</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./cadeias-desktop.html"><span class="ico">📜</span><span class="lbl">Cadeias</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./memoria-desktop.html"><span class="ico">📚</span><span class="lbl">Memória 71 DAs</span><span class="tag">★</span></a>
+    <a class="sb-link on" href="./mapa-desktop.html"><span class="ico">🗺</span><span class="lbl">Mapa Itajubá</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">🗺 Mapa v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Mapa · Itajubá-MG</h1>
+        <div class="breadcrumb"><b>Contexto territorial</b> · Área de atuação 56º BPM · Sul de Minas</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-layout mt-4">
+
+      <section class="map-canvas">
+        <div class="map-h">
+          <div>
+            <h2>🗺 Itajubá · MG</h2>
+            <div class="sub">Sul de Minas · Microrregião de Itajubá · Mesorregião Sul/Sudoeste</div>
+          </div>
+          <div class="chips">
+            <span class="map-chip gold">56º BPM</span>
+            <span class="map-chip">17ª RPM</span>
+            <span class="map-chip">PMMG</span>
+            <span class="map-chip">~97k habitantes</span>
+            <span class="map-chip">295 km²</span>
+          </div>
+        </div>
+
+        <div class="map-svg-wrap">
+          <svg id="mapSvg" viewBox="0 0 800 540" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="terrainG" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1A2336" stop-opacity="0.6"/>
+                <stop offset="100%" stop-color="#0D121C" stop-opacity="0.9"/>
+              </linearGradient>
+              <linearGradient id="itajubaG" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="rgba(201,163,72,0.20)"/>
+                <stop offset="50%" stop-color="rgba(201,163,72,0.35)"/>
+                <stop offset="100%" stop-color="rgba(139,111,46,0.30)"/>
+              </linearGradient>
+              <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4"/>
+                <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <radialGradient id="pinG">
+                <stop offset="0%" stop-color="#E8C77A"/>
+                <stop offset="100%" stop-color="#8B6F2E"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Background terreno -->
+            <rect width="800" height="540" fill="url(#terrainG)"/>
+
+            <!-- Grid topográfico estilizado -->
+            <g opacity="0.08" stroke="#3A4A6E" stroke-width="0.5" fill="none">
+              <line x1="0" y1="60" x2="800" y2="60"/>
+              <line x1="0" y1="120" x2="800" y2="120"/>
+              <line x1="0" y1="180" x2="800" y2="180"/>
+              <line x1="0" y1="240" x2="800" y2="240"/>
+              <line x1="0" y1="300" x2="800" y2="300"/>
+              <line x1="0" y1="360" x2="800" y2="360"/>
+              <line x1="0" y1="420" x2="800" y2="420"/>
+              <line x1="0" y1="480" x2="800" y2="480"/>
+              <line x1="100" y1="0" x2="100" y2="540"/>
+              <line x1="200" y1="0" x2="200" y2="540"/>
+              <line x1="300" y1="0" x2="300" y2="540"/>
+              <line x1="400" y1="0" x2="400" y2="540"/>
+              <line x1="500" y1="0" x2="500" y2="540"/>
+              <line x1="600" y1="0" x2="600" y2="540"/>
+              <line x1="700" y1="0" x2="700" y2="540"/>
+            </g>
+
+            <!-- Municípios vizinhos (estilizados) -->
+            <!-- Wenceslau Braz · NE -->
+            <g opacity="0.45">
+              <polygon points="580,80 700,90 720,150 650,180 590,150" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="640" y="130" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Wenceslau Braz</text>
+            </g>
+            <!-- Maria da Fé · N -->
+            <g opacity="0.45">
+              <polygon points="380,60 540,70 560,130 480,150 380,130" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="465" y="108" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Maria da Fé</text>
+            </g>
+            <!-- Delfim Moreira · NW -->
+            <g opacity="0.45">
+              <polygon points="200,70 380,60 380,130 290,160 220,130" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="300" y="110" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Delfim Moreira</text>
+            </g>
+            <!-- Marmelópolis · W -->
+            <g opacity="0.45">
+              <polygon points="60,140 220,130 290,160 280,250 180,260 90,230" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="180" y="205" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Marmelópolis</text>
+            </g>
+            <!-- Piranguçu · SW -->
+            <g opacity="0.45">
+              <polygon points="90,290 280,280 320,360 280,420 150,420 80,360" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="200" y="358" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Piranguçu</text>
+            </g>
+            <!-- Brazópolis · S -->
+            <g opacity="0.45">
+              <polygon points="320,420 480,430 510,500 380,510 310,490" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="410" y="466" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Brazópolis</text>
+            </g>
+            <!-- Piranguinho · SE -->
+            <g opacity="0.45">
+              <polygon points="520,430 680,440 720,500 580,510 510,490" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="615" y="473" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">Piranguinho</text>
+            </g>
+            <!-- São José do Alegre · E -->
+            <g opacity="0.45">
+              <polygon points="680,200 760,210 770,360 720,420 660,400 660,250" fill="#1F2A40" stroke="#3A4A6E" stroke-width="1"/>
+              <text x="715" y="305" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="10" font-weight="500">São José do Alegre</text>
+            </g>
+
+            <!-- ★ ITAJUBÁ (polígono estilizado · não-cartográfico) -->
+            <g filter="url(#glow)">
+              <polygon points="290,160 480,150 560,180 590,250 590,340 510,420 380,430 290,420 280,330 280,250" fill="url(#itajubaG)" stroke="#C9A348" stroke-width="2.5"/>
+            </g>
+            <text x="425" y="280" text-anchor="middle" fill="#E8C77A" font-family="IBM Plex Serif" font-size="22" font-weight="700">ITAJUBÁ</text>
+            <text x="425" y="302" text-anchor="middle" fill="#C9A348" font-family="IBM Plex Mono" font-size="10" letter-spacing="2.5">MINAS GERAIS · MG</text>
+
+            <!-- Sede 56º BPM (pino) -->
+            <g>
+              <line x1="425" y1="350" x2="425" y2="380" stroke="#C9A348" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+              <circle cx="425" cy="345" r="14" fill="url(#pinG)" stroke="#0A0E16" stroke-width="2"/>
+              <text x="425" y="350" text-anchor="middle" fill="#0A0E16" font-family="IBM Plex Serif" font-size="11" font-weight="700">56</text>
+              <text x="425" y="385" text-anchor="middle" fill="#E8C77A" font-family="IBM Plex Mono" font-size="9" letter-spacing="1" font-weight="600">★ SEDE 56º BPM</text>
+            </g>
+
+            <!-- Bússola -->
+            <g opacity="0.7">
+              <circle cx="730" cy="80" r="28" fill="rgba(10,14,22,0.7)" stroke="#3A4A6E" stroke-width="1"/>
+              <polygon points="730,58 736,80 730,76 724,80" fill="#C84141"/>
+              <polygon points="730,102 736,80 730,84 724,80" fill="#C5CBD8"/>
+              <text x="730" y="50" text-anchor="middle" fill="#C9A348" font-family="IBM Plex Mono" font-size="10" font-weight="700">N</text>
+              <text x="730" y="120" text-anchor="middle" fill="#8A95AC" font-family="IBM Plex Mono" font-size="9">S</text>
+            </g>
+
+            <!-- Escala estilizada -->
+            <g transform="translate(40,490)" opacity="0.8">
+              <line x1="0" y1="0" x2="120" y2="0" stroke="#C9A348" stroke-width="2"/>
+              <line x1="0" y1="-4" x2="0" y2="4" stroke="#C9A348" stroke-width="2"/>
+              <line x1="60" y1="-3" x2="60" y2="3" stroke="#C9A348" stroke-width="1.5"/>
+              <line x1="120" y1="-4" x2="120" y2="4" stroke="#C9A348" stroke-width="2"/>
+              <text x="0" y="20" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="9">0</text>
+              <text x="60" y="20" text-anchor="middle" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="9">~10km</text>
+              <text x="120" y="20" text-anchor="end" fill="#C5CBD8" font-family="IBM Plex Mono" font-size="9">~20km</text>
+            </g>
+
+            <!-- Caption -->
+            <text x="400" y="525" text-anchor="middle" fill="#5A6478" font-family="IBM Plex Mono" font-size="9" letter-spacing="1.5">REPRESENTAÇÃO ESQUEMÁTICA · NÃO CARTOGRÁFICA · APENAS ORIENTATIVA</text>
+          </svg>
+        </div>
+
+        <div class="disclaimer">
+          <b>⚠ Sobre este mapa:</b> representação esquemática estilizada baseada em geografia regional. As formas dos polígonos são aproximadas e simbólicas, não reproduzem fronteiras cartográficas precisas. Para coordenadas oficiais, consultar IBGE, IGAM ou bases públicas. Esta visualização tem fins de contexto institucional apenas.
+        </div>
+      </section>
+
+      <aside>
+
+        <div class="info-card">
+          <h3><span>📍</span>Identificação geográfica</h3>
+          <div class="viz-list">
+            <div class="viz-row"><span class="lb">Município</span><span class="vl"><b>Itajubá</b></span></div>
+            <div class="viz-row"><span class="lb">UF</span><span class="vl">Minas Gerais · MG</span></div>
+            <div class="viz-row"><span class="lb">Microrregião</span><span class="vl">Itajubá</span></div>
+            <div class="viz-row"><span class="lb">Mesorregião</span><span class="vl">Sul/Sudoeste de Minas</span></div>
+            <div class="viz-row"><span class="lb">Coordenadas</span><span class="vl">-22.42° S · -45.45° W</span></div>
+            <div class="viz-row"><span class="lb">Altitude</span><span class="vl">~840 m</span></div>
+            <div class="viz-row"><span class="lb">Fuso</span><span class="vl">UTC−3 (Brasília)</span></div>
+          </div>
+        </div>
+
+        <div class="info-card b">
+          <h3><span>📊</span>Dados públicos (IBGE · não-PII)</h3>
+          <div class="kpi-pair">
+            <div class="kpi-cell" style="--acc:var(--blueL)"><div class="v">~97k</div><div class="l">Habitantes</div></div>
+            <div class="kpi-cell" style="--acc:var(--blueL)"><div class="v">295</div><div class="l">km²</div></div>
+            <div class="kpi-cell" style="--acc:var(--blueL)"><div class="v">~329</div><div class="l">hab/km²</div></div>
+            <div class="kpi-cell" style="--acc:var(--blueL)"><div class="v">UNIFEI</div><div class="l">Polo educacional</div></div>
+          </div>
+          <div style="margin-top:var(--sp3);font-family:var(--ff-mono);font-size:10px;color:var(--mut);line-height:1.6;letter-spacing:0.2px">
+            Polo regional de educação (UNIFEI) e tecnologia. Vizinha a Wenceslau Braz, Maria da Fé, Delfim Moreira, Marmelópolis, Piranguçu, Brazópolis, Piranguinho e São José do Alegre.
+          </div>
+        </div>
+
+        <div class="info-card g">
+          <h3><span>🪖</span>Hierarquia institucional</h3>
+          <div class="hierarchy">
+            <div class="hier-node"><div class="ic">PM</div><div><div class="nm">PMMG</div><div class="sb">Polícia Militar de Minas Gerais</div></div></div>
+            <div class="hier-node"><div class="ic">17</div><div><div class="nm">17ª RPM</div><div class="sb">Região de Polícia Militar · sede Pouso Alegre</div></div></div>
+            <div class="hier-node"><div class="ic">56</div><div><div class="nm">56º BPM</div><div class="sb">Batalhão de Polícia Militar · sede Itajubá</div></div></div>
+            <div class="hier-node"><div class="ic">SA</div><div><div class="nm">SADM</div><div class="sb">Seção Administrativa · Cap. Fillipe Caldeira</div></div></div>
+          </div>
+        </div>
+
+        <div class="info-card o">
+          <h3><span>🛡</span>Escopo de atuação SADM</h3>
+          <div style="font-family:var(--ff-sans);font-size:var(--t-sm);color:var(--txt2);line-height:1.65;letter-spacing:0.1px">
+            A SADM 56º BPM responde pela <b style="color:var(--gold)">gestão jurídico-documental</b> da unidade. <strong style="color:var(--gold)">Não exerce comando de tropa.</strong> Atende às demandas administrativas, normativas e de acervo do batalhão sediado em Itajubá e suas unidades vinculadas.
+          </div>
+          <div style="margin-top:var(--sp3);padding:var(--sp3);background:rgba(216,136,56,0.05);border:1px solid rgba(216,136,56,0.25);border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;color:var(--orangeL);line-height:1.6">
+            <b>Vinculação operacional:</b> 17ª RPM · Pouso Alegre. <b>Comando direto:</b> Cmt 56º BPM. <b>Responsável SADM:</b> Cap. Fillipe Caldeira.
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>

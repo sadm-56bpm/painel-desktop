@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>Memória 71 DAs · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.mem-layout{display:grid;grid-template-columns:1fr 380px;gap:var(--sp4);height:calc(100vh - 200px);min-height:600px}
+
+.mem-canvas{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.mem-canvas::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);z-index:5}
+
+.mem-toolbar{padding:var(--sp4) var(--sp5);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:var(--sp3);flex-wrap:wrap}
+.mem-search{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);padding:var(--sp3) var(--sp4);font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--txt);outline:none;transition:border-color var(--dur2) var(--ease)}
+.mem-search:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
+.mem-search::placeholder{color:var(--dim)}
+
+.mem-filters{display:flex;flex-wrap:wrap;gap:6px;padding:var(--sp3) var(--sp5);border-bottom:1px solid var(--line);background:var(--bg2)}
+.flt-chip{padding:5px 11px;border-radius:var(--r1);background:rgba(255,255,255,0.03);border:1px solid var(--line2);font-family:var(--ff-mono);font-size:10.5px;color:var(--mut);letter-spacing:0.5px;text-transform:uppercase;cursor:pointer;font-weight:500;transition:all var(--dur1) var(--ease);display:inline-flex;align-items:center;gap:5px}
+.flt-chip:hover{color:var(--gold);border-color:var(--gold)}
+.flt-chip.on{background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border-color:var(--gold);font-weight:700}
+.flt-chip .ct{font-family:var(--ff-mono);font-size:9px;opacity:0.7}
+
+.mem-stream{flex:1;overflow-y:auto;padding:var(--sp4) var(--sp5)}
+.mem-stream::-webkit-scrollbar{width:6px}
+.mem-stream::-webkit-scrollbar-track{background:transparent}
+.mem-stream::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+/* Onda group */
+.onda-group{margin-bottom:var(--sp5)}
+.onda-h{display:flex;align-items:center;gap:var(--sp3);margin-bottom:var(--sp3);padding-bottom:var(--sp2);border-bottom:1px solid var(--line)}
+.onda-h .num{font-family:var(--ff-mono);font-size:var(--t-xs);padding:4px 10px;border-radius:5px;background:rgba(201,163,72,0.10);color:var(--gold);border:1px solid var(--gold);letter-spacing:1.5px;font-weight:700}
+.onda-h h3{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600}
+.onda-h .meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);margin-left:auto;letter-spacing:0.5px}
+
+.da-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:var(--sp3)}
+
+.da-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r2);
+  padding:var(--sp3) var(--sp4);
+  position:relative;overflow:hidden;
+  cursor:pointer;transition:all var(--dur2) var(--ease);
+  display:flex;flex-direction:column;gap:6px
+}
+.da-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--acc,var(--gold))}
+.da-card.cat-tax{--acc:#C9A348}
+.da-card.cat-sec{--acc:#C84141}
+.da-card.cat-id{--acc:#4A8AD8}
+.da-card.cat-cloud{--acc:#3AB5C8}
+.da-card.cat-ia{--acc:#8A5AD8}
+.da-card.cat-op{--acc:#D88838}
+.da-card.cat-bi{--acc:#4ABF7A}
+.da-card.cat-doc{--acc:#E8C77A}
+.da-card.cat-pub{--acc:#7BB4E8}
+.da-card.cat-hist{--acc:#5A6478}
+.da-card:hover{transform:translateY(-2px);border-color:var(--acc);box-shadow:0 4px 14px rgba(0,0,0,0.3)}
+.da-card.revogada{opacity:0.5}
+.da-card.revogada .da-tit::after{content:' ·  ✗ REVOGADA';font-size:9px;color:var(--red);font-weight:700;letter-spacing:1px}
+.da-card.sel{box-shadow:0 0 0 2px var(--acc),0 4px 18px rgba(201,163,72,0.2)}
+.da-card.hi{box-shadow:0 0 0 2px rgba(201,163,72,0.5)}
+
+.da-h{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.da-h .id{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--acc);font-weight:700;letter-spacing:0.5px}
+.da-h .badge{font-family:var(--ff-mono);font-size:8.5px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.04);color:var(--mut);border:1px solid var(--line2);letter-spacing:0.8px;text-transform:uppercase}
+.da-tit{font-family:var(--ff-serif);font-size:var(--t-sm);color:var(--txt);font-weight:600;line-height:1.3}
+.da-sub{font-family:var(--ff-mono);font-size:10px;color:var(--mut);line-height:1.4;letter-spacing:0.2px}
+
+/* Detalhe lateral */
+.mem-detail{display:flex;flex-direction:column;gap:var(--sp3);overflow-y:auto;padding-right:4px}
+.mem-detail::-webkit-scrollbar{width:5px}
+.mem-detail::-webkit-scrollbar-track{background:transparent}
+.mem-detail::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.dt-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp5);position:relative;overflow:hidden}
+.dt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.dt-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp3);display:flex;align-items:center;gap:6px}
+
+.dt-empty{color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-xs);font-style:italic;text-align:center;padding:var(--sp5) 0;letter-spacing:0.3px}
+
+.da-detail .id-big{font-family:var(--ff-mono);font-size:var(--t-3xl);font-weight:700;color:var(--acc);line-height:1;letter-spacing:-1px;margin-bottom:var(--sp2)}
+.da-detail .tit{font-family:var(--ff-serif);font-size:var(--t-lg);color:var(--txt);font-weight:600;line-height:1.25;margin-bottom:var(--sp3)}
+.da-detail .meta-line{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:var(--sp4)}
+.da-detail .meta-tag{font-family:var(--ff-mono);font-size:10px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.04);color:var(--txt2);border:1px solid var(--line2);letter-spacing:0.3px}
+.da-detail .body{font-family:var(--ff-sans);font-size:var(--t-sm);color:var(--txt2);line-height:1.65;letter-spacing:0.1px}
+.da-detail .body strong{color:var(--gold)}
+
+.relations{margin-top:var(--sp4);padding-top:var(--sp3);border-top:1px solid var(--line)}
+.relations .lbl{font-family:var(--ff-mono);font-size:10px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.rel-list{display:flex;flex-wrap:wrap;gap:5px}
+.rel-chip{font-family:var(--ff-mono);font-size:10px;padding:4px 9px;border-radius:4px;cursor:pointer;letter-spacing:0.3px;font-weight:500;transition:all var(--dur1) var(--ease)}
+.rel-chip.rev{background:rgba(200,65,65,0.10);color:var(--redL);border:1px solid rgba(200,65,65,0.3)}
+.rel-chip.ext{background:rgba(74,191,122,0.10);color:var(--greenL);border:1px solid rgba(74,191,122,0.3)}
+.rel-chip.dep{background:rgba(74,138,216,0.10);color:var(--blueL);border:1px solid rgba(74,138,216,0.3)}
+.rel-chip:hover{transform:translateY(-1px)}
+
+.mem-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mem-stat{background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r2);padding:var(--sp3);text-align:center}
+.mem-stat .v{font-family:var(--ff-mono);font-size:var(--t-xl);font-weight:700;color:var(--acc,var(--gold));line-height:1}
+.mem-stat .l{font-family:var(--ff-mono);font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link" href="./consultor-desktop.html"><span class="ico">💬</span><span class="lbl">Consultor</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./kg-desktop.html"><span class="ico">⛓</span><span class="lbl">Knowledge Graph</span><span class="tag">D3</span></a>
+    <a class="sb-link" href="./heatmap-desktop.html"><span class="ico">🌡</span><span class="lbl">Heatmap</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./sentinela-desktop.html"><span class="ico">📡</span><span class="lbl">Sentinela Legal</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./cadeias-desktop.html"><span class="ico">📜</span><span class="lbl">Cadeias</span><span class="tag">★</span></a>
+    <a class="sb-link on" href="./memoria-desktop.html"><span class="ico">📚</span><span class="lbl">Memória 71 DAs</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./mapa-desktop.html"><span class="ico">🗺</span><span class="lbl">Mapa Itajubá</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">📚 Memória v1.0</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>Memória · 71 Decisões Arquiteturais</h1>
+        <div class="breadcrumb"><b>Cadeia auditável</b> · DA-001 → DA-071 · 10 categorias · 7 ondas</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mem-layout mt-4">
+
+      <section class="mem-canvas">
+        <div class="mem-toolbar">
+          <input type="text" id="memSearch" class="mem-search" placeholder="🔍 Buscar DA, palavra-chave, categoria...">
+          <button class="flt-chip" id="resetBtn">↻ Reset</button>
+        </div>
+        <div class="mem-filters" id="filters"></div>
+        <div class="mem-stream" id="stream"></div>
+      </section>
+
+      <aside class="mem-detail">
+        <div class="dt-card">
+          <h3><span>ⓘ</span>Detalhe da decisão</h3>
+          <div id="daDetail"><div class="dt-empty">Clique em uma DA para ver descrição completa, relações com outras DAs, e fundamentação.</div></div>
+        </div>
+
+        <div class="dt-card" style="--acc:var(--blueL)">
+          <h3><span>📊</span>Estatísticas</h3>
+          <div id="memStats"></div>
+        </div>
+
+        <div class="dt-card" style="--acc:var(--purpleL)">
+          <h3><span>⚡</span>Como usar</h3>
+          <div style="font-family:var(--ff-mono);font-size:10px;color:var(--dim);line-height:1.7;letter-spacing:0.2px;padding:var(--sp3);background:rgba(255,255,255,0.015);border:1px dashed var(--line2);border-radius:var(--r2)">
+            <b style="color:var(--gold)">Buscar:</b> digite no campo acima · busca em ID/título/tags<br>
+            <b style="color:var(--gold)">Filtrar:</b> clique nos chips de categoria · combina com busca<br>
+            <b style="color:var(--gold)">Detalhar:</b> clique em uma DA para descrição + relações<br>
+            <b style="color:var(--gold)">Navegar:</b> chips de relação são clicáveis (revoga · expande · depende)
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   MEMÓRIA · 71 Decisões Arquiteturais · Onda 34
+   ═══════════════════════════════════════════════════════════════════ */
+
+const CATS = {
+  tax: {nm:'Taxonomia', cor:'#C9A348'},
+  sec: {nm:'Segurança', cor:'#C84141'},
+  id:  {nm:'Identidade', cor:'#4A8AD8'},
+  cloud:{nm:'Cloud-First', cor:'#3AB5C8'},
+  ia:  {nm:'IA & Auto', cor:'#8A5AD8'},
+  op:  {nm:'Operação', cor:'#D88838'},
+  bi:  {nm:'BI & Dados', cor:'#4ABF7A'},
+  doc: {nm:'Doc & POPs', cor:'#E8C77A'},
+  pub: {nm:'Publicação', cor:'#7BB4E8'},
+  hist:{nm:'Histórico', cor:'#5A6478'}
+};
+
+const ONDAS = {
+  1: {label:'Onda 1-15 · Fundação', range:'DA-001 a DA-031', desc:'Taxonomia inicial · acesso · estrutura preliminar'},
+  2: {label:'Onda 16-23 · Consolidação', range:'DA-032 a DA-048', desc:'Taxonomia v2.3 · POPs · Workspace ativo'},
+  3: {label:'Onda 24-27 · Engenharia', range:'DA-049 a DA-066', desc:'GitHub 3 camadas · BI · arquitetura 3 planos'},
+  4: {label:'Onda 28+ · Cloud-AI', range:'DA-067 a DA-071', desc:'Multi-IA gratuita · publicação canônica'}
+};
+
+const DAS = [
+  // ═════ ONDA 1-15 · FUNDAÇÃO ═════
+  {id:'DA-001', onda:1, cat:'tax', tit:'Taxonomia 9 pastas-mãe', resumo:'Estrutura histórica de organização do acervo · 9 pastas-mãe originais', detalhe:'Decisão inicial de taxonomia. Substituída por DA-032 (v2.3) com 10 blocos canônicos. Mantida como histórico para auditoria do projeto.', revoga_por:'DA-032'},
+  {id:'DA-002', onda:1, cat:'doc', tit:'Nomenclatura canônica', resumo:'Padrão TIPO_NUMERO_ANO_assunto[_funcao].ext · Res. 4.843/2019', detalhe:'Convenção de nomenclatura de arquivos baseada em Res. 4.843/2019 art. 12. Aplicada a 100% do acervo. Permite indexação automática e busca semântica.', tags:['nomenclatura','documentos']},
+  {id:'DA-003', onda:1, cat:'sec', tit:'ACESSO_RESERVADO solo-Chefia', resumo:'BGPM · BIR · documentos sigilosos · acesso restrito Chefia', detalhe:'Documentos sigilosos (BGPM, BIR, dados médicos, inquéritos) ficam em pasta dedicada com acesso exclusivo da Chefia SADM. Princípio da segregação por papel (DA-029).', tags:['sigilo','reservado']},
+  {id:'DA-004', onda:1, cat:'doc', tit:'Hash MD5 obrigatório em migrações', resumo:'Antes/depois de toda migração · auditabilidade técnica', detalhe:'Princípio de integridade documental. Hash MD5 calculado antes e depois de qualquer migração ou alteração estrutural. Permite verificação de não-corrupção.', tags:['integridade','MD5']},
+  {id:'DA-018', onda:1, cat:'hist', tit:'NJD apartado da SADM', resumo:'Núcleo Jurídico Disciplinar não compõe escopo SADM', detalhe:'Decisão estrutural · NJD opera com autonomia normativa e não faz parte do acervo SADM. Documentos e processos disciplinares permanecem com NJD.', tags:['NJD','escopo']},
+  {id:'DA-020', onda:1, cat:'id', tit:'Anonimização por função', resumo:'Chefia/F1/F2/F3 · obrigatória em todo artefato', detalhe:'Princípio de privacidade. Todo artefato institucional (painéis, apresentações, relatórios) deve anonimizar referências individuais usando rótulos de função. Aplicada em Sentinela, AADP, Saúde.', tags:['privacidade','LGPD']},
+  {id:'DA-021', onda:1, cat:'id', tit:'Vedação pecuniária em painéis', resumo:'Zero R$ em apresentações institucionais', detalhe:'Painéis não exibem valores monetários (vencimentos, gratificações, indenizações). Princípio de discrição institucional. Valores ficam no sistema folha (F3) com acesso restrito.', tags:['discreto','pecuniária']},
+  {id:'DA-027', onda:1, cat:'cloud', tit:'Cloud-first', resumo:'Diretriz permanente · Workspace PMMG como SSOT', detalhe:'Toda nova solução deve ser cloud-first. Single Source of Truth (SSOT) é o Workspace Polícia Militar. Migração progressiva de dados locais legados.', tags:['estratégia','workspace']},
+  {id:'DA-028', onda:1, cat:'hist', tit:'ACESSO_RESERVADO não migra ao Drive', resumo:'Revogada por DA-042', detalhe:'Decisão original mantinha ACESSO_RESERVADO apenas local. Revogada por DA-042 após avaliação de segurança do Workspace PMMG.', revoga_por:'DA-042', tags:['revogada','histórico']},
+  {id:'DA-029', onda:1, cat:'sec', tit:'Permissão por função, não por pessoa', resumo:'Acessos por papel funcional · não personalizados', detalhe:'Princípio canônico de IAM. Permissões concedidas a funções (Chefia, F1, F2, F3), não a indivíduos. Onboarding/offboarding apenas atribui/remove função.', tags:['IAM','RBAC']},
+  {id:'DA-030', onda:1, cat:'cloud', tit:'Espelho local × cloud por 150 dias', resumo:'Período de transição com redundância', detalhe:'Durante migração, dados ficam espelhados (local + cloud) por 150 dias antes de descontinuação local. Permite rollback seguro.', tags:['migração','rollback']},
+  {id:'DA-031', onda:1, cat:'doc', tit:'Sistema vivo operável', resumo:'Snapshots mensais · documentação viva', detalhe:'A documentação institucional não congela. Snapshots mensais capturam estado · DAs são incrementais · CLAUDE.md é versionado.', tags:['versionamento','vivo']},
+
+  // ═════ ONDA 16-23 · CONSOLIDAÇÃO ═════
+  {id:'DA-032', onda:2, cat:'tax', tit:'Taxonomia v2.3 · 10 blocos', resumo:'Estrutura canônica raiz com 10 blocos de competência', detalhe:'Refatoração da taxonomia original (DA-001). Define 10 blocos: 1-Vida Funcional · 2-Capacitação · 3-Recursos · 4-Atos · 5-Legislação · 6-Processos · 7-Governança · 8-Dashboards · 9-Arquivo · 10-Baliza.', revoga:'DA-001'},
+  {id:'DA-033', onda:2, cat:'tax', tit:'Baliza Canônica · efetivo', resumo:'Registro canônico do efetivo do 56º BPM', detalhe:'Bloco 10 é o registro canônico do efetivo. Não é gestão de pessoas, é gestão documental do efetivo (escopo SADM jurídico-documental).', tags:['baliza','efetivo']},
+  {id:'DA-034', onda:2, cat:'id', tit:'Identidade Organizacional canônica', resumo:'Alinhamento ao PE PMMG 2024-2027', detalhe:'A identidade da SADM 56º BPM está alinhada ao Plano Estratégico PMMG 2024-2027 (BGPM 93/2023).'},
+  {id:'DA-035', onda:2, cat:'doc', tit:'AADP única · Res. 5.458/2025', resumo:'Avaliação Anual de Desempenho · versão vigente única', detalhe:'A SADM opera apenas com a versão atual da AADP (Res. 5.458/2025). Versões anteriores arquivadas em Bloco 9.'},
+  {id:'DA-036', onda:2, cat:'id', tit:'MIV/PMMG/2025 aplicado', resumo:'Manual Identidade Visual · 102 págs · 4 cadernos', detalhe:'Aplicação canônica do MIV em todos os artefatos institucionais. Cores, tipografia, logo, hierarquia visual.'},
+  {id:'DA-037', onda:2, cat:'op', tit:'Programa de Integridade SADM · 4 eixos', resumo:'Liderança · Riscos · Códigos · Monitoramento', detalhe:'Adoção integral do Programa de Integridade PMMG/2024. 4 eixos com 8 subeixos. Score atual 82/100. Meta T4/2027: ≥92.'},
+  {id:'DA-038', onda:2, cat:'doc', tit:'Modelo GDA', resumo:'Gestão Documental Administrativa', detalhe:'Adoção do modelo GDA para classificação, custódia, tramitação e arquivamento de documentos administrativos.'},
+  {id:'DA-039', onda:2, cat:'doc', tit:'Manual canônico de redação', resumo:'Res. 4.843/2019 como referência', detalhe:'Manual de Elaboração e Gestão de Documentos PMMG (Res. 4.843/2019) é a referência canônica de redação institucional.'},
+  {id:'DA-040', onda:2, cat:'op', tit:'Execução Autônoma Faseada F1-F5', resumo:'Human-in-the-loop só em decisões críticas', detalhe:'Automação faseada em 5 níveis. F1-F4 operam autonomamente. F5 requer aprovação humana apenas em decisões críticas (descritas no Cockpit).'},
+  {id:'DA-041', onda:2, cat:'doc', tit:'Glossário Oficial canônico', resumo:'TCAF · TPB · AET · IMPO · PERF · ERF', detalhe:'Glossário canônico de siglas: TCAF=Treinamento Com Arma de Fogo · TPB=Treinamento Policial Básico · AET=Adjuntoria de Ensino e Treinamento · IMPO=Instrução Manutenção Operacional · PERF=Educação/Reabilitação Física · ERF=Extrato Registro Funcional (Res. 4.616/2017).'},
+  {id:'DA-042', onda:2, cat:'sec', tit:'ACESSO_RESERVADO migra ao Drive', resumo:'Revoga DA-028 · acesso a todos operadores', detalhe:'Após avaliação de segurança do Workspace PMMG, ACESSO_RESERVADO migra ao Drive. Granularidade definida pela Chefia. Revoga DA-028.', revoga:'DA-028'},
+  {id:'DA-043', onda:2, cat:'cloud', tit:'Ecossistema 100% Google', resumo:'Calendar · Apps Script · Drive como SSOT', detalhe:'Adoção exclusiva do ecossistema Google Workspace PMMG. Apps Script como runtime central. Drive como SSOT canônico.'},
+  {id:'DA-044', onda:2, cat:'hist', tit:'TM não é canônico nem da SADM', resumo:'Tático Móvel removido dos painéis', detalhe:'TM (Tático Móvel) não compõe escopo da SADM. Removido de todos os painéis institucionais.'},
+  {id:'DA-045', onda:2, cat:'hist', tit:'CIT suprimido · usar ERF', resumo:'Comando Imediato Tropa substituído por ERF (Res. 4.616/2017)', detalhe:'CIT (sigla antiga) suprimido. Termo canônico é ERF (Extrato de Registro Funcional · Res. 4.616/2017).'},
+  {id:'DA-046', onda:2, cat:'ia', tit:'Workspace institucional ativo · Gemini autorizado', resumo:'56bpm_1@workspace.pmmg.mg.gov.br · Gemini IA analítico', detalhe:'Workspace PMMG ativo com Gemini autorizado para uso analítico. NÃO para BIR/ACESSO_RESERVADO. NÃO para decisões finais.'},
+  {id:'DA-047', onda:2, cat:'tax', tit:'Estrutura raiz canônica · 14 pastas', resumo:'10 blocos v2.3 + ACESSO_RESERVADO + _ENGENHARIA + _ARQUIVADOS_v23', detalhe:'Estrutura raiz canônica. 14 pastas top-level. Estrutura v1 pré-dedup preservada em _ARQUIVADOS_v23.'},
+  {id:'DA-048', onda:2, cat:'doc', tit:'POP substitui BPMN', resumo:'POP=Procedimento Operacional Padrão · evita colisão com BPM', detalhe:'Terminologia canônica. POP (consagrado PMMG) substitui BPMN. Evita colisão com BPM (Batalhão Polícia Militar). Fluxogramas representam graficamente.'},
+
+  // ═════ ONDA 24-27 · ENGENHARIA ═════
+  {id:'DA-049', onda:3, cat:'cloud', tit:'Versionamento 3 camadas', resumo:'GitHub + Apps Script + Drive · bridge clasp/GH Actions', detalhe:'Camada 1: GitHub privado (código). Camada 2: Apps Script (runtime). Camada 3: Drive Workspace (acervo/dados). Bridge via clasp + GitHub Actions CI/CD.'},
+  {id:'DA-050', onda:3, cat:'ia', tit:'Gemini via Vertex AI · Service Account', resumo:'gemini-1.5-flash · sadm56-automation@... · audit nativo', detalhe:'Decisão inicial · uso de Gemini via Vertex AI com Service Account. Audit log nativo. Substituída na prática por stack Multi-IA gratuita (DA-067) que não exige billing.'},
+  {id:'DA-051', onda:3, cat:'ia', tit:'Self-healing ativo', resumo:'Auto-classificação · auto-POPs · auto-snapshots', detalhe:'Sistema opera com auto-cura. Triggers Apps Script: classificação Gemini · POPs auto-gerados (≥5 ocorrências) · snapshots semanais · relatórios mensais.'},
+  {id:'DA-052', onda:3, cat:'pub', tit:'Publicação pública Workspace', resumo:'workspace.pmmg.mg.gov.br · sem cruzamento LGPD', detalhe:'Publicação autorizada no domínio Workspace PMMG. Sanitização DA-020 e DA-021 mantida. Sem cruzamento de dados pessoais (LGPD).'},
+  {id:'DA-053', onda:3, cat:'bi', tit:'Memory Bank RAG', resumo:'Vertex AI Search + embeddings de 49k arquivos', detalhe:'Memory Bank com embeddings dos 49k arquivos do acervo. Consulta por linguagem natural. Resposta com norma + POP + template. Operacionalizado parcialmente pelo Consultor (Onda 32).'},
+  {id:'DA-054', onda:3, cat:'bi', tit:'BigQuery como warehouse', resumo:'Sheets → BigQuery diário · Looker', detalhe:'BigQuery como warehouse analítico. Pipeline Sheets → BigQuery diário. Looker conecta direto. Habilita queries complexas + ML.'},
+  {id:'DA-055', onda:3, cat:'op', tit:'Arquitetura em 3 planos canônicos', resumo:'Dados · Inteligência · Interface · responsabilidades estanques', detalhe:'Plano 1 Dados (Drive · Sheets · Calendar · Gmail · BigQuery · GitHub). Plano 2 Inteligência (Apps Script · Vertex/Multi-IA · Cloud Functions · GH Actions). Plano 3 Interface (Sites · AppSheet · Looker · TV Mural · KG). Responsabilidades estanques.', expande_por:['DA-067','DA-071']},
+  {id:'DA-056', onda:3, cat:'op', tit:'Arquitetura do Operador canônica', resumo:'4 perfis · KPI: ≥90% ações no SLA', detalhe:'4 perfis: Chefia + F1 + F2 + F3. Regra inviolável: se operador precisa abrir >3 ferramentas para uma ação, arquitetura falhou. KPI único: ≥90% ações no SLA.'},
+  {id:'DA-057', onda:3, cat:'bi', tit:'16 camadas BI canônicas', resumo:'8 descritivas + 8 preditivas', detalhe:'8 descritivas (1-8): KPIs · métricas servidor · compliance · aniversariantes · prazos · sentinela · saúde · AADP. 8 preditivas (9-16): KG · anomaly · prophet · recomendador · sentimento · compliance file · trajetória · audit reversa.'},
+  {id:'DA-058', onda:3, cat:'ia', tit:'Auto-Redação Gemini', resumo:'7 tipos · linguagem natural → DOCX Res. 4.843', detalhe:'Módulo gerador_docs_gemini.gs. 7 tipos: Ofício · Memorando · Despacho · Parecer · Atestado · Certidão · Relatório. Linguagem natural → DOCX com cabeçalho logo PMMG + rodapé endereço. Numeração sequencial automática.'},
+  {id:'DA-059', onda:3, cat:'op', tit:'Calendar institucional populado', resumo:'Aniversários · ciclo AADP · prazos · datas PMMG', detalhe:'Calendar institucional canônico: aniversários do efetivo · ciclo AADP · prazos recorrentes (folha · TCAF · recadastramento) · datas comemorativas PMMG. 4 calendars dedicados.'},
+  {id:'DA-060', onda:3, cat:'id', tit:'Logo PMMG canônica', resumo:'JPEG em _ENGENHARIA · alta resolução', detalhe:'LOGO_PMMG_OFICIAL.jpeg em _ENGENHARIA/onda_27/arquitetura/. Uso em todos cabeçalhos institucionais (DOCX · dashboards · Sites · TV Mural).'},
+  {id:'DA-061', onda:3, cat:'tax', tit:'Segregação Workspace · 3 pastas top-level', resumo:'SADM_56_BPM + _CHEFIA_SADM + _PROJETO_SADM', detalhe:'Segregação: SADM_56_BPM (acervo · operacional) · _CHEFIA_SADM (só Chefia · pessoal) · _PROJETO_SADM (só Chefia · código/eng).'},
+  {id:'DA-062', onda:3, cat:'cloud', tit:'Repo GitHub institucional canônico', resumo:'sadm-56bpm/sadm-56bpm-engenharia (privado)', detalhe:'Repo privado. Conta sadm-56bpm. 306 arquivos no commit inicial. .gitignore exclui acervo · ACESSO_RESERVADO · credenciais · CSVs >5MB. CI/CD via GitHub Actions + clasp.'},
+  {id:'DA-063', onda:3, cat:'sec', tit:'Pareamento Anthropic restrito · Chefia', resumo:'Claude em até 2 estações do Cap. Caldeira', detalhe:'Claude in Chrome pareada exclusivamente em até 2 estações do Cap. Caldeira. Vedado em outras estações. Operadores F1/F2/F3 não recebem Claude. Auditoria mensal de devices.'},
+  {id:'DA-064', onda:3, cat:'sec', tit:'Identidade Workspace única · sem provisionamento DCO', resumo:'56bpm_1@ para todos · perfis Chrome separados', detalhe:'Opera-se com 56bpm_1@workspace.pmmg.mg.gov.br para todos. Segregação via perfis Chrome + granularidade Drive + MFA individual + audit mensal. Audit trail Google único.'},
+  {id:'DA-065', onda:3, cat:'op', tit:'Modelo Operacional Consolidado', resumo:'4 perfis Chrome · 1 conta · 1 Anthropic · bookmarks por função', detalhe:'4 perfis Chrome dedicados · 1 conta Workspace compartilhada · 1 conta Anthropic apenas Chefia (DA-063) · bookmarks filtrados por função · whitelist extensions canônica.'},
+  {id:'DA-066', onda:3, cat:'sec', tit:'Compartimentação Claude/Anthropic', resumo:'F1/F2/F3 nunca acessam artefatos Claude/Anthropic', detalhe:'Servidores F1/F2/F3 nunca devem acessar artefatos que mencionem Claude, Anthropic, fillipenatan77@gmail.com. Pastas solo-Chefia: _ENGENHARIA · ACESSO_RESERVADO · _CHEFIA_SADM · _PROJETO_SADM · _CREDENCIAIS_LOCAIS · CLAUDE.md. Versão pública sanitizada: INVARIANTES_PROJETO_SADM.md.'},
+
+  // ═════ ONDA 28+ · CLOUD-AI ═════
+  {id:'DA-067', onda:4, cat:'ia', tit:'Stack Multi-IA Gratuita · ATIVA EM PRODUÇÃO', resumo:'Gemini + Groq + Cerebras + Mistral · 44.700+ req/dia · R$ 0', detalhe:'Stack canônica · Gemini AI Studio (1.500/dia) + Groq (14.400/dia) + Cerebras (14.400/dia) + Mistral (100/dia). Failover automático. Implementação via Apps Script proxy (Onda 32.B). Vedado provisionar Vertex AI billing.', expande_por:['DA-068','DA-069','DA-070']},
+  {id:'DA-068', onda:4, cat:'sec', tit:'Isolamento de chaves API', resumo:'PropertiesService · rotação anual · audit trimestral', detalhe:'Cada provedor com chave em Apps Script Properties separada e nomeada canonicamente: GEMINI_API_KEY · GROQ_API_KEY · CEREBRAS_API_KEY · MISTRAL_API_KEY. Vedado expor em código versionado. Rotação anual obrigatória.', depende_de:['DA-067']},
+  {id:'DA-069', onda:4, cat:'ia', tit:'Auditoria de uso de IA · log persistente', resumo:'ai_audit + ai_cache · alvo hit ≥70%', detalhe:'Toda chamada IA registrada em aba ai_audit (Sheets COMANDO_SADM). Colunas: timestamp · provider · model · prompt_hash · tokens_in · tokens_out · latency_ms · success · preview. Cache em ai_cache com TTL 30d.', depende_de:['DA-067']},
+  {id:'DA-070', onda:4, cat:'sec', tit:'Vedação de dados sensíveis em prompts IA', resumo:'Anonimização programática obrigatória', detalhe:'Vedado enviar para IA externa: nomes completos · CPF · matrícula · endereços · dados médicos · BIR/ACESSO_RESERVADO. Anonimização programática (regex CPF · matrícula · endereço) antes da chamada. Função _ai_anonimizar() em consultor_ai_proxy.gs.', depende_de:['DA-067','DA-020']},
+  {id:'DA-071', onda:4, cat:'pub', tit:'★ GitHub Pages canônico · 16 endereços', resumo:'14 painéis públicos + 1 alias · HTTPS forçado · R$ 0,00', detalhe:'Ecossistema dual mobile (5 painéis) + desktop (11 painéis incluindo Consultor · Cockpit · KG · Heatmap · Sentinela · Cadeias · Memória · Mapa). HTTPS forçado · zero login · cross-link bidirecional. 7 ondas deployadas (28 · 29 · 30 · 31 · 32.A · 32.B · 33 · 34).', expande_por:['DA-052','DA-055']}
+];
+
+let filterCat = 'all';
+let searchQuery = '';
+let selectedDA = null;
+
+const stream = document.getElementById('stream');
+const filtersEl = document.getElementById('filters');
+
+function renderFilters(){
+  const counts = {all: DAS.length};
+  DAS.forEach(d => counts[d.cat] = (counts[d.cat]||0)+1);
+  let html = `<button class="flt-chip on" data-cat="all">Todas <span class="ct">${counts.all}</span></button>`;
+  Object.entries(CATS).forEach(([k,v]) => {
+    if(counts[k]) html += `<button class="flt-chip" data-cat="${k}" style="--c:${v.cor}"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${v.cor};margin-right:3px"></span>${v.nm} <span class="ct">${counts[k]||0}</span></button>`;
+  });
+  filtersEl.innerHTML = html;
+  filtersEl.querySelectorAll('.flt-chip').forEach(el => {
+    el.onclick = () => {
+      filtersEl.querySelectorAll('.flt-chip').forEach(x => x.classList.remove('on'));
+      el.classList.add('on');
+      filterCat = el.dataset.cat;
+      render();
+    };
+  });
+}
+
+function render(){
+  const filtered = DAS.filter(d => {
+    if (filterCat !== 'all' && d.cat !== filterCat) return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      if (!(d.id.toLowerCase().includes(q) || d.tit.toLowerCase().includes(q) || d.resumo.toLowerCase().includes(q) || (d.tags||[]).some(t => t.toLowerCase().includes(q)))) return false;
+    }
+    return true;
+  });
+
+  const grouped = {};
+  filtered.forEach(d => {
+    if (!grouped[d.onda]) grouped[d.onda] = [];
+    grouped[d.onda].push(d);
+  });
+
+  let html = '';
+  Object.keys(grouped).sort().forEach(o => {
+    const meta = ONDAS[o];
+    html += `<div class="onda-group">
+      <div class="onda-h"><span class="num">${meta.label}</span><h3>${meta.range}</h3><span class="meta">${meta.desc}</span></div>
+      <div class="da-grid">${grouped[o].map(renderDACard).join('')}</div>
+    </div>`;
+  });
+
+  if (!filtered.length) html = '<div style="color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-sm);text-align:center;padding:var(--sp7);font-style:italic">Nenhuma DA encontrada com este filtro/busca.</div>';
+
+  stream.innerHTML = html;
+  stream.querySelectorAll('.da-card').forEach(el => {
+    el.onclick = () => selectDA(el.dataset.id);
+  });
+
+  updateStats(filtered);
+}
+
+function renderDACard(d){
+  const isRev = !!d.revoga_por;
+  const cls = `da-card cat-${d.cat}${isRev?' revogada':''}${selectedDA===d.id?' sel':''}`;
+  return `<div class="${cls}" data-id="${d.id}">
+    <div class="da-h"><span class="id">${d.id}</span><span class="badge">${CATS[d.cat].nm}</span></div>
+    <div class="da-tit">${d.tit}</div>
+    <div class="da-sub">${d.resumo}</div>
+  </div>`;
+}
+
+function selectDA(id){
+  selectedDA = id;
+  const d = DAS.find(x => x.id === id);
+  if (!d) return;
+  document.querySelectorAll('.da-card').forEach(el => el.classList.toggle('sel', el.dataset.id === id));
+
+  const cat = CATS[d.cat];
+  const status = d.revoga_por ? '<span style="color:var(--red);font-weight:700">REVOGADA</span> por '+d.revoga_por : 'Ativa';
+
+  let rels = '';
+  if (d.revoga) rels += `<div class="lbl">↑ Revoga</div><div class="rel-list"><span class="rel-chip rev" data-id="${d.revoga}">${d.revoga} ✗</span></div>`;
+  if (d.revoga_por) rels += `<div class="lbl">↓ Revogada por</div><div class="rel-list"><span class="rel-chip rev" data-id="${d.revoga_por}">${d.revoga_por}</span></div>`;
+  if (d.expande_por) rels += `<div class="lbl" style="margin-top:8px">→ Expandida por</div><div class="rel-list">${d.expande_por.map(x => `<span class="rel-chip ext" data-id="${x}">${x}</span>`).join('')}</div>`;
+  if (d.depende_de) rels += `<div class="lbl" style="margin-top:8px">⇐ Depende de</div><div class="rel-list">${d.depende_de.map(x => `<span class="rel-chip dep" data-id="${x}">${x}</span>`).join('')}</div>`;
+
+  document.getElementById('daDetail').innerHTML = `
+    <div class="da-detail" style="--acc:${cat.cor}">
+      <div class="id-big" style="color:${cat.cor}">${d.id}</div>
+      <div class="tit">${d.tit}</div>
+      <div class="meta-line">
+        <span class="meta-tag" style="background:${cat.cor}22;color:${cat.cor};border-color:${cat.cor}55">${cat.nm}</span>
+        <span class="meta-tag">${ONDAS[d.onda].label}</span>
+        <span class="meta-tag">${status}</span>
+      </div>
+      <div class="body">${d.detalhe}</div>
+      ${rels ? `<div class="relations">${rels}</div>` : ''}
+    </div>
+  `;
+
+  document.querySelectorAll('.rel-chip').forEach(el => {
+    el.onclick = (e) => { e.stopPropagation(); selectDA(el.dataset.id); };
+  });
+}
+
+function updateStats(filtered){
+  const total = DAS.length;
+  const ativas = DAS.filter(d => !d.revoga_por).length;
+  const revogadas = DAS.filter(d => d.revoga_por).length;
+  document.getElementById('memStats').innerHTML = `
+    <div class="mem-stats">
+      <div class="mem-stat"><div class="v">${total}</div><div class="l">Total DAs</div></div>
+      <div class="mem-stat" style="--acc:var(--greenL)"><div class="v" style="color:var(--greenL)">${ativas}</div><div class="l">Ativas</div></div>
+      <div class="mem-stat" style="--acc:var(--redL)"><div class="v" style="color:var(--redL)">${revogadas}</div><div class="l">Revogadas</div></div>
+      <div class="mem-stat" style="--acc:var(--blueL)"><div class="v" style="color:var(--blueL)">${filtered.length}</div><div class="l">No filtro</div></div>
+    </div>
+    <div style="margin-top:var(--sp3);padding:var(--sp3);background:rgba(74,138,216,0.05);border:1px solid rgba(74,138,216,0.25);border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;color:var(--txt2);line-height:1.6">
+      <strong style="color:var(--blueL)">Categorias:</strong><br>
+      ${Object.entries(CATS).map(([k,v]) => `<div style="display:flex;justify-content:space-between"><span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${v.cor};margin-right:5px"></span>${v.nm}</span><span style="color:var(--mut)">${DAS.filter(d=>d.cat===k).length}</span></div>`).join('')}
+    </div>
+  `;
+}
+
+document.getElementById('memSearch').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  render();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  searchQuery = '';
+  filterCat = 'all';
+  document.getElementById('memSearch').value = '';
+  filtersEl.querySelectorAll('.flt-chip').forEach(x => x.classList.remove('on'));
+  filtersEl.querySelector('[data-cat=all]').classList.add('on');
+  render();
+});
+
+renderFilters();
+render();
+// Inicializa com DA-071 selecionada (a mais relevante atualmente)
+selectDA('DA-071');
+
+// Live clock
+function pad(n){return n<10?'0'+n:n}
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
