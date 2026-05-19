@@ -226,7 +226,10 @@
               <div class="meta">v1.0 · Local · Knowledge Base · 71 DAs · 35 procs · 5 fontes PMMG</div>
             </div>
           </div>
-          <span class="chat-status"><span class="dot"></span>Online</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button id="modeBadge" onclick="toggleMode()" style="font-family:var(--ff-mono);font-size:10px;padding:5px 11px;border-radius:var(--r1);background:rgba(201,163,72,0.10);color:#C9A348;border:1px solid #C9A348;letter-spacing:1px;text-transform:uppercase;font-weight:600;cursor:pointer">💾 Modo Local · KB inline</button>
+            <span class="chat-status"><span class="dot"></span>Online</span>
+          </div>
         </div>
 
         <div class="chat-thread" id="thread">
@@ -632,20 +635,130 @@ function addRecent(q){
   });
 }
 
-function ask(q){
+/* ═══════════════════════════════════════════════════════════════════
+   MODO AI LIVE (Onda 32.B) · Apps Script proxy · Multi-IA DA-067
+   ═══════════════════════════════════════════════════════════════════ */
+// Configurar URL do Apps Script Web App após deploy
+// Ver _ENGENHARIA/onda_32/GUIA_DEPLOY_CONSULTOR_AI.md
+const APPS_SCRIPT_URL = ''; // EXEMPLO: 'https://script.google.com/macros/s/AKfycb.../exec'
+let MODE = APPS_SCRIPT_URL ? 'live' : 'local'; // auto-fallback se URL vazia
+
+const PROVIDER_BADGE = {
+  gemini: {nm:'Gemini', col:'#4A8AD8'},
+  groq: {nm:'Groq', col:'#D88838'},
+  cerebras: {nm:'Cerebras', col:'#8A5AD8'},
+  mistral: {nm:'Mistral', col:'#4ABF7A'},
+  cache: {nm:'Cache', col:'#3AB5C8'},
+  local: {nm:'Local KB', col:'#C9A348'}
+};
+
+async function askAILive(q){
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({pergunta: q})
+    });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    if (data.error) throw new Error(data.error);
+    return {
+      text: _markdownToHTML(data.resposta),
+      provider: data.provider,
+      latency_ms: data.latency_ms,
+      cached: data.cached,
+      sources: [] // O modelo já cita inline no texto
+    };
+  } catch (e) {
+    console.warn('AI Live falhou, fallback local:', e.message);
+    return null; // sinal de fallback
+  }
+}
+
+function _markdownToHTML(md){
+  // Markdown leve · negrito, itálico, code, listas, parágrafos
+  let html = md
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^- (.+)$/gm,'<li>$1</li>');
+  // Agrupa <li> consecutivos em <ul>
+  html = html.replace(/(<li>.+?<\/li>(?:\s*<li>.+?<\/li>)*)/gs, '<ul>$1</ul>');
+  // Quebra parágrafos
+  html = html.split(/\n\n+/).map(p => {
+    if (p.startsWith('<ul>') || p.startsWith('<li>')) return p;
+    return '<p>' + p.replace(/\n/g,'<br>') + '</p>';
+  }).join('');
+  return html;
+}
+
+async function ask(q){
   if(!q.trim())return;
   addMsg('user','<p>'+q.replace(/</g,'&lt;')+'</p>');
   addRecent(q);
   input.value='';
   showTyping();
-  setTimeout(()=>{
-    clearTyping();
-    const r=answer(q);
-    addMsg('nexus',r.text,r.sources);
-  },500+Math.random()*600);
+
+  let response = null;
+  let usedLive = false;
+
+  // Tenta AI Live primeiro se configurado
+  if (MODE === 'live' && APPS_SCRIPT_URL) {
+    response = await askAILive(q);
+    if (response) usedLive = true;
+  }
+
+  // Fallback para motor local
+  if (!response) {
+    // Simula latência mais natural para o local
+    await new Promise(r => setTimeout(r, 500 + Math.random()*500));
+    const r = answer(q);
+    response = {text: r.text, sources: r.sources, provider: 'local'};
+  }
+
+  clearTyping();
+
+  // Construir HTML da resposta com badge do provider
+  const badge = PROVIDER_BADGE[response.provider] || PROVIDER_BADGE.local;
+  let bubble = response.text;
+  const latencyHint = response.latency_ms ? ' · ' + response.latency_ms + 'ms' : '';
+  const cachedHint = response.cached ? ' · ⚡ cache' : '';
+  bubble += `<div style="margin-top:var(--sp3);padding-top:var(--sp3);border-top:1px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-family:var(--ff-mono);font-size:9.5px;padding:3px 8px;border-radius:5px;background:${badge.col}22;color:${badge.col};border:1px solid ${badge.col}55;letter-spacing:0.8px;text-transform:uppercase;font-weight:600">${usedLive ? '🌐 ' : '💾 '}${badge.nm}${latencyHint}${cachedHint}</span></div>`;
+
+  addMsg('nexus', bubble, response.sources || []);
 }
 
-form.addEventListener('submit',e=>{e.preventDefault();ask(input.value);});
+function toggleMode(){
+  if (!APPS_SCRIPT_URL) {
+    alert('Modo AI Live indisponível: APPS_SCRIPT_URL não configurada. Ver GUIA_DEPLOY_CONSULTOR_AI.md');
+    return;
+  }
+  MODE = MODE === 'live' ? 'local' : 'live';
+  updateModeBadge();
+}
+
+function updateModeBadge(){
+  const badge = document.getElementById('modeBadge');
+  if (!badge) return;
+  if (MODE === 'live') {
+    badge.textContent = '🌐 AI Live · Multi-IA';
+    badge.style.background = 'rgba(74,138,216,0.15)';
+    badge.style.color = '#7BB4E8';
+    badge.style.borderColor = '#4A8AD8';
+  } else {
+    badge.textContent = '💾 Modo Local · KB inline';
+    badge.style.background = 'rgba(201,163,72,0.10)';
+    badge.style.color = '#C9A348';
+    badge.style.borderColor = '#C9A348';
+  }
+}
+
+form.addEventListener('submit',async e=>{e.preventDefault();await ask(input.value);});
+
+// Inicializa badge de modo (Local/AI Live conforme APPS_SCRIPT_URL)
+updateModeBadge();
 
 document.querySelectorAll('.sugg, .cat-item').forEach(el=>{
   el.addEventListener('click',()=>{const q=el.dataset.q;if(q)ask(q);});
