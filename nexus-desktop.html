@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0A0E16">
+<title>NEXUS · Conversacional · SADM 56 BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+/* NEXUS Conversacional · interface chat institucional */
+
+.nexus-layout{display:grid;grid-template-columns:1fr 380px;gap:var(--sp5);min-height:calc(100vh - 180px)}
+
+/* Chat column */
+.chat-pane{
+  display:flex;flex-direction:column;gap:var(--sp4);
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r4);
+  overflow:hidden;
+  position:relative
+}
+.chat-pane::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+
+.chat-header{padding:var(--sp5);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:var(--sp4)}
+.chat-header .info{display:flex;align-items:center;gap:var(--sp3);min-width:0}
+.chat-header .ai-orb{
+  width:46px;height:46px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,var(--goldL),var(--goldD));
+  display:grid;place-items:center;
+  font-family:var(--ff-serif);font-size:20px;color:var(--bg);font-weight:700;
+  box-shadow:0 0 24px rgba(201,163,72,0.45),inset 0 2px 4px rgba(255,255,255,0.25);
+  position:relative;flex-shrink:0
+}
+.chat-header .ai-orb::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(201,163,72,0.4);animation:orbPulse 2.4s ease-in-out infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);opacity:0.6}50%{transform:scale(1.15);opacity:0}}
+.chat-header h2{font-family:var(--ff-serif);font-size:var(--t-xl);color:var(--gold);font-weight:600;line-height:1.2}
+.chat-header .meta{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
+.chat-status{font-family:var(--ff-mono);font-size:var(--t-xs);padding:5px 11px;border-radius:var(--r1);background:rgba(74,191,122,0.1);color:var(--greenL);border:1px solid rgba(74,191,122,0.3);letter-spacing:1px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.chat-status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:livePulse 1.6s infinite}
+
+.chat-thread{flex:1;overflow-y:auto;padding:var(--sp5);display:flex;flex-direction:column;gap:var(--sp4)}
+.chat-thread::-webkit-scrollbar{width:6px}
+.chat-thread::-webkit-scrollbar-track{background:transparent}
+.chat-thread::-webkit-scrollbar-thumb{background:var(--line2);border-radius:3px}
+
+.msg{display:flex;gap:var(--sp3);max-width:88%;animation:msgIn 0.4s var(--ease-out)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{align-self:flex-end;flex-direction:row-reverse}
+.msg .avatar{
+  width:36px;height:36px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--ff-mono);font-size:var(--t-xs);font-weight:700;
+  flex-shrink:0
+}
+.msg.user .avatar{background:linear-gradient(135deg,var(--blueL),var(--blueD));color:var(--bg)}
+.msg.nexus .avatar{background:radial-gradient(circle at 30% 30%,var(--goldL),var(--goldD));color:var(--bg);box-shadow:0 0 14px rgba(201,163,72,0.35)}
+.msg .bubble{
+  background:linear-gradient(180deg,var(--bg4),var(--bg3));
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:var(--sp4) var(--sp5);
+  font-size:var(--t-md);color:var(--txt);
+  line-height:1.65;letter-spacing:0.1px;
+  position:relative
+}
+.msg.user .bubble{background:linear-gradient(180deg,rgba(74,138,216,0.12),rgba(74,138,216,0.04));border-color:rgba(74,138,216,0.3)}
+.msg.nexus .bubble{background:linear-gradient(180deg,var(--bg3),var(--bg2));border-color:rgba(201,163,72,0.25)}
+.msg .bubble p{margin:0 0 var(--sp2)}
+.msg .bubble p:last-child{margin-bottom:0}
+.msg .bubble strong{color:var(--gold)}
+.msg .bubble code{font-family:var(--ff-mono);font-size:var(--t-sm);background:rgba(201,163,72,0.08);padding:2px 6px;border-radius:5px;color:var(--goldL);border:1px solid rgba(201,163,72,0.2)}
+.msg .bubble ul{margin:var(--sp2) 0;padding-left:var(--sp4)}
+.msg .bubble li{margin-bottom:4px}
+
+.msg .sources{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--sp3);padding-top:var(--sp3);border-top:1px solid var(--line)}
+.src-chip{font-family:var(--ff-mono);font-size:11px;padding:4px 9px;border-radius:5px;background:rgba(201,163,72,0.08);color:var(--gold);border:1px solid rgba(201,163,72,0.3);letter-spacing:0.3px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:all var(--dur1) var(--ease)}
+.src-chip:hover{background:rgba(201,163,72,0.15);border-color:var(--gold);transform:translateY(-1px)}
+.src-chip.painel{background:rgba(74,138,216,0.08);color:var(--blueL);border-color:rgba(74,138,216,0.3)}
+.src-chip.painel:hover{background:rgba(74,138,216,0.15);border-color:var(--blueL)}
+
+.msg .ts{font-family:var(--ff-mono);font-size:10px;color:var(--dim);margin-top:6px;letter-spacing:0.5px}
+
+.typing-dots{display:inline-flex;gap:4px;padding:8px 12px}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:typing 1.4s infinite}
+.typing-dots span:nth-child(2){animation-delay:0.2s}
+.typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes typing{0%,60%,100%{opacity:0.3;transform:scale(0.85)}30%{opacity:1;transform:scale(1.1)}}
+
+/* Input area */
+.chat-input{padding:var(--sp4) var(--sp5);border-top:1px solid var(--line);background:var(--bg2);display:flex;flex-direction:column;gap:var(--sp3)}
+.suggestions{display:flex;flex-wrap:wrap;gap:6px}
+.sugg{font-family:var(--ff-mono);font-size:var(--t-xs);padding:6px 12px;border-radius:50px;background:rgba(201,163,72,0.06);color:var(--goldL);border:1px solid rgba(201,163,72,0.25);letter-spacing:0.3px;cursor:pointer;transition:all var(--dur2) var(--ease)}
+.sugg:hover{background:rgba(201,163,72,0.15);border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
+
+.input-row{display:flex;gap:var(--sp3);align-items:center;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp2);transition:border-color var(--dur2) var(--ease)}
+.input-row:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
+.input-row input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--txt);font-family:var(--ff-sans);font-size:var(--t-md);
+  padding:var(--sp3) var(--sp4)
+}
+.input-row input::placeholder{color:var(--dim)}
+.send-btn{
+  padding:var(--sp3) var(--sp5);
+  background:linear-gradient(135deg,var(--gold),var(--goldD));
+  color:var(--bg);border:none;border-radius:var(--r2);
+  font-family:var(--ff-mono);font-size:var(--t-sm);font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;cursor:pointer;
+  transition:transform var(--dur1) var(--ease),box-shadow var(--dur2) var(--ease);
+  display:flex;align-items:center;gap:6px
+}
+.send-btn:hover{transform:translateY(-1px);box-shadow:var(--sh-gold)}
+.send-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* Context column */
+.ctx-pane{display:flex;flex-direction:column;gap:var(--sp4)}
+.ctx-card{
+  background:linear-gradient(180deg,var(--bg3),var(--bg2));
+  border:1px solid var(--line2);
+  border-radius:var(--r3);
+  padding:var(--sp5);
+  position:relative;overflow:hidden
+}
+.ctx-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--acc,var(--gold)),transparent)}
+.ctx-card.g{--acc:var(--greenL)}.ctx-card.b{--acc:var(--blueL)}.ctx-card.p{--acc:var(--purpleL)}.ctx-card.o{--acc:var(--orangeL)}
+.ctx-card h3{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:var(--sp3);display:flex;align-items:center;gap:var(--sp2)}
+.ctx-card h3 .ico{font-size:14px}
+
+.cat-list{display:flex;flex-direction:column;gap:8px}
+.cat-item{
+  display:grid;grid-template-columns:24px 1fr auto;gap:var(--sp2);align-items:center;
+  padding:var(--sp2) var(--sp3);border-radius:var(--r1);
+  background:rgba(255,255,255,0.02);border:1px solid var(--line);
+  cursor:pointer;transition:all var(--dur1) var(--ease)
+}
+.cat-item:hover{background:rgba(201,163,72,0.06);border-color:rgba(201,163,72,0.3)}
+.cat-item .ico{width:24px;height:24px;border-radius:5px;background:linear-gradient(135deg,var(--acc),var(--bg4));display:grid;place-items:center;font-size:11px;color:var(--bg);font-weight:700}
+.cat-item .nm{font-size:var(--t-sm);color:var(--txt);font-weight:500}
+.cat-item .ct{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--mut);letter-spacing:0.5px}
+
+.kb-stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp3)}
+.kb-stat{text-align:center;padding:var(--sp3);background:rgba(255,255,255,0.025);border:1px solid var(--line);border-radius:var(--r2)}
+.kb-stat .v{font-family:var(--ff-mono);font-size:var(--t-2xl);font-weight:700;color:var(--acc,var(--gold));line-height:1}
+.kb-stat .l{font-family:var(--ff-mono);font-size:9px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.kb-stat.g .v{color:var(--greenL)}
+.kb-stat.b .v{color:var(--blueL)}
+.kb-stat.p .v{color:var(--purpleL)}
+.kb-stat.o .v{color:var(--orangeL)}
+
+.disclaimer{font-family:var(--ff-mono);font-size:10px;color:var(--dim);line-height:1.6;letter-spacing:0.2px;padding:var(--sp3);background:rgba(255,255,255,0.015);border-radius:var(--r2);border:1px dashed var(--line2)}
+
+.recent-list{display:flex;flex-direction:column;gap:6px}
+.recent{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--txt2);padding:6px 10px;background:rgba(255,255,255,0.02);border-radius:5px;border:1px solid var(--line);cursor:pointer;line-height:1.4;letter-spacing:0.2px;transition:all var(--dur1) var(--ease)}
+.recent:hover{background:rgba(201,163,72,0.06);color:var(--gold);border-color:rgba(201,163,72,0.3)}
+
+@media (max-width:1280px){
+  .nexus-layout{grid-template-columns:1fr}
+  .ctx-pane{order:-1}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora"></div>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="sb-brand">
+      <div class="sb-crest">56</div>
+      <div class="nm">SADM<small>56º BPM · Itajubá</small></div>
+    </div>
+    <div class="sb-section">Painéis</div>
+    <a class="sb-link" href="./"><span class="ico">🏛</span><span class="lbl">Hub Central</span></a>
+    <a class="sb-link on" href="./nexus-desktop.html"><span class="ico">🧠</span><span class="lbl">NEXUS</span><span class="tag">★★★</span></a>
+    <a class="sb-link" href="./cockpit-desktop.html"><span class="ico">🎯</span><span class="lbl">Cockpit</span><span class="tag">★★</span></a>
+    <a class="sb-link" href="./apresentacao-desktop.html"><span class="ico">📋</span><span class="lbl">Apresentação</span><span class="tag">★</span></a>
+    <a class="sb-link" href="./tv-mural-desktop.html"><span class="ico">📺</span><span class="lbl">TV Mural</span></a>
+    <a class="sb-link" href="./gestao-desktop.html"><span class="ico">⚖</span><span class="lbl">Gestão</span></a>
+    <a class="sb-link" href="./operacional-desktop.html"><span class="ico">⌚</span><span class="lbl">Operacional</span></a>
+    <div class="sb-section">Workspace</div>
+    <a class="sb-link" href="https://drive.google.com/drive/folders/1gp_DyGk1NvB92K63NepBJSaoCalK4EH7" target="_blank" rel="noopener"><span class="ico">☁</span><span class="lbl">Drive SADM</span></a>
+    <a class="sb-link" href="https://calendar.google.com" target="_blank" rel="noopener"><span class="ico">📅</span><span class="lbl">Calendar</span></a>
+    <a class="sb-link" href="https://mail.google.com" target="_blank" rel="noopener"><span class="ico">✉</span><span class="lbl">Gmail</span></a>
+    <div class="sb-foot">
+      <div>Cap. <span class="v">Fillipe Caldeira</span></div>
+      <div>Chefia SADM</div>
+      <div style="margin-top:6px">17ª RPM · PMMG</div>
+      <div style="margin-top:8px;color:var(--gold)">★★★ NEXUS v1.0-local</div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <div class="topbar">
+      <div class="tb-title">
+        <h1>NEXUS · Conversacional</h1>
+        <div class="breadcrumb"><b>Inteligência institucional</b> · Pergunte ao acervo · Resposta com fonte</div>
+      </div>
+      <div class="tb-actions">
+        <div class="tb-clock">
+          <div class="t" id="cTime">--:--:--</div>
+          <div class="d" id="cDate">--</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nexus-layout mt-4">
+
+      <!-- ═════ CHAT ═════ -->
+      <div class="chat-pane">
+
+        <div class="chat-header">
+          <div class="info">
+            <div class="ai-orb">N</div>
+            <div>
+              <h2>NEXUS · Assistente Institucional</h2>
+              <div class="meta">v1.0 · Local · Knowledge Base · 71 DAs · 35 procs · 5 fontes PMMG</div>
+            </div>
+          </div>
+          <span class="chat-status"><span class="dot"></span>Online</span>
+        </div>
+
+        <div class="chat-thread" id="thread">
+          <!-- Mensagens injetadas via JS -->
+        </div>
+
+        <div class="chat-input">
+          <div class="suggestions" id="suggestions">
+            <div class="sugg" data-q="O que é a DA-067?">O que é a DA-067?</div>
+            <div class="sugg" data-q="Quais os 35 processos da SADM?">Quais os 35 processos?</div>
+            <div class="sugg" data-q="Como funciona o ciclo AADP?">Como funciona o ciclo AADP?</div>
+            <div class="sugg" data-q="Qual o score de compliance atual?">Score compliance</div>
+            <div class="sugg" data-q="Quem é responsável pela folha de pagamento?">Folha de pagamento</div>
+            <div class="sugg" data-q="Quais são as 5 fontes canônicas PMMG?">Fontes canônicas PMMG</div>
+            <div class="sugg" data-q="Quais as 16 camadas BI?">16 camadas BI</div>
+            <div class="sugg" data-q="O que é o Programa de Integridade?">Programa de Integridade</div>
+          </div>
+          <form class="input-row" id="form">
+            <input type="text" id="input" placeholder="Pergunte ao NEXUS · ex: 'qual é o ciclo AADP?' ou 'o que é DA-055?'" autocomplete="off">
+            <button class="send-btn" type="submit"><span>Enviar</span><span>›</span></button>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- ═════ CONTEXTO ═════ -->
+      <aside class="ctx-pane">
+
+        <div class="ctx-card">
+          <h3><span class="ico">📚</span>Base de conhecimento</h3>
+          <div class="kb-stats">
+            <div class="kb-stat o"><div class="v">71</div><div class="l">DAs</div></div>
+            <div class="kb-stat b"><div class="v">35</div><div class="l">Procs</div></div>
+            <div class="kb-stat g"><div class="v">16</div><div class="l">BI</div></div>
+            <div class="kb-stat p"><div class="v">5</div><div class="l">Fontes</div></div>
+          </div>
+        </div>
+
+        <div class="ctx-card">
+          <h3><span class="ico">⚡</span>Categorias</h3>
+          <div class="cat-list" id="categories">
+            <div class="cat-item" data-q="liste as decisões arquiteturais"><div class="ico" style="background:linear-gradient(135deg,#E8C77A,#8B6F2E)">DA</div><div class="nm">Decisões arquiteturais</div><div class="ct">71</div></div>
+            <div class="cat-item" data-q="liste os 35 processos"><div class="ico" style="background:linear-gradient(135deg,#8FD9A8,#2E8654)">PR</div><div class="nm">Processos SADM</div><div class="ct">35</div></div>
+            <div class="cat-item" data-q="quais as fontes canônicas PMMG"><div class="ico" style="background:linear-gradient(135deg,#7BB4E8,#2E5F94)">FN</div><div class="nm">Fontes canônicas</div><div class="ct">5</div></div>
+            <div class="cat-item" data-q="liste as 16 camadas BI"><div class="ico" style="background:linear-gradient(135deg,#B894E8,#5E3F94)">BI</div><div class="nm">Camadas BI</div><div class="ct">16</div></div>
+            <div class="cat-item" data-q="quais as funções da SADM"><div class="ico" style="background:linear-gradient(135deg,#F0B070,#945E1E)">FU</div><div class="nm">Funções operacionais</div><div class="ct">4</div></div>
+            <div class="cat-item" data-q="qual a stack tecnológica"><div class="ico" style="background:linear-gradient(135deg,#7BD0DC,#1E7B8B)">ST</div><div class="nm">Stack tecnológica</div><div class="ct">3</div></div>
+          </div>
+        </div>
+
+        <div class="ctx-card">
+          <h3><span class="ico">🕒</span>Perguntas recentes</h3>
+          <div class="recent-list" id="recent">
+            <div class="recent" style="opacity:0.5;font-style:italic">Sem histórico ainda</div>
+          </div>
+        </div>
+
+        <div class="ctx-card">
+          <h3><span class="ico">ⓘ</span>Sobre o NEXUS</h3>
+          <p style="font-size:var(--t-xs);color:var(--txt2);line-height:1.7;letter-spacing:0.2px">
+            NEXUS é o assistente conversacional institucional da SADM. Esta é a <strong style="color:var(--gold)">versão local v1.0</strong>: busca semântica sobre a base de conhecimento canônica embarcada. Próxima versão (32.B) conectará Multi-IA Gratuita (DA-067) via proxy Apps Script com RAG anonimizado (DA-070).
+          </p>
+          <div class="disclaimer" style="margin-top:var(--sp3)">
+            ⚠ Esta versão responde apenas sobre arquitetura institucional, processos, governança e normas. Não acessa dados pessoais nem documentos sigilosos (DA-003 ACESSO_RESERVADO).
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   NEXUS · Knowledge Base inline · Onda 32.A
+   ═══════════════════════════════════════════════════════════════════ */
+
+const KB={
+
+  das:[
+    {id:'DA-001',titulo:'Taxonomia 9 pastas-mãe',resumo:'Estrutura histórica · substituída por DA-032 v2.3 com 10 blocos.',tags:['taxonomia','histórico']},
+    {id:'DA-002',titulo:'Nomenclatura canônica',resumo:'Padrão TIPO_NUMERO_ANO_assunto[_funcao].ext · Res. 4.843/2019.',tags:['nomenclatura','documentos']},
+    {id:'DA-003',titulo:'ACESSO_RESERVADO solo-Chefia',resumo:'BGPM · BIR · documentos sigilosos · acesso restrito.',tags:['segurança','sigilo','acesso']},
+    {id:'DA-020',titulo:'Anonimização por função',resumo:'Chefia/F1/F2/F3 · obrigatória em todo artefato.',tags:['privacidade','PII','anonimização']},
+    {id:'DA-021',titulo:'Vedação pecuniária',resumo:'Zero R$ em apresentações e painéis institucionais.',tags:['governança','pecuniária']},
+    {id:'DA-027',titulo:'Cloud-first',resumo:'Diretriz permanente · Workspace PMMG como SSOT.',tags:['cloud','arquitetura','estratégia']},
+    {id:'DA-029',titulo:'Permissão por função',resumo:'Acessos por papel funcional · não por pessoa.',tags:['segurança','permissões']},
+    {id:'DA-032',titulo:'Taxonomia v2.3 · 10 blocos',resumo:'Estrutura canônica raiz com 10 blocos de competência.',tags:['taxonomia','estrutura']},
+    {id:'DA-037',titulo:'Programa de Integridade SADM',resumo:'4 eixos · 8 subeixos · score atual 82/100 · meta 92 T4/2027.',tags:['integridade','compliance']},
+    {id:'DA-040',titulo:'Execução autônoma faseada F1-F5',resumo:'Human-in-the-loop só em decisões críticas.',tags:['automação','fases']},
+    {id:'DA-042',titulo:'ACESSO_RESERVADO migra ao Drive',resumo:'Revoga DA-028 · Chefia define granularidade depois.',tags:['acesso','drive']},
+    {id:'DA-043',titulo:'Ecossistema 100% Google',resumo:'Calendar · Apps Script · Drive como SSOT.',tags:['google','workspace']},
+    {id:'DA-048',titulo:'POP substitui BPMN',resumo:'POP = Procedimento Operacional Padrão · evita colisão com BPM.',tags:['POP','processos','terminologia']},
+    {id:'DA-049',titulo:'Versionamento 3 camadas',resumo:'GitHub (código) · Apps Script (runtime) · Drive (acervo).',tags:['versionamento','github','arquitetura']},
+    {id:'DA-052',titulo:'Publicação pública Workspace',resumo:'Domínio workspace.pmmg.mg.gov.br · sem cruzamento LGPD.',tags:['publicação','lgpd']},
+    {id:'DA-053',titulo:'Memory Bank RAG',resumo:'Vertex AI Search + embeddings · consulta linguagem natural.',tags:['ia','rag','memory']},
+    {id:'DA-055',titulo:'Arquitetura 3 planos canônicos',resumo:'Plano 1 Dados · Plano 2 Inteligência · Plano 3 Interface · responsabilidades estanques.',tags:['arquitetura','planos','canônico']},
+    {id:'DA-056',titulo:'Arquitetura do Operador',resumo:'4 perfis (Chefia + F1 + F2 + F3) · KPI: ≥90% no SLA.',tags:['operador','perfis','SLA']},
+    {id:'DA-057',titulo:'16 camadas BI canônicas',resumo:'8 descritivas/diagnósticas + 8 preditivas/prescritivas.',tags:['BI','inteligência','camadas']},
+    {id:'DA-058',titulo:'Auto-Redação Gemini',resumo:'7 tipos · linguagem natural → DOCX padrão Res. 4.843/2019.',tags:['ia','redação','gemini']},
+    {id:'DA-066',titulo:'Compartimentação Claude/Anthropic',resumo:'Servidores F1/F2/F3 nunca acessam artefatos Claude/Anthropic.',tags:['privacidade','segurança','claude']},
+    {id:'DA-067',titulo:'Stack Multi-IA Gratuita',resumo:'Gemini AI Studio + Groq + Cerebras + Mistral · failover · 44.700+ req/dia · R$ 0,00.',tags:['ia','gratuita','multi','failover']},
+    {id:'DA-068',titulo:'Isolamento de chaves API',resumo:'Apps Script Properties separadas · rotação anual · audit trimestral.',tags:['segurança','chaves','api']},
+    {id:'DA-069',titulo:'Auditoria de uso de IA',resumo:'Log persistente em ai_audit · cache 30d · alerta se falhas >5%.',tags:['ia','auditoria','log']},
+    {id:'DA-070',titulo:'Vedação dados sensíveis em IA',resumo:'Anonimização programática obrigatória antes de chamada externa.',tags:['privacidade','ia','PII']},
+    {id:'DA-071',titulo:'GitHub Pages canônico',resumo:'Mobile + Desktop publicados · zero login · HTTPS · 11 painéis · custo R$ 0.',tags:['publicação','github','pages']}
+  ],
+
+  processos:{
+    F1:{nome:'Movimentação',escopo:'Carreira e movimentação funcional',procs:[
+      'Movimentação · transferência · designação · permuta',
+      'ERF · Extrato Funcional · Res. 4.616/2017',
+      'BI · Boletim Interno · publicação semanal',
+      'AADP · Avaliação Anual · Res. 5.458/2025',
+      'Concursos internos',
+      'Cursos · CTC · CFS · CHO',
+      'CT/CFO · curso de formação oficial',
+      'Designações temporárias',
+      'Readaptação',
+      'Agregação',
+      'Reserva remunerada',
+      'CTC tempo · certidão',
+      'Ingresso · posse e exercício'
+    ]},
+    F2:{nome:'Direitos',escopo:'Direitos funcionais e assistência',procs:[
+      'Quinquênios',
+      'Férias',
+      'Férias-prêmio',
+      'Saúde · Perícias CMP/CRP',
+      'Família · Dependentes',
+      'Licenças maternidade/paternidade',
+      'Abono de permanência',
+      'CTC tempo de serviço',
+      'Auxílio funeral',
+      'Benefícios diversos',
+      'Licenças especiais',
+      'Pensões'
+    ]},
+    F3:{nome:'Pagamentos',escopo:'Execução financeira e Integridade',procs:[
+      'Folha de pagamento',
+      'Diárias',
+      'Aux. Alimentação',
+      'Porte de arma · PAF · TCAF',
+      'Programa de Integridade',
+      'Declarações funcionais',
+      'Jornada · ponto',
+      'Indenizações',
+      'Descontos',
+      'Pagamentos suplementares'
+    ]}
+  },
+
+  fontes:[
+    {n:'Res. 4.843/2019',tit:'Manual de Elaboração e Gestão de Documentos PMMG',det:'BGPM 89/2019 · base normativa SADM'},
+    {n:'MIV/PMMG/2025',tit:'Manual de Identidade Visual',det:'DCO · 102 págs · 4 cadernos'},
+    {n:'Plano Estratégico PMMG 2024-2027',tit:'Diretrizes institucionais',det:'BGPM 93/2023 · 58 págs'},
+    {n:'Programa de Integridade PMMG/2024',tit:'Diretrizes de integridade',det:'46 págs · 4 eixos · 8 subeixos'},
+    {n:'Res. 5.458/2025',tit:'AADP · Avaliação Anual',det:'Versão vigente única'}
+  ],
+
+  bi:{
+    desc:[
+      'KPIs operacionais · carga · SLA · backlog',
+      'Métricas por servidor F1/F2/F3',
+      'Compliance score · 82/100',
+      'Aniversariantes · Calendar institucional',
+      'Prazos críticos · countdowns D/H/M/S',
+      'Sentinela Legal · DOU/BGPM/IO-MG · 97% cobertura',
+      'Saúde organizacional · perícias',
+      'AADP tracking · ciclo Res. 5.458/2025'
+    ],
+    pred:[
+      'Knowledge Graph · D3.js',
+      'Anomaly detection · cargas atípicas',
+      'Prophet forecasting · 30/60/90 dias',
+      'Recomendador de POPs por contexto',
+      'Sentimento textual · pareceres',
+      'Compliance file · auto-classificação',
+      'Trajetória funcional · carreira projetada',
+      'Auditoria reversa · sanity checks IA'
+    ]
+  },
+
+  stack:{
+    p1:{nome:'Dados',meta:'Single Source of Truth',det:'Drive Workspace PMMG · Sheets COMANDO_SADM · Calendar · Gmail · BigQuery · GitHub privado · cota 1.415 PiB'},
+    p2:{nome:'Inteligência',meta:'Multi-IA Gratuita',det:'Apps Script runtime · Gemini + Groq + Cerebras + Mistral · 44.700+ req/dia · failover · cache 30d · custo R$ 0,00'},
+    p3:{nome:'Interface',meta:'Cloud-first',det:'GitHub Pages mobile + desktop · 11 painéis · TV Mural kiosque · zero login · re-deploy 60s'}
+  },
+
+  meta:{
+    documentos:'49.064',
+    militares_baliza:'Baliza canônica (DA-033)',
+    decisoes:71,
+    processos:35,
+    camadas_bi:16,
+    compliance:'82/100 · meta 92 · T4/2027',
+    cobertura_legal:'97% · meta 100% · T4/2027',
+    custo:'R$ 0,00'
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   Motor de respostas · heurísticas + matchers
+   ═══════════════════════════════════════════════════════════════════ */
+
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w\s\-]/g,' ').replace(/\s+/g,' ').trim();}
+
+function answer(q){
+  const n=normalize(q);
+  const matchDA=n.match(/da[\s\-]?(\d{1,3})/);
+
+  // 1. DA específica (DA-067, DA-055, etc)
+  if(matchDA){
+    const num=String(matchDA[1]).padStart(3,'0');
+    const da=KB.das.find(d=>d.id==='DA-'+num);
+    if(da){
+      return {
+        text:`<p><strong>${da.id}</strong> · ${da.titulo}</p><p>${da.resumo}</p><p>Tags: ${da.tags.map(t=>'<code>'+t+'</code>').join(' · ')}</p>`,
+        sources:[{type:'da',label:da.id},{type:'painel',label:'Apresentação · Governança',href:'./apresentacao-desktop.html'}]
+      };
+    } else {
+      return {text:`<p>Não encontrei a <strong>DA-${num}</strong> na base local. As DAs vão de DA-001 a DA-071. Tente: <code>O que é a DA-067?</code></p>`,sources:[]};
+    }
+  }
+
+  // 2. Listar DAs
+  if(/list.*decisao|list.*da\b|todas.*da|quais.*da/i.test(n) || (n.includes('decisoes') && (n.includes('liste')||n.includes('mostre')))){
+    const sample=KB.das.slice(0,15).map(d=>`<li><strong>${d.id}</strong> · ${d.titulo}</li>`).join('');
+    return {
+      text:`<p>A SADM possui <strong>${KB.meta.decisoes} decisões arquiteturais</strong> (DA-001 → DA-071), versionadas e auditáveis. Amostra das 15 mais relevantes:</p><ul>${sample}</ul><p>Pergunte por uma DA específica: <code>O que é a DA-055?</code></p>`,
+      sources:[{type:'painel',label:'Apresentação · Governança',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 3. Processos
+  if(/\b35\s*proc|liste.*proc|todos.*proc|quais.*proc|processos.*sadm/i.test(n)){
+    let out='<p>A SADM administra <strong>35 processos canônicos</strong> distribuídos entre 3 servidores operacionais (Res. 4.843/2019 · DA-048):</p>';
+    for(const fn of ['F1','F2','F3']){
+      const f=KB.processos[fn];
+      out+=`<p><strong>${fn} · ${f.nome}</strong> · ${f.procs.length} processos · ${f.escopo}</p><ul>${f.procs.map(p=>'<li>'+p+'</li>').join('')}</ul>`;
+    }
+    return {text:out,sources:[{type:'painel',label:'Apresentação · Processos',href:'./apresentacao-desktop.html'},{type:'da',label:'Res. 4.843/2019'},{type:'da',label:'DA-048'}]};
+  }
+
+  // 4. AADP
+  if(/aadp|avaliacao.*desempenho|res\.?\s*5\.?458|ciclo.*anual/i.test(n)){
+    return {
+      text:`<p>O <strong>AADP</strong> (Avaliação Anual de Desempenho) é regulamentado pela <strong>Res. 5.458/2025</strong>, vigente em versão única.</p><p><strong>Ciclo 2026:</strong></p><ul><li>Etapa 1 · Auto-avaliação · Out/2025 ✓</li><li>Etapa 2 · Avaliação chefias · Nov/2025 ✓</li><li>Etapa 3 · Revisão consolidada · Mai/2026 · em curso (42% do ciclo)</li><li>Etapa 4 · Período de recursos · Jun/2026 · 15 dias</li><li>Etapa 5 · Análise recursos · Jul/2026 · Comissão</li><li>Etapa 6 · Homologação final · 15/Ago/2026 · BGPM</li></ul><p>Operadores responsáveis: <strong>F1 + Chefia</strong>.</p>`,
+      sources:[{type:'da',label:'Res. 5.458/2025'},{type:'da',label:'DA-035'},{type:'painel',label:'Gestão · AADP',href:'./gestao-desktop.html'},{type:'painel',label:'Cockpit · prazos',href:'./cockpit-desktop.html'}]
+    };
+  }
+
+  // 5. Compliance
+  if(/compliance|integridade|score|programa.*integridade/i.test(n)){
+    return {
+      text:`<p>Score atual de <strong>Compliance</strong>: <strong>82/100</strong> · Programa de Integridade PMMG/2024 (DA-037).</p><p><strong>4 eixos:</strong></p><ul><li>E1 · Comprometimento da liderança · <strong>88</strong></li><li>E2 · Análise de riscos · <strong>79</strong></li><li>E3 · Códigos e políticas · <strong>85</strong></li><li>E4 · Monitoramento contínuo · <strong>76</strong></li></ul><p>Meta T4/2027: <strong>≥92</strong> · gap atual: <strong>-10 pontos</strong> · 18 meses.</p>`,
+      sources:[{type:'da',label:'DA-037'},{type:'painel',label:'Gestão · Compliance',href:'./gestao-desktop.html'}]
+    };
+  }
+
+  // 6. Folha de pagamento / F3
+  if(/folha.*pagamento|f3|pagamento.*mensal/i.test(n)){
+    return {
+      text:`<p>A <strong>Folha de pagamento</strong> é processo de ciclo mensal conduzido pelo servidor <strong>F3 · Pagamentos</strong>, que administra 10 processos.</p><p>F3 também é responsável por: diárias · Aux. Alimentação · porte de arma (PAF/TCAF) · Programa de Integridade · declarações · jornada · indenizações · descontos · pagamentos suplementares.</p><p>Vencimento da Folha Maio/2026: <strong>25/Mai · 23h59</strong>.</p>`,
+      sources:[{type:'painel',label:'Apresentação · F3',href:'./apresentacao-desktop.html'},{type:'painel',label:'Cockpit · prazos',href:'./cockpit-desktop.html'},{type:'painel',label:'Operacional · countdowns',href:'./operacional-desktop.html'}]
+    };
+  }
+
+  // 7. Fontes canônicas
+  if(/fonte|fontes.*canonica|fontes.*pmmg|normas.*pmmg|res\.?\s*4\.?843/i.test(n)){
+    const out=KB.fontes.map((f,i)=>`<li><strong>${i+1}. ${f.n}</strong> · ${f.tit} <em style="color:var(--mut)">(${f.det})</em></li>`).join('');
+    return {
+      text:`<p>A SADM opera sobre <strong>5 fontes canônicas PMMG</strong>:</p><ul>${out}</ul>`,
+      sources:[{type:'painel',label:'Apresentação · Governança',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 8. Camadas BI
+  if(/camadas?\s*bi|16\s*camad|inteligencia.*bi|business.*intelligence/i.test(n)){
+    const d=KB.bi.desc.map((x,i)=>`<li><strong>${String(i+1).padStart(2,'0')}</strong> · ${x}</li>`).join('');
+    const p=KB.bi.pred.map((x,i)=>`<li><strong>${String(i+9).padStart(2,'0')}</strong> · ${x}</li>`).join('');
+    return {
+      text:`<p>A inteligência institucional opera em <strong>16 camadas BI</strong> (DA-057):</p><p><strong>8 descritivas · "o que está acontecendo":</strong></p><ul>${d}</ul><p><strong>8 preditivas · "o que vai acontecer / o que fazer":</strong></p><ul>${p}</ul>`,
+      sources:[{type:'da',label:'DA-057'},{type:'painel',label:'Apresentação · Inteligência',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 9. Stack tecnológica
+  if(/stack|arquitetura|3\s*planos|plano.*dados|plano.*intelig|plano.*interface|tecnologia/i.test(n)){
+    return {
+      text:`<p>A SADM opera em <strong>3 planos canônicos</strong> (DA-055):</p><p><strong>Plano 1 · Dados</strong> (${KB.stack.p1.meta}) · ${KB.stack.p1.det}</p><p><strong>Plano 2 · Inteligência</strong> (${KB.stack.p2.meta}) · ${KB.stack.p2.det}</p><p><strong>Plano 3 · Interface</strong> (${KB.stack.p3.meta}) · ${KB.stack.p3.det}</p><p>Cada plano evolui independentemente · contratos claros entre eles.</p>`,
+      sources:[{type:'da',label:'DA-055'},{type:'da',label:'DA-067'},{type:'da',label:'DA-071'},{type:'painel',label:'Apresentação · Arquitetura',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 10. Funções
+  if(/funcoes|operadores|chefia|f1|f2|f3|servidores/i.test(n)){
+    return {
+      text:`<p>A SADM opera com <strong>4 perfis canônicos</strong> (DA-056):</p><ul><li><strong>Chefia · SADM</strong> · coordenação · auditoria · ACESSO_RESERVADO (DA-003)</li><li><strong>F1 · Movimentação</strong> · 13 processos · carreira · BI · AADP · cursos</li><li><strong>F2 · Direitos</strong> · 12 processos · quinquênios · férias · saúde · família</li><li><strong>F3 · Pagamentos</strong> · 10 processos · folha · diárias · Aux. Alim. · Integridade</li></ul><p>Total: <strong>35 processos</strong> · KPI canônico: <strong>≥90% no SLA</strong>.</p>`,
+      sources:[{type:'da',label:'DA-056'},{type:'da',label:'DA-029'},{type:'painel',label:'Apresentação · Identidade',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 11. Stats / números
+  if(/quantos|numero|stats|estatistic|metricas?|documentos|acervo/i.test(n)){
+    return {
+      text:`<p><strong>Indicadores institucionais da SADM:</strong></p><ul><li><strong>${KB.meta.documentos} documentos</strong> · 10 blocos canônicos · 20,3 GB</li><li><strong>${KB.meta.processos} processos</strong> · 35 procs · Res. 4.843/2019</li><li><strong>${KB.meta.decisoes} decisões arquiteturais</strong> · DA-001 → DA-071</li><li><strong>${KB.meta.camadas_bi} camadas BI</strong> · 8 descritivas + 8 preditivas</li><li>Compliance: <strong>${KB.meta.compliance}</strong></li><li>Cobertura legal: <strong>${KB.meta.cobertura_legal}</strong></li><li>Custo institucional adicional: <strong>${KB.meta.custo}</strong></li></ul>`,
+      sources:[{type:'painel',label:'Hub',href:'./'},{type:'painel',label:'Apresentação · Entrega',href:'./apresentacao-desktop.html'}]
+    };
+  }
+
+  // 12. Multi-IA gratuita
+  if(/multi.?ia|gemini|groq|cerebras|mistral|ia.*gratuit|inteligencia.*artificial/i.test(n)){
+    return {
+      text:`<p>A SADM opera com <strong>Stack Multi-IA Gratuita</strong> (DA-067), sem billing externo:</p><ul><li><strong>Gemini AI Studio</strong> · gemini-1.5-flash · 1.500 req/dia</li><li><strong>Groq</strong> · llama-3.3-70b-versatile · 14.400 req/dia</li><li><strong>Cerebras</strong> · llama-3.3-70b · 14.400 req/dia</li><li><strong>Mistral</strong> · mistral-small-latest · 100 req/dia</li></ul><p>Total: <strong>44.700+ req/dia</strong> · failover automático em cascata · cache 30d · custo R$ 0,00.</p><p>Anonimização programática obrigatória antes de qualquer chamada (DA-070).</p>`,
+      sources:[{type:'da',label:'DA-067'},{type:'da',label:'DA-068'},{type:'da',label:'DA-069'},{type:'da',label:'DA-070'}]
+    };
+  }
+
+  // 13. GitHub Pages
+  if(/github|pages|publicacao|paineis|mobile|desktop|deploy/i.test(n)){
+    return {
+      text:`<p>A SADM publica painéis institucionais via <strong>GitHub Pages</strong> (DA-071):</p><ul><li><strong>Mobile</strong> · https://sadm-56bpm.github.io/painel/ · 5 painéis 9:16</li><li><strong>Desktop</strong> · https://sadm-56bpm.github.io/painel-desktop/ · 5 painéis 16:9 + Cockpit + NEXUS</li></ul><p>HTTPS forçado · zero login · re-deploy automático em ~60s via git push · custo R$ 0,00. Drive permanece como backup auditável (DA-052).</p>`,
+      sources:[{type:'da',label:'DA-071'},{type:'da',label:'DA-052'},{type:'painel',label:'Hub',href:'./'}]
+    };
+  }
+
+  // 14. Help / olá / quem é você
+  if(/^(oi|ola|hello|hi|bom dia|boa tarde|boa noite|hey|tudo bem)|quem.*voce|o que.*voce|nexus/i.test(n)){
+    return {
+      text:`<p>Olá. Sou o <strong>NEXUS</strong>, assistente institucional da SADM 56 BPM (versão 1.0-local · client-side).</p><p>Respondo sobre arquitetura, processos, governança, normas e indicadores. Tente perguntar:</p><ul><li>"O que é a DA-067?"</li><li>"Como funciona o AADP?"</li><li>"Quais os 35 processos?"</li><li>"Qual o score de compliance?"</li></ul><p>Use as sugestões abaixo ou categorias à direita.</p>`,
+      sources:[]
+    };
+  }
+
+  // 15. Default · não entendi
+  return {
+    text:`<p>Não consegui encontrar uma resposta precisa para isso na base local.</p><p>A versão atual (32.A) cobre: <strong>arquitetura</strong>, <strong>processos</strong>, <strong>governança</strong>, <strong>normas PMMG</strong>, <strong>indicadores</strong>, <strong>IA</strong>, <strong>publicação</strong>.</p><p>Tente reformular ou use as <strong>sugestões</strong> abaixo.</p><p style="font-size:var(--t-xs);color:var(--mut)">A próxima onda (32.B) conectará Multi-IA Gratuita via proxy Apps Script, ampliando significativamente o escopo de respostas.</p>`,
+    sources:[]
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   UI Interactions
+   ═══════════════════════════════════════════════════════════════════ */
+
+const thread=document.getElementById('thread');
+const form=document.getElementById('form');
+const input=document.getElementById('input');
+const recent=document.getElementById('recent');
+const recentQuestions=[];
+
+function pad(n){return n<10?'0'+n:n}
+function now(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds())}
+
+function addMsg(role,html,sources){
+  const m=document.createElement('div');
+  m.className='msg '+role;
+  const av=document.createElement('div');av.className='avatar';
+  av.textContent=role==='user'?'EU':'N';
+  const bub=document.createElement('div');bub.className='bubble';
+  bub.innerHTML=html;
+  if(sources && sources.length){
+    const srcWrap=document.createElement('div');srcWrap.className='sources';
+    sources.forEach(s=>{
+      const chip=document.createElement('a');
+      chip.className='src-chip'+(s.type==='painel'?' painel':'');
+      chip.textContent=(s.type==='painel'?'🔗 ':'📎 ')+s.label;
+      if(s.href){chip.href=s.href;chip.target='_blank';}else{chip.href='#';}
+      srcWrap.appendChild(chip);
+    });
+    bub.appendChild(srcWrap);
+  }
+  const ts=document.createElement('div');ts.className='ts';ts.textContent=now();
+  bub.appendChild(ts);
+  m.appendChild(av);m.appendChild(bub);
+  thread.appendChild(m);
+  thread.scrollTop=thread.scrollHeight;
+  return m;
+}
+
+function showTyping(){
+  const m=document.createElement('div');
+  m.className='msg nexus';m.id='typing';
+  m.innerHTML='<div class="avatar">N</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  thread.appendChild(m);
+  thread.scrollTop=thread.scrollHeight;
+}
+function clearTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
+function addRecent(q){
+  if(recentQuestions.includes(q))return;
+  recentQuestions.unshift(q);
+  if(recentQuestions.length>5)recentQuestions.pop();
+  recent.innerHTML='';
+  recentQuestions.forEach(rq=>{
+    const r=document.createElement('div');r.className='recent';r.textContent=rq;
+    r.onclick=()=>{input.value=rq;form.dispatchEvent(new Event('submit'));};
+    recent.appendChild(r);
+  });
+}
+
+function ask(q){
+  if(!q.trim())return;
+  addMsg('user','<p>'+q.replace(/</g,'&lt;')+'</p>');
+  addRecent(q);
+  input.value='';
+  showTyping();
+  setTimeout(()=>{
+    clearTyping();
+    const r=answer(q);
+    addMsg('nexus',r.text,r.sources);
+  },500+Math.random()*600);
+}
+
+form.addEventListener('submit',e=>{e.preventDefault();ask(input.value);});
+
+document.querySelectorAll('.sugg, .cat-item').forEach(el=>{
+  el.addEventListener('click',()=>{const q=el.dataset.q;if(q)ask(q);});
+});
+
+// Welcome message
+setTimeout(()=>{
+  addMsg('nexus',`<p>Olá. Sou o <strong>NEXUS</strong> — assistente institucional da SADM 56 BPM (versão 1.0-local).</p><p>Respondo perguntas sobre arquitetura, processos, governança, normas e indicadores da Seção, citando fonte em cada resposta.</p><p>Como posso ajudar? Pergunte ou use as sugestões abaixo.</p>`,[
+    {type:'da',label:'DA-071'},
+    {type:'painel',label:'Hub Central',href:'./'}
+  ]);
+},500);
+
+// Live clock
+function tick(){
+  const d=new Date();
+  const dias=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const mAbr=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const t=pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+  document.getElementById('cTime').textContent=t;
+  document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
+}
+setInterval(tick,1000);tick();
+</script>
+
+</body>
+</html>
