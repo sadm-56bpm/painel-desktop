@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset Cache · Redator SADM/56º BPM</title>
+<meta name="robots" content="noindex">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<style>
+:root{
+  --bg:#0A0E16;--bg2:#11161F;--gold:#C9A348;--goldL:#E9C46A;
+  --txt:#E5E7EB;--mut:#9CA3AF;--green:#4ABF7A;--red:#C84141;
+  --ff-sans:'IBM Plex Sans',-apple-system,sans-serif;
+  --ff-mono:'IBM Plex Mono',monospace;
+  --ff-serif:'IBM Plex Serif',Georgia,serif;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--ff-sans);background:radial-gradient(ellipse at top,#1A2236 0%,var(--bg) 60%);color:var(--txt);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.box{max-width:560px;width:100%;background:linear-gradient(180deg,var(--bg2),var(--bg));border:1px solid #2A3142;border-radius:12px;padding:32px;box-shadow:0 8px 32px rgba(0,0,0,0.5);text-align:center}
+h1{font-family:var(--ff-serif);font-size:24px;color:var(--gold);margin:0 0 8px;font-weight:600}
+.sub{font-family:var(--ff-mono);font-size:11px;color:var(--mut);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px}
+.spin{width:64px;height:64px;border:4px solid rgba(201,163,72,0.2);border-top-color:var(--gold);border-radius:50%;animation:rot 1s linear infinite;margin:0 auto 20px}
+@keyframes rot{to{transform:rotate(360deg)}}
+.steps{text-align:left;background:rgba(255,255,255,0.02);border:1px solid #2A3142;border-radius:8px;padding:16px;margin:20px 0;font-family:var(--ff-mono);font-size:12px;line-height:1.9}
+.steps .ok{color:var(--green)}
+.steps .fail{color:var(--red)}
+.steps .wait{color:var(--mut)}
+.ico{display:inline-block;width:18px;text-align:center;margin-right:4px}
+.cta{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--gold),#8B6F1F);color:var(--bg);font-family:var(--ff-mono);font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;border-radius:6px;margin-top:12px;border:none;cursor:pointer}
+.cta:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(201,163,72,0.35)}
+.meta{font-family:var(--ff-mono);font-size:10px;color:var(--mut);margin-top:18px;letter-spacing:0.5px}
+.brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:8px}
+.brand-mark{width:42px;height:42px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font-family:var(--ff-serif);font-size:18px;font-weight:700;color:var(--gold)}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="brand">
+    <div class="brand-mark">56</div>
+    <div style="text-align:left">
+      <h1 style="margin:0">Reset de Cache</h1>
+      <div class="sub" style="margin:2px 0 0">Redator SADM · 56º BPM</div>
+    </div>
+  </div>
+
+  <div id="spinner" class="spin"></div>
+
+  <div class="steps" id="steps">
+    <div id="s1" class="wait"><span class="ico">⋯</span>Detectando Service Workers...</div>
+    <div id="s2" class="wait"><span class="ico">⋯</span>Limpando caches...</div>
+    <div id="s3" class="wait"><span class="ico">⋯</span>Removendo dados antigos...</div>
+    <div id="s4" class="wait"><span class="ico">⋯</span>Pronto para redirecionar...</div>
+  </div>
+
+  <button class="cta" id="cta" onclick="abrirRedator()" style="display:none">Abrir Redator v38.3 →</button>
+
+  <div class="meta">DA-072 · Onda 38.3 · network-first SW · cache-bust auto</div>
+</div>
+
+<script>
+function set(id, status, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const icons = { ok:'✓', fail:'✗', wait:'⋯' };
+  el.className = status;
+  el.innerHTML = '<span class="ico">' + icons[status] + '</span>' + msg;
+}
+
+async function reset() {
+  // 1. SW unregister
+  try {
+    let regs = [];
+    if ('serviceWorker' in navigator) regs = await navigator.serviceWorker.getRegistrations();
+    if (regs.length === 0) {
+      set('s1', 'ok', 'Nenhum Service Worker registrado.');
+    } else {
+      for (const r of regs) await r.unregister();
+      set('s1', 'ok', regs.length + ' Service Worker(s) removido(s).');
+    }
+  } catch (e) {
+    set('s1', 'fail', 'Erro SW: ' + e.message);
+  }
+
+  // 2. caches.keys
+  try {
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      for (const k of keys) await caches.delete(k);
+      set('s2', 'ok', keys.length + ' cache(s) limpo(s).');
+    } else {
+      set('s2', 'ok', 'Cache API não disponível (ignorado).');
+    }
+  } catch (e) {
+    set('s2', 'fail', 'Erro cache: ' + e.message);
+  }
+
+  // 3. localStorage (sutil · apenas limpa chaves do redator)
+  try {
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('redator_'));
+    keys.forEach(k => localStorage.removeItem(k));
+    set('s3', 'ok', keys.length + ' chave(s) localStorage limpa(s).');
+  } catch (e) {
+    set('s3', 'fail', 'Erro localStorage: ' + e.message);
+  }
+
+  // 4. Pronto
+  set('s4', 'ok', 'Reset concluído.');
+  document.getElementById('spinner').style.display = 'none';
+  document.getElementById('cta').style.display = 'inline-block';
+
+  // Auto-redirect em 2s
+  setTimeout(() => abrirRedator(), 2000);
+}
+
+function abrirRedator() {
+  // ?nocache=timestamp força navegador a buscar versão fresca
+  location.href = './redator-desktop.html?nocache=' + Date.now();
+}
+
+reset();
+</script>
+</body>
+</html>
