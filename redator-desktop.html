@@ -187,6 +187,40 @@
 .ac-item{padding:8px 12px;font-family:var(--ff-sans);font-size:12px;color:var(--txt);cursor:pointer;border-bottom:1px solid var(--line)}
 .ac-item:hover,.ac-item.sel{background:rgba(201,163,72,0.12);color:var(--gold)}
 .ac-item .ac-posto{color:var(--mut);font-family:var(--ff-mono);font-size:10px;margin-right:6px}
+
+/* ─── Validador DA-070 (dados sensíveis em tempo real) ─── */
+.privacy-warn{margin-top:6px;padding:8px 10px;background:rgba(200,65,65,0.07);border:1px solid rgba(200,65,65,0.3);border-radius:var(--r2);display:none;font-family:var(--ff-mono);font-size:10.5px;color:#FCA5A5;line-height:1.5}
+.privacy-warn.on{display:block;animation:fadeIn 0.3s ease}
+.privacy-warn b{color:#F87171;font-weight:700}
+.privacy-warn .tag{display:inline-block;padding:1px 6px;background:rgba(200,65,65,0.18);border-radius:3px;margin:0 3px;font-weight:700}
+
+/* ─── Card IA quick-setup ─── */
+.ia-card{margin-top:var(--sp3);padding:var(--sp4);background:linear-gradient(135deg,rgba(96,165,250,0.10),rgba(168,85,247,0.06));border:1px solid rgba(96,165,250,0.4);border-radius:var(--r3);display:none;position:relative}
+.ia-card.on{display:block;animation:fadeIn 0.3s ease}
+.ia-card .ia-h{font-family:var(--ff-serif);font-size:var(--t-md);color:#93C5FD;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.ia-card .ia-desc{font-family:var(--ff-sans);font-size:11.5px;color:var(--txt2);line-height:1.5;margin-bottom:10px}
+.ia-card .ia-cta{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;background:linear-gradient(135deg,#60A5FA,#A855F7);color:#fff;border:none;border-radius:var(--r2);font-family:var(--ff-mono);font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:none}
+.ia-card .ia-cta:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(96,165,250,0.35)}
+.ia-card .ia-close{position:absolute;top:6px;right:8px;background:transparent;border:none;color:var(--mut);font-size:18px;cursor:pointer}
+.ia-card .ia-close:hover{color:var(--gold)}
+
+/* ─── Templates rápidos (chips) ─── */
+.quick-chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.quick-chip{padding:5px 11px;background:rgba(201,163,72,0.08);border:1px solid rgba(201,163,72,0.3);border-radius:14px;font-family:var(--ff-mono);font-size:10px;color:var(--gold);cursor:pointer;letter-spacing:0.5px;transition:all 0.15s}
+.quick-chip:hover{background:rgba(201,163,72,0.18);transform:translateY(-1px)}
+.quick-chip .qc-ico{margin-right:4px}
+
+/* ─── Preview formal ─── */
+.preview-formal{margin-top:8px;padding:10px 12px;background:rgba(74,191,122,0.06);border:1px solid rgba(74,191,122,0.3);border-radius:var(--r2);display:none;font-family:var(--ff-sans);font-size:12px;color:var(--txt);line-height:1.6}
+.preview-formal.on{display:block;animation:fadeIn 0.3s ease}
+.preview-formal .pf-h{font-family:var(--ff-mono);font-size:10px;color:var(--greenL);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:6px}
+.preview-formal mark{background:rgba(74,191,122,0.25);color:var(--greenL);padding:0 3px;border-radius:2px;font-weight:600}
+.preview-formal .pf-equal{color:var(--mut);font-style:italic;font-family:var(--ff-mono);font-size:10.5px}
+
+/* ─── Stats badge no histórico ─── */
+.hist-stats{padding:8px 12px;background:rgba(201,163,72,0.06);border-bottom:1px solid var(--line);font-family:var(--ff-mono);font-size:10px;color:var(--gold);display:flex;justify-content:space-around;text-align:center}
+.hist-stats .hs-val{display:block;font-size:14px;font-weight:700;color:var(--gold)}
+.hist-stats .hs-lbl{display:block;font-size:8px;color:var(--mut);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 </style>
 </head>
 <body>
@@ -765,6 +799,171 @@ const ragObserver = new MutationObserver(() => {
   }
 });
 ragObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
+
+// ═══════════════════════════════════════════════════════════════════
+// VALIDADOR DA-070 · alerta em tempo real para dados sensíveis
+// ═══════════════════════════════════════════════════════════════════
+const SENSITIVE_PATTERNS = [
+  { re: /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, tag: 'CPF',         hint: 'use [CPF]' },
+  { re: /\bmat(?:r[íi]cula)?\s*[:\.]?\s*\d{4,}\b/gi, tag: 'matrícula', hint: 'use [MATRICULA]' },
+  { re: /\bCEP\s*:?\s*\d{5}-?\d{3}\b/gi, tag: 'CEP',  hint: 'evite incluir CEP' },
+  { re: /\b(?:rua|avenida|av\.)\s+[A-Z][a-zà-ú]+/gi, tag: 'endereço', hint: 'use [ENDERECO]' },
+  { re: /\b\d{9,11}\b/g, tag: 'núm. longo', hint: 'verifique se não é CPF/matrícula' }
+];
+function validarPrivacidade(texto, host) {
+  let warn = host.querySelector('.privacy-warn');
+  if (!warn) {
+    warn = document.createElement('div'); warn.className = 'privacy-warn';
+    host.appendChild(warn);
+  }
+  if (!texto || texto.length < 5) { warn.classList.remove('on'); return true; }
+  const achados = [];
+  SENSITIVE_PATTERNS.forEach(p => {
+    const m = texto.match(p.re);
+    if (m && m.length > 0) achados.push({ tag: p.tag, qtd: m.length, hint: p.hint });
+  });
+  if (achados.length === 0) { warn.classList.remove('on'); return true; }
+  warn.innerHTML = '<b>⚠ Possíveis dados sensíveis (DA-070):</b> ' +
+    achados.map(a => `<span class="tag">${a.qtd}× ${a.tag}</span>`).join(' ') +
+    '<br>Recomendado: substitua por placeholders (' +
+    achados.map(a => a.hint).join(' · ') + '). A IA preserva placeholders.';
+  warn.classList.add('on');
+  return false;
+}
+// Hook no fldFatos (depois de criado pelo selectTipo)
+const privacyObserver = new MutationObserver(() => {
+  const f = document.getElementById('fldFatos');
+  if (f && !f.dataset.privDone) {
+    f.dataset.privDone = '1';
+    f.addEventListener('input', () => validarPrivacidade(f.value, f.parentNode));
+  }
+});
+privacyObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
+
+// ═══════════════════════════════════════════════════════════════════
+// CARD IA QUICK-SETUP · só aparece se backend reportar IA não configurada
+// ═══════════════════════════════════════════════════════════════════
+function mostrarCardIA() {
+  // injeta após o toggle de IA
+  const ckBox = document.querySelector('.ai-toggle');
+  if (!ckBox || document.getElementById('iaCard')) return;
+  const card = document.createElement('div');
+  card.id = 'iaCard';
+  card.className = 'ia-card';
+  card.innerHTML = `
+    <button class="ia-close" onclick="document.getElementById('iaCard').classList.remove('on');localStorage.setItem('redator_ia_card_dismissed','1')">×</button>
+    <div class="ia-h">🤖 Ativar IA jurídica · 60 segundos</div>
+    <div class="ia-desc">
+      Sem chave configurada, o sistema usa apenas o normalizador formal local.
+      Com IA + RAG jurídico ativado, o texto sai com fundamentação legal precisa
+      cruzada com nosso acervo (DA-053 · 49 mil docs indexados).
+    </div>
+    <a href="https://aistudio.google.com/apikey" target="_blank" class="ia-cta">
+      Obter chave Gemini · gratuito →
+    </a>
+    <div style="margin-top:8px;font-family:var(--ff-mono);font-size:10px;color:var(--mut);line-height:1.5">
+      Depois: editor Apps Script → Configurações do projeto → Propriedades do
+      script → adicionar <b>REDATOR_DN_GEMINI_API_KEY</b> = chave colada.
+    </div>`;
+  ckBox.parentNode.insertBefore(card, ckBox.nextSibling);
+  card.classList.add('on');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TEMPLATES RÁPIDOS · chips com casos comuns por tipo
+// ═══════════════════════════════════════════════════════════════════
+const QUICK_TEMPLATES = {
+  oficio: [
+    { ico:'📋', label:'Encaminhar relatório', conteudo:'Encaminho a Vossa Senhoria o relatório consolidado das atividades da Seção Administrativa do 56º BPM, referente ao período em referência.' },
+    { ico:'🎯', label:'Solicitar levantamento', conteudo:'Solicito a Vossa Senhoria o levantamento atualizado dos militares lotados nesta unidade, observando os critérios estabelecidos.' },
+    { ico:'✓', label:'Comunicar conclusão', conteudo:'Comunico a Vossa Senhoria que foi concluída a atividade objeto do processo em referência, conforme cronograma estabelecido.' }
+  ],
+  memorando: [
+    { ico:'📨', label:'Encaminhar documentos', conteudo:'Encaminho ao destinatário a documentação relativa ao processo administrativo em referência para análise e prosseguimento.' },
+    { ico:'🔍', label:'Solicitar manifestação', conteudo:'Solicito a Vossa Senhoria manifestação sobre o expediente em referência, com observância dos prazos institucionais.' }
+  ],
+  requerimento: [
+    { ico:'💰', label:'Ajuda de custo', conteudo:'O requerente, militar identificado, vem respeitosamente requerer a concessão de ajuda de custo, com fundamento na legislação estadual aplicável aos militares transferidos de ofício.' },
+    { ico:'📅', label:'Férias', conteudo:'O requerente vem requerer a concessão de férias regulamentares referentes ao exercício, observado o disposto na Lei Estadual nº 5.301/1969.' }
+  ],
+  despacho: [
+    { ico:'✅', label:'Encaminhar favorável', conteudo:'Diante do exposto, manifesto-me favoravelmente ao prosseguimento do pleito. Encaminhe-se à Seção competente para análise técnica.' },
+    { ico:'↩', label:'Devolver para diligência', conteudo:'Devolvam-se os autos à origem para que sejam supridas as diligências necessárias, conforme exposição.' }
+  ],
+  parecer: [
+    { ico:'⚖', label:'Parecer favorável', conteudo:'Cuida-se de pleito formulado nos autos do processo em referência. Após análise da documentação, opino pelo DEFERIMENTO do pedido, observados os requisitos legais.' }
+  ],
+  atestado: [
+    { ico:'🏠', label:'Fixação de residência', conteudo:'Atesto, para os fins de fixação de residência (IP 192/2001-DP), que o militar identificado nos autos reside no endereço informado.' }
+  ]
+};
+function injetarChipsRapidos() {
+  if (!currentTipo) return;
+  const templates = QUICK_TEMPLATES[currentTipo.id];
+  const f = document.getElementById('fldFatos');
+  if (!f || !templates) return;
+  // remove chips antigos
+  const old = document.getElementById('quickChips'); if (old) old.remove();
+  const chips = document.createElement('div');
+  chips.id = 'quickChips';
+  chips.className = 'quick-chips';
+  chips.innerHTML = templates.map((t, i) => `
+    <button type="button" class="quick-chip" data-idx="${i}">
+      <span class="qc-ico">${t.ico}</span>${t.label}
+    </button>
+  `).join('');
+  chips.querySelectorAll('.quick-chip').forEach((b, i) => {
+    b.onclick = () => {
+      f.value = templates[i].conteudo;
+      f.dispatchEvent(new Event('input', { bubbles: true }));
+      f.focus();
+    };
+  });
+  f.parentNode.insertBefore(chips, f);
+}
+const chipsObserver = new MutationObserver(() => {
+  if (document.getElementById('fldFatos') && !document.getElementById('quickChips')) {
+    injetarChipsRapidos();
+  }
+});
+chipsObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
+
+// ═══════════════════════════════════════════════════════════════════
+// STATS · injeta no painel histórico
+// ═══════════════════════════════════════════════════════════════════
+async function carregarStats() {
+  if (!APPS_SCRIPT_URL) return;
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ engine:'drive-native', action:'stats' })
+    });
+    const data = await r.json();
+    if (!data.ok || !data.user) return;
+    const body = document.getElementById('histBody');
+    if (!body) return;
+    let stats = document.getElementById('histStats');
+    if (!stats) {
+      stats = document.createElement('div'); stats.id = 'histStats'; stats.className = 'hist-stats';
+      body.parentNode.insertBefore(stats, body);
+    }
+    stats.innerHTML = `
+      <div><span class="hs-val">${data.user.mes_atual || 0}</span><span class="hs-lbl">Meus · mês</span></div>
+      <div><span class="hs-val">${data.user.com_ia || 0}</span><span class="hs-lbl">Com IA</span></div>
+      <div><span class="hs-val">${data.equipe ? (data.equipe.mes_atual || 0) : 0}</span><span class="hs-lbl">Equipe · mês</span></div>
+    `;
+  } catch(_) {}
+}
+setTimeout(carregarStats, 2500);
+
+// ═══════════════════════════════════════════════════════════════════
+// Mostra card IA se não foi dispensado E primeira execução com IA falhar
+// ═══════════════════════════════════════════════════════════════════
+setTimeout(() => {
+  if (localStorage.getItem('redator_ia_card_dismissed') !== '1') {
+    mostrarCardIA();
+  }
+}, 3500);
 </script>
 
 </body>
