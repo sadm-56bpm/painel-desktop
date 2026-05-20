@@ -491,7 +491,7 @@ async function gerar(){
     'F1 Movimentação':    { quem: '[Operador F1]',                 posto: '',            setor: 'F1 · Movimentação · SADM/56º BPM' },
     'F2 Direitos':        { quem: '[Operador F2]',                 posto: '',            setor: 'F2 · Direitos · SADM/56º BPM' },
     'F3 Pagamentos':      { quem: '[Operador F3]',                 posto: '',            setor: 'F3 · Pagamentos · SADM/56º BPM' },
-    'Comandante 56º BPM': { quem: '[Comandante]',                  posto: 'Ten. Cel. PM','setor: 56º Batalhão de Polícia Militar' }
+    'Comandante 56º BPM': { quem: '[Comandante]',                  posto: 'Ten. Cel. PM', setor: '56º Batalhão de Polícia Militar' }
   };
   const sig = assinaMap[assinaSel] || { quem: assinaSel, posto: '', setor: 'SADM/56º BPM' };
   const setorNum = f.setor ? document.getElementById('fldSetor').value.trim() : 'SADM/56º BPM';
