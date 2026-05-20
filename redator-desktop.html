@@ -3,12 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0A0E16">
+<meta name="theme-color" content="#C9A348">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Redator SADM">
+<meta name="application-name" content="Redator SADM">
+<meta name="description" content="Redator institucional de documentos PMMG · Drive-Native + RAG jurídico · DA-072">
 <title>Redator SADM · 56º BPM</title>
+<link rel="manifest" href="manifest.webmanifest?v=38.2">
+<link rel="icon" type="image/svg+xml" href="icon-192.svg?v=38.2">
+<link rel="apple-touch-icon" href="icon-192.svg?v=38.2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tokens.css?v=38.2">
 <style>
 .red-layout{display:grid;grid-template-columns:320px 1fr;gap:var(--sp4);min-height:calc(100vh - 200px)}
 
@@ -144,6 +152,41 @@
 
 .section-divider{display:flex;align-items:center;gap:var(--sp3);margin:var(--sp4) 0 var(--sp3);font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:2px;text-transform:uppercase;font-weight:600}
 .section-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0.4}
+
+/* ─── Painel RAG · normas encontradas (DA-053) ─── */
+.rag-panel{margin-top:var(--sp4);padding:var(--sp4);background:linear-gradient(135deg,rgba(96,165,250,0.06),var(--bg2));border:1px solid rgba(96,165,250,0.25);border-radius:var(--r3);display:none}
+.rag-panel.on{display:block;animation:fadeIn 0.4s ease}
+.rag-panel .rag-h{display:flex;align-items:center;gap:8px;font-family:var(--ff-mono);font-size:var(--t-xs);color:#60A5FA;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:var(--sp3);font-weight:600}
+.rag-panel .rag-h::before{content:'⚖';font-size:14px}
+.rag-norma{padding:8px 10px;margin-bottom:6px;background:rgba(255,255,255,0.02);border-left:2px solid #60A5FA;border-radius:4px;font-family:var(--ff-mono);font-size:11px;color:var(--txt2);line-height:1.5}
+.rag-norma b{color:#93C5FD;font-weight:700}
+.rag-norma .em{display:block;margin-top:3px;color:var(--mut);font-style:italic;font-size:10px}
+.rag-empty{font-family:var(--ff-mono);font-size:10px;color:var(--dim);font-style:italic;padding:6px 0}
+
+/* ─── Histórico do operador ─── */
+.hist-panel{position:fixed;right:var(--sp4);bottom:var(--sp4);width:300px;max-height:380px;background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);box-shadow:0 8px 32px rgba(0,0,0,0.4);overflow:hidden;display:flex;flex-direction:column;z-index:100;transform:translateY(calc(100% - 42px));transition:transform var(--dur3) var(--ease)}
+.hist-panel.open{transform:translateY(0)}
+.hist-h{padding:10px 14px;background:linear-gradient(90deg,rgba(201,163,72,0.10),transparent);border-bottom:1px solid var(--line);cursor:pointer;font-family:var(--ff-mono);font-size:11px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.hist-h .badge{background:var(--gold);color:var(--bg);padding:2px 7px;border-radius:9px;font-size:9px;font-weight:700}
+.hist-body{flex:1;overflow-y:auto;padding:8px}
+.hist-item{padding:8px 10px;margin-bottom:4px;background:rgba(255,255,255,0.02);border-left:2px solid var(--gold);border-radius:4px;font-size:11px;cursor:pointer;transition:background 0.15s}
+.hist-item:hover{background:rgba(201,163,72,0.08)}
+.hist-item .hi-num{font-family:var(--ff-mono);font-weight:700;color:var(--gold);font-size:10px;letter-spacing:0.5px}
+.hist-item .hi-as{color:var(--txt2);margin-top:2px;font-family:var(--ff-sans);font-size:11px;line-height:1.3}
+.hist-item .hi-when{color:var(--mut);font-family:var(--ff-mono);font-size:9px;margin-top:3px}
+
+/* ─── Botão PWA Install ─── */
+.pwa-install{display:none;align-items:center;gap:6px;padding:6px 14px;background:linear-gradient(135deg,var(--gold),var(--goldD));color:var(--bg);border:none;border-radius:var(--r2);font-family:var(--ff-mono);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;box-shadow:0 4px 14px rgba(201,163,72,0.3)}
+.pwa-install.show{display:inline-flex}
+.pwa-install:hover{transform:translateY(-1px)}
+
+/* ─── Autocomplete Baliza ─── */
+.ac-wrap{position:relative}
+.ac-list{position:absolute;top:100%;left:0;right:0;background:var(--bg);border:1px solid var(--gold);border-radius:0 0 var(--r2) var(--r2);max-height:260px;overflow-y:auto;z-index:50;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4)}
+.ac-list.on{display:block}
+.ac-item{padding:8px 12px;font-family:var(--ff-sans);font-size:12px;color:var(--txt);cursor:pointer;border-bottom:1px solid var(--line)}
+.ac-item:hover,.ac-item.sel{background:rgba(201,163,72,0.12);color:var(--gold)}
+.ac-item .ac-posto{color:var(--mut);font-family:var(--ff-mono);font-size:10px;margin-right:6px}
 </style>
 </head>
 <body>
@@ -190,6 +233,7 @@
         <div class="breadcrumb"><b>DA-072 · DA-058 · DA-036</b> · 11 tipos · Engine Drive-Native · Aptos · cabeçalho/rodapé canônicos PMMG</div>
       </div>
       <div class="tb-actions">
+        <button id="pwaInstall" class="pwa-install" title="Instalar como aplicativo">⤓ Instalar app</button>
         <div class="tb-clock"><div class="t" id="cTime">--:--:--</div><div class="d" id="cDate">--</div></div>
       </div>
     </div>
@@ -227,6 +271,19 @@
   </main>
 
 </div>
+
+<!-- Painel flutuante · Histórico do operador -->
+<aside class="hist-panel" id="histPanel">
+  <div class="hist-h" onclick="document.getElementById('histPanel').classList.toggle('open')">
+    <span>📜 Histórico recente <span class="badge" id="histCount">0</span></span>
+    <span id="histChevron">▲</span>
+  </div>
+  <div class="hist-body" id="histBody">
+    <div style="text-align:center;color:var(--mut);font-size:11px;padding:20px 10px;font-style:italic">
+      Carregando histórico de gerações...
+    </div>
+  </div>
+</aside>
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
@@ -521,6 +578,193 @@ function tick(){
   document.getElementById('cDate').textContent=dias[d.getDay()]+' · '+pad(d.getDate())+'/'+mAbr[d.getMonth()]+'/'+d.getFullYear();
 }
 setInterval(tick,1000);tick();
+
+// ═══════════════════════════════════════════════════════════════════
+// PWA · Service Worker registration + Install prompt (DA-072 · Onda 38)
+// ═══════════════════════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js?v=38.2')
+      .then(reg => console.log('SW registrado:', reg.scope))
+      .catch(err => console.warn('SW falhou:', err));
+  });
+}
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const btn = document.getElementById('pwaInstall');
+  if (btn) btn.classList.add('show');
+});
+document.getElementById('pwaInstall')?.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('PWA install:', outcome);
+  deferredPrompt = null;
+  document.getElementById('pwaInstall').classList.remove('show');
+});
+
+// ═══════════════════════════════════════════════════════════════════
+// MELHORIA UX · status badge dinâmico (substitui "AGUARDANDO CONFIG")
+// ═══════════════════════════════════════════════════════════════════
+(async function() {
+  const st = document.getElementById('modeStatus');
+  if (!st) return;
+  if (!APPS_SCRIPT_URL) { st.textContent = 'Aguardando deploy'; return; }
+  st.textContent = 'Conectando...';
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, { method: 'GET' });
+    const j = await r.json();
+    if (j.ok) {
+      const tags = [];
+      if (j.redator_dn) tags.push('Drive-Native');
+      if (j.indexador) tags.push('RAG');
+      tags.push('Aptos');
+      st.textContent = 'Online · ' + tags.join(' · ');
+    } else {
+      st.textContent = 'Backend offline';
+    }
+  } catch (e) { st.textContent = 'Verificando...'; }
+})();
+
+// ═══════════════════════════════════════════════════════════════════
+// HISTÓRICO do operador (lê audit log via endpoint)
+// ═══════════════════════════════════════════════════════════════════
+async function carregarHistorico() {
+  const body = document.getElementById('histBody');
+  const count = document.getElementById('histCount');
+  if (!APPS_SCRIPT_URL) {
+    body.innerHTML = '<div style="color:var(--mut);font-size:11px;padding:14px;text-align:center;font-style:italic">Backend não configurado.</div>';
+    return;
+  }
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({ engine: 'drive-native', action: 'meu_historico', limite: 10 })
+    });
+    const data = await r.json();
+    if (!data.ok || !Array.isArray(data.itens) || data.itens.length === 0) {
+      body.innerHTML = '<div style="color:var(--mut);font-size:11px;padding:14px;text-align:center;font-style:italic">Sem gerações recentes ou endpoint sem suporte.</div>';
+      count.textContent = '0';
+      return;
+    }
+    count.textContent = data.itens.length;
+    body.innerHTML = data.itens.map(it => `
+      <div class="hist-item" onclick="window.open('${it.doc_url}','_blank')">
+        <div class="hi-num">${(it.num_canonico || it.tipo || '—').substring(0,42)}</div>
+        <div class="hi-as">${(it.assunto || it.tipo || '—').substring(0,60)}</div>
+        <div class="hi-when">${it.timestamp || ''}</div>
+      </div>
+    `).join('');
+  } catch (e) {
+    body.innerHTML = '<div style="color:var(--mut);font-size:11px;padding:14px;text-align:center;font-style:italic">Histórico indisponível.</div>';
+  }
+}
+setTimeout(carregarHistorico, 1500);
+
+// ═══════════════════════════════════════════════════════════════════
+// AUTOCOMPLETE BALIZA · 254 militares (DA-033)
+// ═══════════════════════════════════════════════════════════════════
+let BALIZA_CACHE = null;
+async function carregarBaliza() {
+  if (BALIZA_CACHE) return BALIZA_CACHE;
+  if (!APPS_SCRIPT_URL) return [];
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ engine: 'drive-native', action: 'listar_baliza' })
+    });
+    const data = await r.json();
+    if (data.ok && Array.isArray(data.militares)) {
+      BALIZA_CACHE = data.militares;
+      return BALIZA_CACHE;
+    }
+  } catch(_) {}
+  return [];
+}
+function ativarAutocomplete(inputEl) {
+  if (!inputEl || inputEl.dataset.acDone) return;
+  inputEl.dataset.acDone = '1';
+  const wrap = document.createElement('div'); wrap.className='ac-wrap';
+  inputEl.parentNode.insertBefore(wrap, inputEl); wrap.appendChild(inputEl);
+  const list = document.createElement('div'); list.className='ac-list'; wrap.appendChild(list);
+  inputEl.addEventListener('input', async () => {
+    const q = inputEl.value.trim().toLowerCase();
+    if (q.length < 2) { list.classList.remove('on'); return; }
+    const baliza = await carregarBaliza();
+    const matches = baliza.filter(m =>
+      (m.nome || '').toLowerCase().includes(q) ||
+      (m.posto || '').toLowerCase().includes(q)
+    ).slice(0, 8);
+    if (matches.length === 0) { list.classList.remove('on'); return; }
+    list.innerHTML = matches.map(m => `
+      <div class="ac-item" data-val="${m.posto || ''} ${m.nome || ''}">
+        <span class="ac-posto">${m.posto || ''}</span>${m.nome || ''}
+      </div>`).join('');
+    list.querySelectorAll('.ac-item').forEach(el => {
+      el.onclick = () => { inputEl.value = el.dataset.val.trim(); list.classList.remove('on'); };
+    });
+    list.classList.add('on');
+  });
+  inputEl.addEventListener('blur', () => setTimeout(() => list.classList.remove('on'), 200));
+}
+// Ativa autocomplete nos campos relevantes (com delay para campos dinâmicos)
+const acObserver = new MutationObserver(() => {
+  ['fldDest', 'fldAssina'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.tagName === 'INPUT') ativarAutocomplete(el);
+  });
+});
+acObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
+
+// ═══════════════════════════════════════════════════════════════════
+// RAG PREVIEW · ao digitar conteúdo, mostra normas relacionadas (debounce)
+// ═══════════════════════════════════════════════════════════════════
+let ragTimer = null;
+async function previewRAG(texto) {
+  if (!APPS_SCRIPT_URL || !texto || texto.trim().length < 30) return;
+  try {
+    const r = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ engine:'drive-native', action:'preview_rag', texto: texto, max: 5 })
+    });
+    const data = await r.json();
+    renderRAG(data.ok ? (data.normas || []) : []);
+  } catch(_) { renderRAG([]); }
+}
+function renderRAG(normas) {
+  let panel = document.getElementById('ragPanel');
+  if (!panel) {
+    const fatosEl = document.getElementById('fldFatos');
+    if (!fatosEl) return;
+    panel = document.createElement('div'); panel.id = 'ragPanel'; panel.className = 'rag-panel';
+    fatosEl.parentNode.insertBefore(panel, fatosEl.nextSibling);
+  }
+  if (!normas || normas.length === 0) { panel.classList.remove('on'); return; }
+  panel.innerHTML = '<div class="rag-h">Normas cruzadas no Acervo Jurídico</div>' +
+    normas.map(n => {
+      const id = [n.tipo, n.numero && 'nº ' + n.numero, n.ano].filter(Boolean).join(' ');
+      return '<div class="rag-norma"><b>' + (id || n.categoria || 'norma') + '</b>' +
+             (n.ementa ? '<span class="em">' + n.ementa.substring(0,180) + '</span>' : '') +
+             '</div>';
+    }).join('');
+  panel.classList.add('on');
+}
+// Hook no campo "fldFatos" (debounce 600ms)
+const ragObserver = new MutationObserver(() => {
+  const f = document.getElementById('fldFatos');
+  if (f && !f.dataset.ragDone) {
+    f.dataset.ragDone = '1';
+    f.addEventListener('input', () => {
+      clearTimeout(ragTimer);
+      ragTimer = setTimeout(() => previewRAG(f.value), 600);
+    });
+  }
+});
+ragObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
 </script>
 
 </body>
