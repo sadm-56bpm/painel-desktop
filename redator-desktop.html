@@ -187,7 +187,7 @@
     <div class="topbar">
       <div class="tb-title">
         <h1>Redator · Google Docs</h1>
-        <div class="breadcrumb"><b>DA-058 · DA-036</b> · 11 tipos administrativos · Aptos nativa · cabeçalho/rodapé canônicos PMMG</div>
+        <div class="breadcrumb"><b>DA-072 · DA-058 · DA-036</b> · 11 tipos · Engine Drive-Native · Aptos · cabeçalho/rodapé canônicos PMMG</div>
       </div>
       <div class="tb-actions">
         <div class="tb-clock"><div class="t" id="cTime">--:--:--</div><div class="d" id="cDate">--</div></div>
@@ -195,7 +195,7 @@
     </div>
 
     <div id="configBanner" class="config-banner mt-3">
-      <b>⚠ Backend Apps Script não configurado.</b> Para gerar Google Docs reais, faça deploy do <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">gerador_docs_gemini_v3.gs</code> no Workspace PMMG e cole a URL na constante <code>APPS_SCRIPT_URL</code> deste arquivo. Veja <b>GUIA_DEPLOY_REDATOR.md</b>.
+      <b>⚠ Backend Drive-Native ainda não publicado.</b> Para ativar a geração de Google Docs, faça deploy do projeto <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:3px">SADM_REDATOR_DN</code> (módulos <code>redator_dn_*.gs</code>) e cole a URL Web App na constante <code>APPS_SCRIPT_URL</code> deste arquivo. Engine: <b>Drive.Files.copy + Docs.batchUpdate</b> (DA-072). Ver <b>_ENGENHARIA/onda_38/docs/GUIA_DEPLOY_v2.md</b>.
     </div>
 
     <div class="red-layout mt-4">
@@ -230,11 +230,16 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   REDATOR v3.0 · Drive-native · 11 tipos administrativos
-   Foco: gerar Google Doc no Drive (NÃO render HTML)
+   REDATOR · Frontend canônico · 11 tipos administrativos
+   Engine: Drive-Native (DA-072) · Drive.Files.copy + Docs.batchUpdate
+   Backend: projeto Apps Script SADM_REDATOR_DN (módulo redator_dn_*)
+   Fonte: _ENGENHARIA/onda_38/apps_script/
    ═══════════════════════════════════════════════════════════════════ */
 
+// URL do Web App do projeto SADM_REDATOR_DN
+// (preencher após deploy do clasp · GUIA_DEPLOY_v2.md §3.5)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyCjZnuY_xHGIBC9jZ-4P27Af9oSXoo8FMEywYQE--Xk0dcqGKVcni9ESOkdVvzF24i/exec';
+const REDATOR_ENGINE_LABEL = 'Drive-Native · DA-072';
 
 const TIPOS = [
   {id:'oficio',           nm:'Ofício',                              pref:'Of',     ico:'📨', cor:'gold', desc:'Comunicação formal externa entre autoridades'},
@@ -401,6 +406,7 @@ async function gerar(){
   const setorNum = f.setor ? document.getElementById('fldSetor').value.trim() : 'SADM/56º BPM';
 
   const payload = {
+    engine: 'drive-native',     // DA-072 · roteamento no doPost do SADM_AUTOMATION_MASTER
     tipo: currentTipo.id,
     use_ai: useAi,
     payload: {

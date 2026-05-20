@@ -19,6 +19,7 @@ Versão desktop premium dos painéis canônicos da Seção Administrativa do 56�
 - **[tv-mural-desktop.html](tv-mural-desktop.html)** · TV Mural fullscreen · 7 painéis rotativos · auto 25s
 - **[gestao-desktop.html](gestao-desktop.html)** · Gestão Estratégica · Compliance + AADP
 - **[operacional-desktop.html](operacional-desktop.html)** · Operacional Live · countdowns + perf + aniv
+- **[redator-desktop.html](redator-desktop.html)** · ★★ Redator · 11 tipos · Engine Drive-Native (DA-072) · refino IA opcional (Multi-IA gratuita · DA-067)
 
 ## Cross-link Mobile ↔ Desktop
 
@@ -41,6 +42,7 @@ Os painéis mobile (repo separado) recebem botão recíproco `🖥 Versão deskt
 - **DA-055** · arquitetura 3 planos (Dados / Inteligência / Interface)
 - **DA-066** · arquivos sanitizados (zero Claude/Anthropic em conteúdo público)
 - **DA-071** · GitHub Pages canônico (expandido para Desktop · Onda 29)
+- **DA-072** · Redator Drive-Native (Drive.Files.copy + Docs.batchUpdate · Onda 38)
 
 ## Custo
 
