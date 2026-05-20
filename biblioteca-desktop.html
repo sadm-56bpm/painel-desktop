@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1F4628">
+<meta name="description" content="Biblioteca Jurídica · SADM 56º BPM · Onda 39 · RJI">
+<title>Biblioteca Jurídica · SADM 56º BPM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css?v=39">
+<style>
+.bib-layout{display:grid;grid-template-columns:300px 1fr;gap:var(--sp4);min-height:calc(100vh - 200px)}
+
+/* ── Coluna 1 · Filtros ── */
+.filters-col{display:flex;flex-direction:column;gap:var(--sp4);padding:var(--sp4);background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r4)}
+.filter-group h4{font-family:var(--ff-mono);font-size:var(--t-xs);color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:var(--sp2);font-weight:700;border-bottom:1px solid var(--line);padding-bottom:6px}
+.filter-list{display:flex;flex-direction:column;gap:4px;max-height:280px;overflow-y:auto;padding-right:4px}
+.filter-list::-webkit-scrollbar{width:4px}.filter-list::-webkit-scrollbar-thumb{background:var(--line2);border-radius:2px}
+
+.filter-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:var(--r1);cursor:pointer;font-size:var(--t-sm);color:var(--txt2);transition:all var(--dur1) var(--ease)}
+.filter-item:hover{background:rgba(201,163,72,0.06);color:var(--txt)}
+.filter-item.on{background:rgba(201,163,72,0.18);color:var(--gold);font-weight:600;border-left:3px solid var(--gold)}
+.filter-item .count{font-family:var(--ff-mono);font-size:10px;background:var(--bg);padding:2px 6px;border-radius:8px;color:var(--mut)}
+.filter-item.on .count{background:var(--gold);color:var(--bg)}
+
+.search-box{position:relative}
+.search-box input{width:100%;background:var(--bg);border:1px solid var(--line2);border-radius:var(--r2);padding:10px 12px 10px 36px;color:var(--txt);font-family:var(--ff-sans);font-size:var(--t-sm);outline:none}
+.search-box input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,163,72,0.15)}
+.search-box::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.7}
+
+/* ── Coluna 2 · Resultados ── */
+.results-col{display:flex;flex-direction:column;gap:var(--sp3);min-width:0}
+
+.bib-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--sp3)}
+.stat-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--line);border-radius:var(--r3);padding:var(--sp3) var(--sp4);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--acc, var(--gold))}
+.stat-card.g{--acc:var(--green)}.stat-card.b{--acc:var(--blue)}.stat-card.r{--acc:var(--red)}.stat-card.gold{--acc:var(--gold)}
+.stat-card .lbl{font-family:var(--ff-mono);font-size:10px;color:var(--mut);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.stat-card .val{font-family:var(--ff-serif);font-size:var(--t-2xl);color:var(--acc);font-weight:700;line-height:1.1}
+.stat-card .sub{font-size:11px;color:var(--txt2);margin-top:2px}
+
+.results-header{display:flex;justify-content:space-between;align-items:center;padding:var(--sp3) var(--sp4);background:rgba(255,255,255,0.025);border-radius:var(--r2);border:1px solid var(--line)}
+.results-header .count{font-family:var(--ff-mono);font-size:var(--t-sm);color:var(--gold);letter-spacing:0.5px}
+.results-header .sort select{background:var(--bg);border:1px solid var(--line2);border-radius:var(--r1);padding:5px 10px;color:var(--txt);font-size:var(--t-sm)}
+
+.norma-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:var(--sp3)}
+
+.norma-card{background:linear-gradient(180deg,var(--bg3),var(--bg2));border:1px solid var(--line2);border-radius:var(--r3);padding:var(--sp4);transition:all var(--dur2) var(--ease);position:relative;overflow:hidden;cursor:pointer}
+.norma-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--cat-color, var(--gold))}
+.norma-card:hover{transform:translateY(-2px);border-color:var(--cat-color, var(--gold));box-shadow:0 6px 18px rgba(0,0,0,0.25)}
+
+.norma-card[data-cat="lei_federal"]                {--cat-color:#3498DB}
+.norma-card[data-cat="lei_federal_complementar"]   {--cat-color:#2980B9}
+.norma-card[data-cat="decreto_federal"]            {--cat-color:#1F618D}
+.norma-card[data-cat="lei_estadual_mg"]            {--cat-color:#16A085}
+.norma-card[data-cat="lei_delegada_mg"]            {--cat-color:#138D75}
+.norma-card[data-cat="lei_complementar_estadual"]  {--cat-color:#117A65}
+.norma-card[data-cat="decreto_estadual_mg"]        {--cat-color:#117864}
+.norma-card[data-cat="resolucao_pmmg"]             {--cat-color:#C9A348}
+.norma-card[data-cat="instrucao_pessoal"]          {--cat-color:#B8860B}
+.norma-card[data-cat="memorando_tecnico"]          {--cat-color:#9C6F0A}
+.norma-card[data-cat="nota_tecnica"]               {--cat-color:#8B6914}
+.norma-card[data-cat="bgpm"]                        {--cat-color:#8E44AD}
+.norma-card[data-cat="constitucional"]             {--cat-color:#C0392B}
+.norma-card[data-cat="portaria_disciplinar"]       {--cat-color:#7F8C8D}
+.norma-card[data-cat="capacitacao"]                 {--cat-color:#1ABC9C}
+.norma-card[data-cat="oficio_circular"]            {--cat-color:#E67E22}
+.norma-card[data-cat="jurisprudencia"]             {--cat-color:#5D6D7E}
+.norma-card[data-cat="parecer_consultivo"]         {--cat-color:#7B7D7D}
+.norma-card[data-cat="lixo"]                        {--cat-color:#566573}
+.norma-card[data-cat="revisar_manual"]             {--cat-color:#F39C12}
+
+.norma-card .nc-head{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--sp2);margin-bottom:var(--sp2)}
+.norma-card .nc-num{font-family:var(--ff-mono);font-size:11px;color:var(--cat-color);font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.norma-card .nc-sit{font-family:var(--ff-mono);font-size:9px;padding:2px 8px;border-radius:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+.norma-card .nc-sit.vigente{background:rgba(46,139,87,0.18);color:#5DD896}
+.norma-card .nc-sit.revogada{background:rgba(192,57,43,0.18);color:#FF7B6B}
+.norma-card .nc-sit.desconhecida{background:rgba(127,140,141,0.18);color:#A6B0B1}
+
+.norma-card .nc-title{font-family:var(--ff-serif);font-size:var(--t-md);color:var(--txt);font-weight:600;line-height:1.3;margin-bottom:6px}
+.norma-card .nc-emen{font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:var(--sp3);min-height:54px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+.norma-card .nc-meta{display:flex;gap:var(--sp2);flex-wrap:wrap;font-family:var(--ff-mono);font-size:10px;color:var(--mut);margin-bottom:var(--sp3)}
+.norma-card .nc-meta span{background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:8px;border:1px solid var(--line)}
+
+.norma-card .nc-actions{display:flex;gap:var(--sp2);margin-top:auto}
+.norma-card .nc-btn{flex:1;padding:6px 10px;border-radius:var(--r1);font-family:var(--ff-mono);font-size:10px;letter-spacing:0.5px;text-transform:uppercase;text-align:center;cursor:pointer;transition:all var(--dur1);text-decoration:none}
+.norma-card .nc-btn.primary{background:var(--cat-color);color:#FFF;font-weight:700}
+.norma-card .nc-btn.primary:hover{filter:brightness(1.15)}
+.norma-card .nc-btn.secondary{background:transparent;color:var(--txt2);border:1px solid var(--line2)}
+.norma-card .nc-btn.secondary:hover{border-color:var(--gold);color:var(--gold)}
+
+.loading{text-align:center;padding:var(--sp6);color:var(--mut);font-family:var(--ff-mono);font-size:var(--t-sm);letter-spacing:1px}
+.empty{text-align:center;padding:var(--sp6);color:var(--mut);font-style:italic;background:rgba(255,255,255,0.02);border-radius:var(--r3);border:1px dashed var(--line2)}
+.empty h3{color:var(--txt2);margin-bottom:var(--sp2);font-family:var(--ff-serif);font-size:var(--t-lg)}
+
+.detail-pane{position:fixed;top:0;right:-560px;width:540px;height:100vh;background:var(--bg2);border-left:1px solid var(--line);box-shadow:-10px 0 30px rgba(0,0,0,0.4);transition:right var(--dur2) var(--ease);z-index:100;overflow-y:auto}
+.detail-pane.on{right:0}
+.detail-pane .dp-close{position:absolute;top:var(--sp3);right:var(--sp3);background:transparent;border:1px solid var(--line2);width:34px;height:34px;border-radius:50%;color:var(--txt2);cursor:pointer;font-size:18px;display:grid;place-items:center}
+.detail-pane .dp-close:hover{border-color:var(--red);color:var(--red)}
+.detail-pane .dp-content{padding:var(--sp5) var(--sp5) var(--sp6)}
+
+@media (max-width: 1024px){.bib-layout{grid-template-columns:1fr}.filters-col{position:sticky;top:0;z-index:5}}
+</style>
+</head>
+<body>
+
+<!-- Header e sidebar canônicos (igual outros painéis desktop) -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-brand">
+      <div class="hdr-brand-circle">56</div>
+      <div class="hdr-brand-text">
+        <span class="hdr-brand-name">BIBLIOTECA JURÍDICA</span>
+        <span class="hdr-brand-sub">RJI · Onda 39 · 56º BPM · Itajubá-MG</span>
+      </div>
+    </div>
+    <div class="hdr-tools">
+      <div class="hdr-clock" id="clock">--:--:--</div>
+      <div class="hdr-date" id="date">--</div>
+    </div>
+  </div>
+</header>
+
+<aside class="sidebar">
+  <a class="sb-item" href="index.html">🏛 Hub Central</a>
+  <a class="sb-item" href="consultor-desktop.html">💬 Consultor</a>
+  <a class="sb-item" href="redator-desktop.html">📝 Redator</a>
+  <a class="sb-item" href="cockpit-desktop.html">🎯 Cockpit</a>
+  <a class="sb-item" href="kg-desktop.html">🕸 Knowledge Graph</a>
+  <a class="sb-item" href="heatmap-desktop.html">🌡 Heatmap</a>
+  <a class="sb-item" href="sentinela-desktop.html">⚖ Sentinela</a>
+  <a class="sb-item" href="cadeias-desktop.html">⛓ Cadeias</a>
+  <a class="sb-item active" href="biblioteca-desktop.html">📚 Biblioteca Jurídica</a>
+  <a class="sb-item" href="memoria-desktop.html">🧠 Memória 71 DAs</a>
+  <a class="sb-item" href="mapa-desktop.html">🗺 Mapa Itajubá</a>
+  <a class="sb-item" href="apresentacao-desktop.html">▶ Apresentação</a>
+  <a class="sb-item" href="tv-mural-desktop.html">📺 TV Mural</a>
+  <a class="sb-item" href="gestao-desktop.html">📊 Gestão</a>
+  <a class="sb-item" href="operacional-desktop.html">🚓 Operacional</a>
+</aside>
+
+<main class="main">
+  <div class="page-h">
+    <h1>📚 Biblioteca Jurídica</h1>
+    <p class="page-sub">Repositório Jurídico Indexado · busca · filtros · cruzamentos · cross-link Redator</p>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="bib-stats">
+    <div class="stat-card gold">
+      <div class="lbl">Total Indexado</div>
+      <div class="val" id="kpiTotal">—</div>
+      <div class="sub" id="kpiTotalSub">carregando…</div>
+    </div>
+    <div class="stat-card g">
+      <div class="lbl">Vigentes</div>
+      <div class="val" id="kpiVigentes">—</div>
+      <div class="sub" id="kpiVigentesSub">situação confirmada</div>
+    </div>
+    <div class="stat-card r">
+      <div class="lbl">Revogadas</div>
+      <div class="val" id="kpiRevogadas">—</div>
+      <div class="sub">não citar</div>
+    </div>
+    <div class="stat-card b">
+      <div class="lbl">Cobertura</div>
+      <div class="val" id="kpiCobertura">—</div>
+      <div class="sub" id="kpiSemaforo">—</div>
+    </div>
+  </div>
+
+  <!-- Layout principal · filtros + cards -->
+  <div class="bib-layout" style="margin-top:var(--sp4)">
+
+    <!-- Filtros -->
+    <div class="filters-col">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Buscar nome, número, ementa…">
+      </div>
+
+      <div class="filter-group">
+        <h4>Categoria</h4>
+        <div class="filter-list" id="filterCategoria"></div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Situação</h4>
+        <div class="filter-list" id="filterSituacao"></div>
+      </div>
+
+      <div class="filter-group">
+        <h4>Ano</h4>
+        <div class="filter-list" id="filterAno"></div>
+      </div>
+
+      <button id="btnReset" style="background:transparent;border:1px solid var(--line2);color:var(--txt2);padding:8px;border-radius:var(--r2);cursor:pointer;font-family:var(--ff-mono);font-size:var(--t-xs);letter-spacing:1px;text-transform:uppercase">Limpar filtros</button>
+    </div>
+
+    <!-- Resultados -->
+    <div class="results-col">
+      <div class="results-header">
+        <div class="count"><span id="filteredCount">0</span> de <span id="totalCount">0</span> normas</div>
+        <div class="sort">
+          <label style="color:var(--mut);font-size:var(--t-xs);margin-right:6px">Ordenar:</label>
+          <select id="sortSelect">
+            <option value="ano-desc">Mais recentes</option>
+            <option value="ano-asc">Mais antigas</option>
+            <option value="numero-asc">Número ↑</option>
+            <option value="score-desc">Maior confiança</option>
+            <option value="categoria">Categoria</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="resultsList">
+        <div class="loading">⏳ Carregando biblioteca…</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Detail pane -->
+<div class="detail-pane" id="detailPane">
+  <button class="dp-close" onclick="document.getElementById('detailPane').classList.remove('on')">×</button>
+  <div class="dp-content" id="detailContent"></div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeKy7L9Hv-qsLEXW6uGpTuRN7h5JIh7XvFbkgWlzhkisqAhAllUpTTo33xqS-YJ2tk/exec';
+
+let NORMAS = [];
+let FILTROS = { categoria: null, situacao: null, ano: null, busca: '' };
+
+// Relógio
+function tickClock() {
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('pt-BR');
+  document.getElementById('date').textContent = d.toLocaleDateString('pt-BR', { weekday:'long', day:'2-digit', month:'long' });
+}
+setInterval(tickClock, 1000); tickClock();
+
+// Carregar dados
+async function carregar() {
+  try {
+    const [bibR, kpiR] = await Promise.all([
+      fetch(APPS_SCRIPT_URL + '?ato=biblioteca').then(r => r.json()),
+      fetch(APPS_SCRIPT_URL + '?ato=dashboard_kpi').then(r => r.json())
+    ]);
+    if (!bibR.ok) throw new Error(bibR.error || 'erro biblioteca');
+    NORMAS = bibR.normas || [];
+
+    // KPIs
+    document.getElementById('kpiTotal').textContent = kpiR.classificadas || NORMAS.length;
+    document.getElementById('kpiTotalSub').textContent = 'de ' + (kpiR.inventario_total || 0) + ' inventariados';
+    document.getElementById('kpiVigentes').textContent = kpiR.vigentes || 0;
+    document.getElementById('kpiRevogadas').textContent = kpiR.revogadas || 0;
+    const cob = kpiR.progresso_pct || 0;
+    document.getElementById('kpiCobertura').textContent = cob + '%';
+    document.getElementById('kpiSemaforo').textContent = cob >= 80 ? '🟢 Operacional' : cob >= 50 ? '🟡 Consolidação' : '🔴 Construção';
+
+    construirFiltros();
+    renderResultados();
+  } catch (e) {
+    document.getElementById('resultsList').innerHTML = '<div class="empty"><h3>⚠ Erro ao carregar</h3><p>' + e.message + '</p></div>';
+  }
+}
+
+function construirFiltros() {
+  const cats = {}, sits = {}, anos = {};
+  NORMAS.forEach(n => {
+    if (n.categoria) cats[n.categoria] = (cats[n.categoria] || 0) + 1;
+    if (n.situacao) sits[n.situacao] = (sits[n.situacao] || 0) + 1;
+    if (n.ano) anos[n.ano] = (anos[n.ano] || 0) + 1;
+  });
+  renderFilterList('filterCategoria', cats, 'categoria');
+  renderFilterList('filterSituacao', sits, 'situacao');
+  renderFilterList('filterAno', anos, 'ano', true);
+}
+
+function renderFilterList(elId, dict, key, descAno) {
+  const el = document.getElementById(elId);
+  const entries = Object.entries(dict).sort((a, b) => descAno ? Number(b[0]) - Number(a[0]) : b[1] - a[1]);
+  el.innerHTML = entries.map(([nm, qt]) =>
+    `<div class="filter-item" data-key="${key}" data-val="${nm}"><span>${nm}</span><span class="count">${qt}</span></div>`
+  ).join('');
+  el.querySelectorAll('.filter-item').forEach(it => {
+    it.onclick = () => {
+      const k = it.dataset.key, v = it.dataset.val;
+      if (FILTROS[k] === v) FILTROS[k] = null;
+      else FILTROS[k] = v;
+      construirFiltros();
+      // restaurar ativos
+      document.querySelectorAll('.filter-item').forEach(fi => {
+        if (FILTROS[fi.dataset.key] === fi.dataset.val) fi.classList.add('on');
+      });
+      renderResultados();
+    };
+  });
+  // marcar ativos
+  el.querySelectorAll('.filter-item').forEach(fi => {
+    if (FILTROS[fi.dataset.key] === fi.dataset.val) fi.classList.add('on');
+  });
+}
+
+function renderResultados() {
+  const list = document.getElementById('resultsList');
+  let filt = NORMAS.slice();
+  if (FILTROS.categoria) filt = filt.filter(n => n.categoria === FILTROS.categoria);
+  if (FILTROS.situacao) filt = filt.filter(n => String(n.situacao) === String(FILTROS.situacao));
+  if (FILTROS.ano) filt = filt.filter(n => String(n.ano) === String(FILTROS.ano));
+  if (FILTROS.busca) {
+    const q = FILTROS.busca.toLowerCase();
+    filt = filt.filter(n =>
+      (n.nome && n.nome.toLowerCase().includes(q)) ||
+      (n.ementa && n.ementa.toLowerCase().includes(q)) ||
+      (n.numero && String(n.numero).includes(q)) ||
+      (n.tipo_norma && n.tipo_norma.toLowerCase().includes(q))
+    );
+  }
+
+  const sort = document.getElementById('sortSelect').value;
+  filt.sort((a, b) => {
+    if (sort === 'ano-desc') return (Number(b.ano)||0) - (Number(a.ano)||0);
+    if (sort === 'ano-asc') return (Number(a.ano)||0) - (Number(b.ano)||0);
+    if (sort === 'numero-asc') return String(a.numero).localeCompare(String(b.numero));
+    if (sort === 'score-desc') return (b.score||0) - (a.score||0);
+    if (sort === 'categoria') return String(a.categoria).localeCompare(String(b.categoria));
+  });
+
+  document.getElementById('totalCount').textContent = NORMAS.length;
+  document.getElementById('filteredCount').textContent = filt.length;
+
+  if (filt.length === 0) {
+    list.innerHTML = '<div class="empty"><h3>Nenhuma norma encontrada</h3><p>Ajuste os filtros ou a busca</p></div>';
+    return;
+  }
+
+  list.innerHTML = '<div class="norma-grid">' + filt.slice(0, 200).map(renderCard).join('') + '</div>' +
+    (filt.length > 200 ? '<div style="text-align:center;color:var(--mut);font-size:var(--t-xs);padding:var(--sp4)">Exibindo primeiros 200 · refine os filtros para ver mais</div>' : '');
+
+  list.querySelectorAll('.norma-card').forEach(c => {
+    c.onclick = () => abrirDetalhe(c.dataset.id);
+  });
+}
+
+function renderCard(n) {
+  const sit = String(n.situacao || 'desconhecida').toLowerCase();
+  const titulo = n.tipo_norma ?
+    `${n.tipo_norma} ${n.numero || ''}${n.ano ? '/' + n.ano : ''}`.trim() :
+    (n.nome_canonico || n.nome || 'Sem título');
+  return `
+    <div class="norma-card" data-cat="${n.categoria}" data-id="${n.id || n.file_id}">
+      <div class="nc-head">
+        <span class="nc-num">${n.categoria || ''}</span>
+        <span class="nc-sit ${sit}">${sit}</span>
+      </div>
+      <div class="nc-title">${escapeHtml(titulo)}</div>
+      <div class="nc-emen">${escapeHtml(n.ementa || 'Sem ementa registrada')}</div>
+      <div class="nc-meta">
+        ${n.ano ? `<span>📅 ${n.ano}</span>` : ''}
+        ${n.orgao ? `<span>🏛 ${escapeHtml(n.orgao)}</span>` : ''}
+        ${n.score ? `<span>🎯 ${n.score}%</span>` : ''}
+      </div>
+      <div class="nc-actions">
+        ${n.drive_url ? `<a class="nc-btn primary" href="${n.drive_url}" target="_blank" onclick="event.stopPropagation()">📄 Abrir Drive</a>` : ''}
+        <a class="nc-btn secondary" href="redator-desktop.html?fundamentar=${encodeURIComponent(titulo)}" onclick="event.stopPropagation()">✍ Fundamentar</a>
+      </div>
+    </div>`;
+}
+
+function abrirDetalhe(id) {
+  const n = NORMAS.find(x => String(x.id || x.file_id) === String(id));
+  if (!n) return;
+  const dp = document.getElementById('detailPane');
+  const sit = String(n.situacao || 'desconhecida').toLowerCase();
+  document.getElementById('detailContent').innerHTML = `
+    <h2 style="font-family:var(--ff-serif);color:var(--gold);margin-bottom:var(--sp2)">${escapeHtml(n.nome_canonico || n.nome || 'Norma')}</h2>
+    <span class="nc-sit ${sit}" style="margin-bottom:var(--sp4);display:inline-block">${sit}</span>
+    <div style="background:rgba(255,255,255,0.03);padding:var(--sp4);border-radius:var(--r2);margin-bottom:var(--sp4)">
+      <p style="margin-bottom:var(--sp3);line-height:1.6">${escapeHtml(n.ementa || 'Sem ementa.')}</p>
+      <table style="width:100%;font-size:var(--t-sm)">
+        <tr><td style="color:var(--mut);padding:4px 0">Categoria:</td><td><b>${n.categoria || '—'}</b></td></tr>
+        <tr><td style="color:var(--mut);padding:4px 0">Tipo:</td><td>${n.tipo_norma || '—'}</td></tr>
+        <tr><td style="color:var(--mut);padding:4px 0">Número:</td><td>${n.numero || '—'}</td></tr>
+        <tr><td style="color:var(--mut);padding:4px 0">Ano:</td><td>${n.ano || '—'}</td></tr>
+        <tr><td style="color:var(--mut);padding:4px 0">Órgão:</td><td>${n.orgao || '—'}</td></tr>
+        <tr><td style="color:var(--mut);padding:4px 0">Confiança IA:</td><td>${n.score || 0}%</td></tr>
+      </table>
+    </div>
+    ${n.drive_url ? `<a class="nc-btn primary" href="${n.drive_url}" target="_blank" style="display:block;text-align:center;padding:12px;background:var(--gold);color:var(--bg);font-weight:700;border-radius:var(--r2);margin-bottom:var(--sp2);text-decoration:none">📄 Abrir no Drive Institucional</a>` : ''}
+    <a class="nc-btn secondary" href="redator-desktop.html" style="display:block;text-align:center;padding:12px;border:1px solid var(--line2);color:var(--txt);border-radius:var(--r2);text-decoration:none">✍ Usar como fundamentação no Redator</a>
+  `;
+  dp.classList.add('on');
+}
+
+function escapeHtml(s) {
+  return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  FILTROS.busca = e.target.value;
+  renderResultados();
+});
+document.getElementById('sortSelect').addEventListener('change', renderResultados);
+document.getElementById('btnReset').onclick = () => {
+  FILTROS = { categoria: null, situacao: null, ano: null, busca: '' };
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.filter-item').forEach(fi => fi.classList.remove('on'));
+  renderResultados();
+};
+
+carregar();
+</script>
+
+</body>
+</html>

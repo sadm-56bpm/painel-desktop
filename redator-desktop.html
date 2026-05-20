@@ -978,6 +978,184 @@ setTimeout(() => {
     mostrarCardIA();
   }
 }, 3500);
+
+// ═══════════════════════════════════════════════════════════════════
+// ONDA 39 · DETECTOR AUTOMÁTICO DE TIPO
+// Analisa o conteúdo digitado e sugere tipo apropriado.
+// ═══════════════════════════════════════════════════════════════════
+const TIPO_HEURISTICAS = [
+  { tipo: 'parecer', score: 0, palavras: ['opino pelo','manifesto-me favoravelmente','manifesto-me contrariamente','fundamentação legal','do exposto','conclusão','i - relatório','ii - fundamentação','iii - conclusão'] },
+  { tipo: 'requerimento', score: 0, palavras: ['requeiro','vem requerer','requeiro a vossa','o requerente','pleito','com fundamento na','requer a concessão','ajuda de custo','quinquênio'] },
+  { tipo: 'despacho', score: 0, palavras: ['à consideração superior','encaminhe-se','manifesto-me favoravelmente','manifesto-me contrariamente','devolvam-se','diante do exposto, devolva','para análise técnica'] },
+  { tipo: 'atestado', score: 0, palavras: ['atesto, para os fins','atesto que','para os devidos fins','declaro que','para fins de fixação'] },
+  { tipo: 'memorando', score: 0, palavras: ['ao senhor major','ao senhor capitão chefe','ao chefe da seção','seção de pessoal','seção de'] },
+  { tipo: 'relatorio', score: 0, palavras: ['no período de','foram processadas','indicadores','considerações finais','sumário','seção'] },
+  { tipo: 'oficio', score: 0, palavras: ['vossa senhoria','cumprimentando-o','encaminho a vossa','encaminho ao senhor','solicito a vossa','comunico a vossa'] },
+  { tipo: 'certidao', score: 0, palavras: ['certifico que','consultando os arquivos','consultando os assentamentos','arquivos desta unidade'] },
+  { tipo: 'declaracao', score: 0, palavras: ['declaro, para os','para os devidos','presente declaração'] }
+];
+function detectarTipo(texto) {
+  if (!texto || texto.length < 30) return null;
+  const t = texto.toLowerCase();
+  let melhor = null, maxScore = 0;
+  TIPO_HEURISTICAS.forEach(h => {
+    let s = 0;
+    h.palavras.forEach(p => { if (t.indexOf(p) !== -1) s += (p.length > 12 ? 3 : 1); });
+    if (s > maxScore) { maxScore = s; melhor = h.tipo; }
+  });
+  return maxScore >= 2 ? melhor : null;
+}
+function sugerirTipoDiferente(textoConteudo) {
+  if (!currentTipo) return;
+  const sugerido = detectarTipo(textoConteudo);
+  if (!sugerido || sugerido === currentTipo.id) {
+    const old = document.getElementById('tipoSugestao'); if (old) old.remove();
+    return;
+  }
+  const cfg = TIPOS.find(t => t.id === sugerido);
+  if (!cfg) return;
+  let banner = document.getElementById('tipoSugestao');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'tipoSugestao';
+    banner.style.cssText = 'margin-top:8px;padding:10px 14px;background:linear-gradient(135deg,rgba(216,136,56,0.10),var(--bg2));border:1px solid rgba(216,136,56,0.4);border-radius:var(--r2);font-family:var(--ff-mono);font-size:11px;color:var(--orangeL);line-height:1.5;display:flex;align-items:center;gap:10px;animation:fadeIn 0.3s ease';
+    const fatosEl = document.getElementById('fldFatos');
+    if (fatosEl) fatosEl.parentNode.insertBefore(banner, fatosEl.nextSibling);
+  }
+  banner.innerHTML =
+    '<span style="font-size:16px">💡</span>' +
+    '<span style="flex:1">O conteúdo parece um <b>' + cfg.ico + ' ' + cfg.nm +
+    '</b>. Tipo atual: <b>' + currentTipo.ico + ' ' + currentTipo.nm + '</b>.</span>' +
+    '<button onclick="selectTipo(\'' + sugerido + '\');this.parentNode.remove()" ' +
+    'style="background:var(--orange);color:#fff;border:none;border-radius:4px;padding:5px 10px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer">Trocar →</button>' +
+    '<button onclick="this.parentNode.remove()" style="background:transparent;border:none;color:var(--mut);cursor:pointer;font-size:16px">×</button>';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ONDA 39 · AUTO-SAVE de rascunho · recuperação
+// ═══════════════════════════════════════════════════════════════════
+const RASCUNHO_KEY = 'redator_rascunho_v1';
+let rascunhoTimer = null;
+function salvarRascunho() {
+  if (!currentTipo) return;
+  const dados = { tipo: currentTipo.id, ts: Date.now(), campos: {} };
+  ['fldDest','fldRef','fldAssunto','fldFatos','fldAssina','fldSetor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value) dados.campos[id] = el.value;
+  });
+  if (Object.keys(dados.campos).length === 0) return;
+  try { localStorage.setItem(RASCUNHO_KEY, JSON.stringify(dados)); } catch(_) {}
+}
+function carregarRascunho() {
+  let dados;
+  try { dados = JSON.parse(localStorage.getItem(RASCUNHO_KEY) || 'null'); } catch(_) {}
+  if (!dados || !dados.tipo) return;
+  const idade = Math.round((Date.now() - dados.ts) / 60000);
+  if (idade > 7 * 24 * 60) { localStorage.removeItem(RASCUNHO_KEY); return; }   // 7 dias
+  const tipo = TIPOS.find(t => t.id === dados.tipo);
+  if (!tipo) return;
+  // Toast de recuperação
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,rgba(96,165,250,0.95),rgba(168,85,247,0.95));color:#fff;padding:12px 20px;border-radius:8px;font-family:var(--ff-mono);font-size:12px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:200;animation:fadeIn 0.3s ease';
+  toast.innerHTML =
+    '<span style="font-size:18px">💾</span>' +
+    '<span>Rascunho de ' + tipo.ico + ' <b>' + tipo.nm + '</b> · ' + idade + ' min atrás</span>' +
+    '<button id="rRec" style="background:#fff;color:#1F2937;border:none;padding:5px 12px;border-radius:4px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer">Recuperar</button>' +
+    '<button id="rDel" style="background:transparent;border:1px solid rgba(255,255,255,0.4);color:#fff;padding:5px 10px;border-radius:4px;font-family:inherit;font-size:10px;cursor:pointer">Descartar</button>';
+  document.body.appendChild(toast);
+  document.getElementById('rRec').onclick = () => {
+    selectTipo(dados.tipo);
+    setTimeout(() => {
+      Object.keys(dados.campos).forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.value = dados.campos[id]; el.dispatchEvent(new Event('input',{bubbles:true})); }
+      });
+    }, 100);
+    toast.remove();
+  };
+  document.getElementById('rDel').onclick = () => {
+    localStorage.removeItem(RASCUNHO_KEY);
+    toast.remove();
+  };
+  // Auto-fecha em 12s
+  setTimeout(() => toast.remove(), 12000);
+}
+setTimeout(carregarRascunho, 1200);
+
+// Hook · auto-save no input do fldFatos
+const saveObserver = new MutationObserver(() => {
+  const f = document.getElementById('fldFatos');
+  if (f && !f.dataset.saveDone) {
+    f.dataset.saveDone = '1';
+    f.addEventListener('input', () => {
+      clearTimeout(rascunhoTimer);
+      rascunhoTimer = setTimeout(() => {
+        salvarRascunho();
+        sugerirTipoDiferente(f.value);
+      }, 1200);
+    });
+  }
+});
+saveObserver.observe(document.getElementById('formBody'), { childList: true, subtree: true });
+
+// Limpa rascunho ao gerar com sucesso
+const origShowResult = showResult;
+showResult = function(data) {
+  try { localStorage.removeItem(RASCUNHO_KEY); } catch(_) {}
+  return origShowResult(data);
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// ONDA 39 · TEMPLATES FAVORITOS por operador
+// Clique no ★ favorita; favoritos aparecem com brilho dourado.
+// ═══════════════════════════════════════════════════════════════════
+const FAV_KEY = 'redator_templates_favoritos';
+function getFavoritos() {
+  try { return JSON.parse(localStorage.getItem(FAV_KEY) || '{}'); } catch(_) { return {}; }
+}
+function setFavoritos(obj) {
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(obj)); } catch(_) {}
+}
+function isFavorito(tipoId, idx) {
+  const f = getFavoritos();
+  return Array.isArray(f[tipoId]) && f[tipoId].indexOf(idx) !== -1;
+}
+function toggleFavorito(tipoId, idx) {
+  const f = getFavoritos();
+  if (!Array.isArray(f[tipoId])) f[tipoId] = [];
+  const pos = f[tipoId].indexOf(idx);
+  if (pos === -1) f[tipoId].push(idx); else f[tipoId].splice(pos, 1);
+  setFavoritos(f);
+}
+// Override do injetarChipsRapidos para adicionar botão ★
+const origInjetar = injetarChipsRapidos;
+injetarChipsRapidos = function() {
+  origInjetar();
+  if (!currentTipo) return;
+  const chips = document.querySelectorAll('#quickChips .quick-chip');
+  chips.forEach((b, i) => {
+    if (b.dataset.favWired) return;
+    b.dataset.favWired = '1';
+    const star = document.createElement('span');
+    star.innerHTML = isFavorito(currentTipo.id, i) ? ' ★' : ' ☆';
+    star.style.cssText = 'margin-left:6px;cursor:pointer;font-size:12px;color:' +
+      (isFavorito(currentTipo.id, i) ? 'var(--gold)' : 'var(--mut)');
+    star.onclick = (ev) => {
+      ev.stopPropagation();
+      toggleFavorito(currentTipo.id, i);
+      const fav = isFavorito(currentTipo.id, i);
+      star.innerHTML = fav ? ' ★' : ' ☆';
+      star.style.color = fav ? 'var(--gold)' : 'var(--mut)';
+      b.style.boxShadow = fav ? '0 0 12px rgba(201,163,72,0.5)' : '';
+      b.style.borderColor = fav ? 'var(--gold)' : '';
+    };
+    b.appendChild(star);
+    if (isFavorito(currentTipo.id, i)) {
+      b.style.boxShadow = '0 0 12px rgba(201,163,72,0.5)';
+      b.style.borderColor = 'var(--gold)';
+    }
+  });
+};
 </script>
 
 </body>
