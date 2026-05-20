@@ -1,29 +1,29 @@
 /**
- * sw.js · Service Worker · SADM/56º BPM · PWA Onda 38
- * Cache offline para os painéis estáticos · network-first para o redator
- * (sempre tenta servidor primeiro · fallback no cache em offline).
+ * sw.js · Service Worker · SADM/56º BPM · PWA · Onda 38
+ * v38.3 · network-first para HTML/JS · cache-first para assets estáticos
  *
- * DA-072 · sufixo `?v=` é cache-bust quando trocarmos versão.
+ * Por que network-first em HTML: HTML é dinâmico (versão muda). Cachear
+ * agressivamente HTML faz o operador ver versão antiga após cada deploy.
+ * Solução: sempre tenta rede, cache só serve como fallback offline.
+ *
+ * DA-072
  */
 
-const VERSION = '38.2';
+const VERSION = '38.3';
 const CACHE_NAME = 'sadm-painel-v' + VERSION;
-const PRECACHE = [
-  './',
-  './index.html',
-  './redator-desktop.html',
-  './consultor-desktop.html',
-  './cockpit-desktop.html',
-  './tokens.css',
+
+// Apenas assets verdadeiramente estáticos no precache
+const PRECACHE_STATIC = [
   './icon-192.svg',
   './icon-512.svg',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  './tokens.css'
 ];
 
 self.addEventListener('install', evt => {
   evt.waitUntil(
     caches.open(CACHE_NAME)
-      .then(c => c.addAll(PRECACHE).catch(e => console.warn('precache', e)))
+      .then(c => c.addAll(PRECACHE_STATIC).catch(e => console.warn('precache', e)))
       .then(() => self.skipWaiting())
   );
 });
@@ -39,22 +39,46 @@ self.addEventListener('activate', evt => {
 });
 
 /**
- * Estratégia:
- *  - Apps Script (script.google.com): SEMPRE network (não cachear · sempre fresh)
- *  - HTML/JS/CSS/SVG locais: stale-while-revalidate
+ * Estratégia por tipo:
+ *  - Apps Script (script.google.com/googleusercontent): SEMPRE network (sem cache)
+ *  - HTML (.html ou /): NETWORK-FIRST · cache como fallback offline
+ *  - Assets estáticos (.css, .svg, .js local, .webmanifest): STALE-WHILE-REVALIDATE
  */
 self.addEventListener('fetch', evt => {
   const url = new URL(evt.request.url);
-  // Nunca cachear chamadas ao Apps Script
+
+  // 1. Apps Script · nunca cachear
   if (url.hostname.indexOf('script.google.com') !== -1 ||
-      url.hostname.indexOf('googleusercontent.com') !== -1) {
-    return; // deixa o fetch padrão acontecer
+      url.hostname.indexOf('googleusercontent.com') !== -1 ||
+      url.hostname.indexOf('googleapis.com') !== -1) {
+    return; // fetch padrão
   }
-  // Apenas cachear GET
+
+  // 2. Apenas GET same-origin
   if (evt.request.method !== 'GET') return;
-  // Apenas same-origin
   if (url.origin !== location.origin) return;
 
+  const isHTML = url.pathname.endsWith('/') ||
+                 url.pathname.endsWith('.html');
+
+  if (isHTML) {
+    // NETWORK-FIRST · cache fallback (offline)
+    evt.respondWith(
+      fetch(evt.request).then(resp => {
+        if (resp && resp.status === 200) {
+          const copy = resp.clone();
+          caches.open(CACHE_NAME).then(c => c.put(evt.request, copy));
+        }
+        return resp;
+      }).catch(() => caches.match(evt.request).then(r => r || new Response(
+        '<h1>Offline</h1><p>Reconecte para acessar.</p>',
+        { headers: { 'Content-Type': 'text/html' } }
+      )))
+    );
+    return;
+  }
+
+  // STALE-WHILE-REVALIDATE para CSS/SVG/JS locais
   evt.respondWith(
     caches.match(evt.request).then(cached => {
       const fresh = fetch(evt.request).then(resp => {
@@ -67,4 +91,9 @@ self.addEventListener('fetch', evt => {
       return cached || fresh;
     })
   );
+});
+
+// Mensagem do client para forçar reload
+self.addEventListener('message', evt => {
+  if (evt.data === 'skipWaiting') self.skipWaiting();
 });

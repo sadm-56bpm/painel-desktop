@@ -10,13 +10,13 @@
 <meta name="application-name" content="Redator SADM">
 <meta name="description" content="Redator institucional de documentos PMMG · Drive-Native + RAG jurídico · DA-072">
 <title>Redator SADM · 56º BPM</title>
-<link rel="manifest" href="manifest.webmanifest?v=38.2">
-<link rel="icon" type="image/svg+xml" href="icon-192.svg?v=38.2">
-<link rel="apple-touch-icon" href="icon-192.svg?v=38.2">
+<link rel="manifest" href="manifest.webmanifest?v=38.3">
+<link rel="icon" type="image/svg+xml" href="icon-192.svg?v=38.3">
+<link rel="apple-touch-icon" href="icon-192.svg?v=38.3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tokens.css?v=38.2">
+<link rel="stylesheet" href="tokens.css?v=38.3">
 <style>
 .red-layout{display:grid;grid-template-columns:320px 1fr;gap:var(--sp4);min-height:calc(100vh - 200px)}
 
@@ -618,8 +618,22 @@ setInterval(tick,1000);tick();
 // ═══════════════════════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=38.2')
-      .then(reg => console.log('SW registrado:', reg.scope))
+    navigator.serviceWorker.register('./sw.js?v=38.3')
+      .then(reg => {
+        console.log('SW registrado:', reg.scope);
+        // Força update se houver versão nova
+        reg.update();
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (nw) nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              nw.postMessage('skipWaiting');
+              // notifica usuário sutilmente
+              console.log('Nova versão do app instalada · recarregue para usar.');
+            }
+          });
+        });
+      })
       .catch(err => console.warn('SW falhou:', err));
   });
 }
